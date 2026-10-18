@@ -26,7 +26,7 @@ get_template_part( 'template-parts/page-hero', null, array(
 		<div class="tool-rows">
 			<?php foreach ( $p['tools'] as $k => $t ) : ?>
 				<article class="tool-row reveal">
-					<div class="tool__logo" style="--c:<?php echo esc_attr( $meta[ $k ][1] ); ?>"><?php echo esc_html( $meta[ $k ][0] ); ?></div>
+					<div class="tool__logo<?php echo esc_attr( vs_tool_mark_class( $k ) ); ?>" style="--c:<?php echo esc_attr( $meta[ $k ][1] ); ?>"><?php echo vs_tool_mark( $k ); // phpcs:ignore ?></div>
 					<div class="tool-row__body">
 						<h3><?php echo esc_html( $t['name'] ); ?> <span class="tool__tag"><?php echo esc_html( $meta[ $k ][2] ); ?></span></h3>
 						<p><?php echo esc_html( $t['desc'] ); ?></p>

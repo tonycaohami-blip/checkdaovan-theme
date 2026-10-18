@@ -350,9 +350,10 @@ add_shortcode( 'vs_bang_gia', function ( $a ) {
 			continue;
 		}
 		$rows .= sprintf(
-			'<tr><td><span class="pt-tool"><i style="--c:%s">%s</i>%s</span></td><td>%s</td><td>%s</td><td>%s</td><td><a href="%s">Đặt</a></td></tr>',
+			'<tr><td><span class="pt-tool"><i class="%s" style="--c:%s">%s</i>%s</span></td><td>%s</td><td>%s</td><td>%s</td><td><a href="%s">Đặt</a></td></tr>',
+			esc_attr( trim( vs_tool_mark_class( $k ) ) ),
 			esc_attr( $meta[ $k ][1] ),
-			esc_html( $meta[ $k ][0] ),
+			vs_tool_mark( $k ),
 			esc_html( $t['name'] ),
 			esc_html( vs_price_label( $t['plag'] ) ),
 			esc_html( vs_price_label( $t['ai'] ) ),

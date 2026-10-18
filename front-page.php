@@ -39,7 +39,7 @@ $done      = vs_completed_count();
 			<label class="quote__label">Phần mềm</label>
 			<div class="quote__tools">
 				<?php foreach ( $tools as $k => $t ) : ?>
-					<label><input type="radio" name="q_tool" value="<?php echo esc_attr( $k ); ?>" <?php checked( 'turnitin', $k ); ?>><span><i style="--c:<?php echo esc_attr( $meta[ $k ][1] ); ?>"><?php echo esc_html( $meta[ $k ][0] ); ?></i><?php echo esc_html( $t['name'] ); ?></span></label>
+					<label><input type="radio" name="q_tool" value="<?php echo esc_attr( $k ); ?>" <?php checked( 'turnitin', $k ); ?>><span><i class="<?php echo esc_attr( trim( vs_tool_mark_class( $k ) ) ); ?>" style="--c:<?php echo esc_attr( $meta[ $k ][1] ); ?>"><?php echo vs_tool_mark( $k ); // phpcs:ignore ?></i><?php echo esc_html( $t['name'] ); ?></span></label>
 				<?php endforeach; ?>
 			</div>
 			<label class="quote__label">Hình thức</label>
@@ -59,7 +59,7 @@ $done      = vs_completed_count();
 			<span class="logos__label">Kiểm tra trên <?php echo count( $tools ); ?> phần mềm hàng đầu</span>
 			<div class="logos__list">
 				<?php foreach ( $tools as $k => $t ) : ?>
-					<span class="logos__item"><i style="--c:<?php echo esc_attr( $meta[ $k ][1] ); ?>"><?php echo esc_html( $meta[ $k ][0] ); ?></i><?php echo esc_html( $t['name'] ); ?></span>
+					<span class="logos__item"><i class="<?php echo esc_attr( trim( vs_tool_mark_class( $k ) ) ); ?>" style="--c:<?php echo esc_attr( $meta[ $k ][1] ); ?>"><?php echo vs_tool_mark( $k ); // phpcs:ignore ?></i><?php echo esc_html( $t['name'] ); ?></span>
 				<?php endforeach; ?>
 			</div>
 		</div>

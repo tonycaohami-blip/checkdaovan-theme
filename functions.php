@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'VS_VERSION', '6.5.1' );
+define( 'VS_VERSION', '6.6.0' );
 define( 'VS_BRAND', 'Check Đạo Văn' );       // Tên thương hiệu mặc định (đổi trong Cài đặt > Chung > Tên website).
 define( 'VS_DOMAIN', 'checkdaovan247.com' );          // Tên miền chính thức.
 define( 'VS_EMAIL', 'hotro@checkdaovan247.com' );     // Email hỗ trợ mặc định.
@@ -141,6 +141,27 @@ function vs_tool_meta() {
 		'quillbot'    => array( 'Q', '#65a30d', 'Đạo văn + AI' ),
 		'undetectable' => array( 'UA', '#334155', 'AI tổng hợp' ),
 	);
+}
+
+/** Logo thật của phần mềm (assets/img/tools/{key}.png) hoặc rỗng nếu chưa có. */
+function vs_tool_logo_url( $k ) {
+	return is_file( VS_DIR . '/assets/img/tools/' . $k . '.png' ) ? VS_URI . '/assets/img/tools/' . $k . '.png?v=' . VS_VERSION : '';
+}
+
+/** Nội dung ô biểu tượng phần mềm: ảnh logo nếu có, ngược lại là chữ viết tắt. */
+function vs_tool_mark( $k ) {
+	$meta = vs_tool_meta();
+	$name = isset( vs_pricing()['tools'][ $k ] ) ? vs_pricing()['tools'][ $k ]['name'] : $k;
+	$url  = vs_tool_logo_url( $k );
+	if ( $url ) {
+		return '<img src="' . esc_url( $url ) . '" alt="' . esc_attr( 'Logo ' . $name ) . '" width="40" height="40" loading="lazy" decoding="async">';
+	}
+	return esc_html( isset( $meta[ $k ] ) ? $meta[ $k ][0] : mb_substr( $name, 0, 1 ) );
+}
+
+/** Lớp CSS bổ sung khi ô biểu tượng là ảnh logo. */
+function vs_tool_mark_class( $k ) {
+	return vs_tool_logo_url( $k ) ? ' has-logo' : '';
 }
 
 /** Bộ icon nét dùng chung. */

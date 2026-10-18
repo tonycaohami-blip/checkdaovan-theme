@@ -31,7 +31,7 @@ $min_check = vs_min_check_price();
 					<label class="pick">
 						<input type="radio" name="tools[]" value="<?php echo esc_attr( $k ); ?>" <?php checked( 'turnitin', $k ); ?>>
 						<span class="pick__box">
-							<span class="tool__logo tool__logo--sm" style="--c:<?php echo esc_attr( $tool_meta[ $k ][1] ); ?>"><?php echo esc_html( $tool_meta[ $k ][0] ); ?></span>
+							<span class="tool__logo tool__logo--sm<?php echo esc_attr( vs_tool_mark_class( $k ) ); ?>" style="--c:<?php echo esc_attr( $tool_meta[ $k ][1] ); ?>"><?php echo vs_tool_mark( $k ); // phpcs:ignore -- đã escape. ?></span>
 							<span class="pick__name"><?php echo esc_html( $t['name'] ); ?></span>
 							<span class="pick__sub"><?php echo esc_html( $tool_meta[ $k ][2] ); ?></span>
 							<span class="pick__check" aria-hidden="true"></span>

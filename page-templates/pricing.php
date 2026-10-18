@@ -25,7 +25,7 @@ get_template_part( 'template-parts/page-hero', null, array(
 				<article class="plan reveal<?php echo 'turnitin' === $k ? ' plan--hot' : ''; ?>">
 					<?php if ( 'turnitin' === $k ) : ?><span class="badge">Phổ biến nhất</span><?php endif; ?>
 					<div class="plan__head">
-						<div class="tool__logo tool__logo--sm" style="--c:<?php echo esc_attr( $meta[ $k ][1] ); ?>"><?php echo esc_html( $meta[ $k ][0] ); ?></div>
+						<div class="tool__logo tool__logo--sm<?php echo esc_attr( vs_tool_mark_class( $k ) ); ?>" style="--c:<?php echo esc_attr( $meta[ $k ][1] ); ?>"><?php echo vs_tool_mark( $k ); // phpcs:ignore ?></div>
 						<div><h3><?php echo esc_html( $t['name'] ); ?></h3><small><?php echo esc_html( $meta[ $k ][2] ); ?></small></div>
 					</div>
 					<?php
