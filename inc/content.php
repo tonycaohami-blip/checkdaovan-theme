@@ -58,7 +58,7 @@ add_action( 'admin_init', function () {
 } );
 /* Có bài mẫu / nội dung mới sau khi theme tự cập nhật: nhập ở nền (WP-Cron), không cần mở trang quản trị. */
 add_action( 'init', function () {
-	if ( (int) get_option( 'vs_content_imported' ) < 15 && ! wp_next_scheduled( 'vs_run_import' ) ) {
+	if ( (int) get_option( 'vs_content_imported' ) < 16 && ! wp_next_scheduled( 'vs_run_import' ) ) {
 		wp_schedule_single_event( time() + 5, 'vs_run_import' );
 	}
 } );
@@ -70,7 +70,11 @@ add_action( 'vs_run_import', function () {
 } );
 
 function vs_maybe_import() {
-	if ( (int) get_option( 'vs_content_imported' ) < 15 ) {
+	// Đang tự cập nhật theme (file mới chép chưa xong): để lần sau, tránh nhập nội dung cũ.
+	if ( get_transient( 'vs_su_lock' ) ) {
+		return;
+	}
+	if ( (int) get_option( 'vs_content_imported' ) < 16 ) {
 		$old_mail = vs_opt( 'email', get_option( 'admin_email' ) );
 		vs_contact_migrate( $old_mail );
 		vs_import_content();
@@ -80,7 +84,7 @@ function vs_maybe_import() {
 			vs_brand_migrate( $old_mail, VS_EMAIL );
 		}
 		vs_brand_migrate( 'CheckĐạoVăn', VS_BRAND );
-		update_option( 'vs_content_imported', 15 );
+		update_option( 'vs_content_imported', 16 );
 	}
 }
 
