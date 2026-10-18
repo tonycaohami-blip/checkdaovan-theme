@@ -95,7 +95,7 @@ $done      = vs_completed_count();
 			$svcs = array(
 				array( 'target', 'Kiểm tra đạo văn', 'Báo cáo Similarity gốc từ Turnitin, iThenticate, Copyleaks.', vs_page_url( 'kiem-tra-dao-van' ), 'Từ ' . vs_money( vs_min_price( 'plag' ) ) ),
 				array( 'chart', 'Kiểm tra tỷ lệ AI', 'Phát hiện văn bản do ChatGPT, Gemini, Claude… tạo ra.', vs_page_url( 'kiem-tra-dao-van' ), 'Từ ' . vs_money( vs_min_price( 'ai' ) ) ),
-				array( 'pen', 'Giảm tỷ lệ đạo văn', 'Chỉnh sửa thủ công, cam kết dưới 30% hoặc dưới 20%.', vs_page_url( 'giam-ty-le-dao-van' ), 'Từ ' . vs_money( $reduce['t30'] ) . '/trang' ),
+				array( 'pen', 'Giảm tỷ lệ đạo văn', 'Giảm đạo văn và/hoặc tỷ lệ AI xuống đúng mức bạn chọn, cam kết kết quả.', vs_page_url( 'giam-ty-le-dao-van' ), 'Từ ' . vs_money( $reduce['t30'] ) . '/trang' ),
 				array( 'shield', 'Giảm tỷ lệ AI', 'Viết lại theo giọng văn tự nhiên, đưa tỷ lệ AI dưới 20%.', vs_page_url( 'giam-ty-le-dao-van' ), 'Tùy chọn kèm đơn giảm tỷ lệ' ),
 			);
 			foreach ( $svcs as $i => $s ) :

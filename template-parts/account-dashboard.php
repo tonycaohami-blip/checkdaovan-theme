@@ -104,6 +104,7 @@ $render_order = function ( $o, $open = false ) {
 										<?php endforeach; ?>
 									</div>
 								<?php endforeach; ?>
+								<?php echo $o['upsell']; // phpcs:ignore -- HTML dựng sẵn, đã escape. ?>
 							</div>
 						</div>
 					<?php endif; ?>
@@ -115,7 +116,7 @@ $render_order = function ( $o, $open = false ) {
 								<?php foreach ( $o['files'] as $f ) : ?>
 									<a class="fcard" href="<?php echo esc_url( $f['url'] ); ?>" target="_blank" rel="noopener" download>
 										<span class="fcard__icon">PDF</span>
-										<span class="fcard__name" title="<?php echo esc_attr( $f['name'] ); ?>"><?php echo esc_html( $f['name'] ); ?></span>
+										<span class="fcard__name" title="<?php echo esc_attr( $f['name'] ); ?>"><?php echo esc_html( isset( $f['short'] ) ? $f['short'] : $f['name'] ); ?></span>
 										<span class="fcard__btn"><?php echo vs_icon( 'arrow', 16 ); // phpcs:ignore ?> Tải xuống</span>
 									</a>
 								<?php endforeach; ?>
@@ -131,16 +132,6 @@ $render_order = function ( $o, $open = false ) {
 						<div class="oc__note"><?php echo vs_icon( 'chat', 18 ); // phpcs:ignore ?><span>Đơn đã hủy. Liên hệ Zalo <?php echo esc_html( vs_opt( 'zalo' ) ); ?> nếu bạn cần hỗ trợ.</span></div>
 					<?php endif; ?>
 
-					<?php if ( $o['reduce'] ) : $cur = $o['reduce']['current']; ?>
-						<div class="upsell">
-							<div><b>Tỷ lệ đạo văn đang là <?php echo esc_html( vs_pct( $cur ) ); ?></b><span>Đặt giảm ngay từ đơn này - không cần gửi lại file, giảm thêm <?php echo (int) $o['reduce']['discount']; ?>%.</span></div>
-							<div class="upsell__btns">
-								<?php foreach ( $cur > 30 ? array( 30, 20 ) : array( 20 ) as $t ) : ?>
-									<a class="btn btn--sm <?php echo 20 === $t ? 'btn--accent' : 'btn--primary'; ?>" href="<?php echo esc_url( vs_page_url( 'dat-hang', array( 'tab' => 'reduce', 'linked' => $o['code'], 'current' => $cur, 'pages' => $o['reduce']['pages'], 'target' => $t ) ) ); ?>">Giảm dưới <?php echo (int) $t; ?>%</a>
-								<?php endforeach; ?>
-							</div>
-						</div>
-					<?php endif; ?>
 				</div>
 
 				<aside class="oc__right">

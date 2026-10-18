@@ -63,15 +63,17 @@ get_template_part( 'template-parts/page-hero', null, array(
 <section class="section section--tint">
 	<div class="container">
 		<div class="price-head reveal">
-			<h2>Giảm tỷ lệ đạo văn</h2>
-			<p>Tính theo số trang cần chỉnh sửa. Cam kết đạt mục tiêu trên Turnitin, không đạt hoàn tiền 100%.</p>
+			<h2>Giảm tỷ lệ đạo văn &amp; AI</h2>
+			<p>Bạn tự chọn mục tiêu (thấp hơn tỷ lệ hiện tại). Tính theo số trang cần chỉnh sửa. Cam kết đạt mục tiêu, không đạt hoàn tiền 100%.</p>
 		</div>
 		<div class="pricing">
 			<div class="price-card reveal">
-				<div class="targets">
-					<div class="target"><span>Mục tiêu dưới</span><b>30%</b><div class="target__price"><?php echo esc_html( vs_money( $r['t30'] ) ); ?><small>/trang</small></div></div>
-					<div class="target target--hot"><span>Mục tiêu dưới</span><b>20%</b><div class="target__price"><?php echo esc_html( vs_money( $r['t20'] ) ); ?><small>/trang</small></div></div>
+				<div class="targets targets--3">
+					<div class="target"><span>Đạo văn dưới</span><b>30%</b><div class="target__price"><?php echo esc_html( vs_money( $r['t30'] ) ); ?><small>/trang</small></div></div>
+					<div class="target target--hot"><span>Đạo văn dưới</span><b>20%</b><div class="target__price"><?php echo esc_html( vs_money( $r['t20'] ) ); ?><small>/trang</small></div></div>
+					<div class="target"><span>Tỷ lệ AI dưới</span><b>20%</b><div class="target__price"><?php echo esc_html( vs_money( $r['ai_unit'] ) ); ?><small>/trang</small></div></div>
 				</div>
+				<p class="muted" style="font-size:13.5px;margin:10px 0 0">Mục tiêu tự chọn: từ 20-30% tính theo tỷ lệ giữa hai mức; thấp hơn 20% cộng thêm <?php echo (int) $r['step_pct']; ?>% đơn giá cho mỗi 1%.</p>
 				<h4 class="mini-title">Hệ số theo tỷ lệ hiện tại</h4>
 				<div class="tiers">
 					<?php
@@ -91,14 +93,15 @@ get_template_part( 'template-parts/page-hero', null, array(
 					<?php foreach ( $r['deadlines'] as $d ) : ?>
 						<tr><td><?php echo esc_html( $d['label'] ); ?></td><td><?php echo $d['mult'] > 1 ? '+' . (int) round( ( $d['mult'] - 1 ) * 100 ) . '%' : 'Giá gốc'; ?></td></tr>
 					<?php endforeach; ?>
-						<tr><td>Kèm giảm tỷ lệ AI dưới 20%</td><td>+<?php echo (int) $r['ai_pct']; ?>%</td></tr>
+						<tr><td>Giảm cả đạo văn + AI</td><td class="lvl-ok">Phần AI -<?php echo (int) ( 100 - $r['both_pct'] ); ?>%</td></tr>
 						<tr><td>Đặt từ đơn kiểm tra đã hoàn thành</td><td class="lvl-ok">-<?php echo (int) $r['linked_pct']; ?>%</td></tr>
 						<tr><td>Đơn tối thiểu</td><td><?php echo esc_html( vs_money( $r['min'] ) ); ?></td></tr>
 					</tbody>
 				</table>
 				<div class="example-calc">
-					<span>Ví dụ: 60 trang, đang 45%, mục tiêu dưới 20%, tiêu chuẩn</span>
-					<b>60 × <?php echo esc_html( vs_money( $r['t20'] * 1.25 ) ); ?> = <?php echo esc_html( vs_money( vs_round_k( 60 * $r['t20'] * 1.25 ) ) ); ?></b>
+					<?php $ex = vs_calc_reduce( array( 'goal' => 'plag', 'current' => 45, 'target' => 20, 'pages' => 60, 'deadline' => 'standard' ) ); ?>
+					<span>Ví dụ: 60 trang, đạo văn 45% → dưới 20%, tiêu chuẩn</span>
+					<b>60 × <?php echo esc_html( vs_money( vs_reduce_unit_plag( 20 ) * vs_reduce_tier( 45 ) ) ); ?> = <?php echo esc_html( vs_money( $ex['total'] ) ); ?></b>
 				</div>
 				<a class="btn btn--accent btn--block" href="<?php echo esc_url( vs_page_url( 'dat-hang', array( 'tab' => 'reduce' ) ) ); ?>">Tính giá cho bài của bạn</a>
 			</div>

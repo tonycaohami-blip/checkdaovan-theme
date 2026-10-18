@@ -17,7 +17,7 @@ $min_check = vs_min_check_price();
 	</button>
 	<button class="tabs__btn" role="tab" aria-selected="false" data-tab="reduce">
 		<span class="tabs__icon"><?php echo vs_icon( 'pen' ); // phpcs:ignore ?></span>
-		<span><b>Giảm tỷ lệ đạo văn + AI</b><small>Dưới 30% / 20% · kèm giảm AI</small></span>
+		<span><b>Giảm tỷ lệ đạo văn + AI</b><small>Đạo văn / AI · tự chọn mục tiêu</small></span>
 	</button>
 </div>
 
@@ -53,6 +53,7 @@ $min_check = vs_min_check_price();
 		<fieldset class="field">
 			<legend><span class="num">3</span> Tải tài liệu</legend>
 			<?php get_template_part( 'template-parts/order', 'file' ); ?>
+			<?php get_template_part( 'template-parts/order', 'rules' ); ?>
 		</fieldset>
 
 		<div class="row">
@@ -84,24 +85,38 @@ $min_check = vs_min_check_price();
 		</div>
 
 		<fieldset class="field">
-			<legend><span class="num">1</span> Mục tiêu tỷ lệ đạo văn</legend>
-			<div class="goal-grid">
-				<label class="goal">
-					<input type="radio" name="target" value="30" checked>
-					<span class="goal__box"><small>Giảm xuống</small><b>&lt; 30%</b><em>từ <?php echo esc_html( vs_money( $reduce['t30'] ) ); ?>/trang</em><span>Đạt yêu cầu phần lớn khóa luận đại học</span></span>
-				</label>
-				<label class="goal">
-					<input type="radio" name="target" value="20">
-					<span class="goal__box"><small>Giảm xuống</small><b>&lt; 20%</b><em>từ <?php echo esc_html( vs_money( $reduce['t20'] ) ); ?>/trang</em><span>Luận văn thạc sĩ, luận án, bài báo</span></span>
-				</label>
+			<legend><span class="num">1</span> Bạn muốn giảm</legend>
+			<div class="goal-tabs">
+				<label><input type="radio" name="goal" value="plag" checked><span><b>Tỷ lệ đạo văn</b><small>Viết lại, bổ sung trích dẫn</small></span></label>
+				<label><input type="radio" name="goal" value="ai"><span><b>Tỷ lệ AI</b><small>Viết lại tự nhiên, cụ thể</small></span></label>
+				<label><input type="radio" name="goal" value="both"><span><b>Đạo văn + AI</b><small>Tiết kiệm <?php echo (int) ( 100 - $reduce['both_pct'] ); ?>% phần AI</small></span></label>
 			</div>
 		</fieldset>
 
+		<fieldset class="field">
+			<legend><span class="num">2</span> Tỷ lệ hiện tại &amp; mục tiêu mong muốn</legend>
+			<div class="goal-cards">
+				<div class="goal-card" data-goal-box="plag">
+					<div class="goal-card__head"><b>Đạo văn</b><span class="goal-card__arrow" data-goal-arrow="plag"></span></div>
+					<div class="goal-card__row">
+						<label><span>Hiện tại</span><span class="pct-in"><input type="number" name="current" min="1" max="100" step="0.1" value="45" inputmode="decimal" required><i>%</i></span></label>
+						<label><span>Mục tiêu (nhỏ hơn hiện tại)</span><span class="pct-in pct-in--target"><input type="number" name="target" min="0" max="99" step="1" value="20" inputmode="numeric" required><i>%</i></span></label>
+					</div>
+					<div class="chips" data-chips="target"><span>Chọn nhanh:</span><button type="button" data-v="30">30%</button><button type="button" data-v="20">20%</button><button type="button" data-v="15">15%</button><button type="button" data-v="10">10%</button></div>
+				</div>
+				<div class="goal-card" data-goal-box="ai" hidden>
+					<div class="goal-card__head"><b>Tỷ lệ AI</b><span class="goal-card__arrow" data-goal-arrow="ai"></span></div>
+					<div class="goal-card__row">
+						<label><span>Hiện tại</span><span class="pct-in"><input type="number" name="current_ai" min="1" max="100" step="0.1" value="50" inputmode="decimal"><i>%</i></span></label>
+						<label><span>Mục tiêu (nhỏ hơn hiện tại)</span><span class="pct-in pct-in--target"><input type="number" name="target_ai" min="0" max="99" step="1" value="20" inputmode="numeric"><i>%</i></span></label>
+					</div>
+					<div class="chips" data-chips="target_ai"><span>Chọn nhanh:</span><button type="button" data-v="20">20%</button><button type="button" data-v="15">15%</button><button type="button" data-v="10">10%</button><button type="button" data-v="5">5%</button></div>
+				</div>
+			</div>
+			<small class="hint">Mục tiêu càng thấp, khối lượng chỉnh sửa càng lớn. Giá được tính lại ngay khi bạn thay đổi.</small>
+		</fieldset>
+
 		<div class="row">
-			<label class="field">
-				<span class="label">Tỷ lệ đạo văn hiện tại (%)</span>
-				<input type="number" name="current" min="1" max="100" step="0.1" value="45" required>
-			</label>
 			<label class="field">
 				<span class="label">Số trang cần chỉnh sửa</span>
 				<input type="number" name="pages" min="1" max="<?php echo (int) $reduce['max_pages']; ?>" value="50" required>
@@ -110,7 +125,7 @@ $min_check = vs_min_check_price();
 		</div>
 
 		<fieldset class="field">
-			<legend><span class="num">2</span> Thời hạn hoàn thành</legend>
+			<legend><span class="num">3</span> Thời hạn hoàn thành</legend>
 			<div class="seg seg--3">
 				<?php foreach ( $reduce['deadlines'] as $k => $d ) : ?>
 					<label><input type="radio" name="deadline" value="<?php echo esc_attr( $k ); ?>" <?php checked( 'standard', $k ); ?>><span><?php echo esc_html( $d['label'] ); ?><?php echo $d['mult'] > 1 ? ' <small>+' . (int) round( ( $d['mult'] - 1 ) * 100 ) . '%</small>' : ''; ?></span></label>
@@ -118,37 +133,32 @@ $min_check = vs_min_check_price();
 			</div>
 		</fieldset>
 
-		<label class="field switch">
-			<input type="checkbox" name="with_ai" value="1">
-			<span class="switch__ui" aria-hidden="true"></span>
-			<span><b>Giảm cả tỷ lệ AI</b> xuống dưới 20%<br><small>+<?php echo (int) $reduce['ai_pct']; ?>% phí</small></span>
-		</label>
-
 		<fieldset class="field" data-file-field>
-			<legend><span class="num">3</span> Tải tài liệu <small>(bắt buộc đủ 2 file)</small></legend>
+			<legend><span class="num">4</span> Tải tài liệu <small>(bắt buộc đủ 2 file)</small></legend>
 			<div class="need-report">
 				<span class="need-report__icon"><?php echo vs_icon( 'file', 20 ); // phpcs:ignore ?></span>
-				<div><b>Chưa có báo cáo PDF thể hiện phần đạo văn / AI?</b><span>Bạn cần kiểm tra trước để biên tập viên biết chính xác đoạn nào cần sửa. Khi đơn kiểm tra hoàn thành, bấm “Giảm dưới 30% / 20%” trong đơn để chuyển sang đây, không cần tải lại file và được giảm thêm <?php echo (int) $reduce['linked_pct']; ?>%.</span></div>
+				<div><b>Chưa có báo cáo PDF thể hiện phần đạo văn / AI?</b><span>Bạn cần kiểm tra trước để biên tập viên biết chính xác đoạn nào cần sửa. Khi có kết quả, bấm nút “Giảm tỷ lệ” ngay cạnh kết quả để chuyển sang đây, không cần tải lại file và được giảm thêm <?php echo (int) $reduce['linked_pct']; ?>%.</span></div>
 				<button type="button" class="btn btn--primary btn--sm" data-goto-tab="check">Kiểm tra trước</button>
 			</div>
 			<div class="drop-pair">
 				<?php
 				get_template_part( 'template-parts/order', 'file', array(
 					'name'   => 'file',
-					'accept' => '.doc,.docx',
+					'accept' => '.docx',
 					'title'  => '1. File Word bản gốc',
-					'sub'    => '.doc, .docx · bản đầy đủ bạn sẽ nộp',
+					'sub'    => '.docx · tối thiểu 300 từ, tối đa 30.000 từ',
 					'icon'   => 'word',
 				) );
 				get_template_part( 'template-parts/order', 'file', array(
 					'name'   => 'report',
 					'accept' => '.pdf',
 					'title'  => '2. Báo cáo PDF đạo văn / AI',
-					'sub'    => 'Báo cáo Turnitin, iThenticate… có tô màu các đoạn trùng hoặc AI',
+					'sub'    => '.pdf · báo cáo có tô màu các đoạn trùng hoặc AI · dưới ' . vs_max_upload_mb() . ' MB',
 					'icon'   => 'pdf',
 				) );
 				?>
 			</div>
+			<?php get_template_part( 'template-parts/order', 'rules', array( 'reduce' => true ) ); ?>
 		</fieldset>
 
 		<label class="field" data-linked-input>

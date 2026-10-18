@@ -7,12 +7,12 @@ $r     = vs_pricing()['reduce'];
 $order = vs_page_url( 'dat-hang', array( 'tab' => 'reduce' ) );
 
 get_template_part( 'template-parts/page-hero', null, array(
-	'title'   => 'Giảm tỷ lệ đạo văn + AI<br><span class="hl">dưới 30% hoặc 20%</span>',
+	'title'   => 'Giảm tỷ lệ đạo văn + AI<br><span class="hl">đúng mức bạn chọn</span>',
 	'eyebrow' => 'Dịch vụ · Cam kết kết quả',
 	'crumbs'  => array( 'Dịch vụ' => vs_page_url( 'bang-gia' ) ),
 	'lead'    => 'Biên tập viên theo chuyên ngành viết lại câu chữ, bổ sung trích dẫn đúng chuẩn, <strong>giữ nguyên ý và số liệu</strong>. Không đạt mục tiêu - hoàn tiền 100%.',
 	'actions' => '<a class="btn btn--accent btn--lg" href="' . esc_url( $order ) . '">Tính giá &amp; đặt hàng</a><a class="btn btn--glass btn--lg" href="' . esc_url( vs_page_url( 'ket-qua-thuc-te' ) ) . '">Xem kết quả</a>',
-	'aside'   => '<div class="goal-hero"><div class="goal-hero__card"><span>Mục tiêu dưới</span><b>30%</b><em>từ ' . esc_html( vs_money( $r['t30'] ) ) . '/trang</em></div><div class="goal-hero__card goal-hero__card--hot"><span>Mục tiêu dưới</span><b>20%</b><em>từ ' . esc_html( vs_money( $r['t20'] ) ) . '/trang</em></div></div>',
+	'aside'   => '<div class="goal-hero"><div class="goal-hero__card"><span>Mục tiêu dưới</span><b>30%</b><em>từ ' . esc_html( vs_money( $r['t30'] ) ) . '/trang</em></div><div class="goal-hero__card goal-hero__card--hot"><span>Mục tiêu dưới</span><b>20%</b><em>từ ' . esc_html( vs_money( $r['t20'] ) ) . '/trang</em></div><div class="goal-hero__card"><span>Tỷ lệ AI dưới</span><b>20%</b><em>từ ' . esc_html( vs_money( $r['ai_unit'] ) ) . '/trang</em></div></div>',
 ) );
 ?>
 
@@ -88,9 +88,9 @@ get_template_part( 'template-parts/page-hero', null, array(
 			<div><span>Dưới 20%</span><b><?php echo esc_html( vs_money( $r['t20'] ) ); ?></b><small>/trang</small></div>
 			<div><span>Nhanh 48 giờ</span><b>+<?php echo (int) round( ( $r['deadlines']['fast']['mult'] - 1 ) * 100 ); ?>%</b></div>
 			<div><span>Hỏa tốc 24 giờ</span><b>+<?php echo (int) round( ( $r['deadlines']['urgent']['mult'] - 1 ) * 100 ); ?>%</b></div>
-			<div><span>Kèm giảm AI</span><b>+<?php echo (int) $r['ai_pct']; ?>%</b></div>
+			<div><span>Giảm tỷ lệ AI</span><b><?php echo esc_html( vs_money( $r['ai_unit'] ) ); ?></b><small>/trang</small></div>
 		</div>
-		<p class="center-note center-note--light">Hệ số theo tỷ lệ hiện tại: ≤40% ×1 · 41-60% ×1,25 · 61-80% ×1,5 · trên 80% ×1,8 · Đơn tối thiểu <?php echo esc_html( vs_money( $r['min'] ) ); ?></p>
+		<p class="center-note center-note--light">Mục tiêu tự chọn (thấp hơn tỷ lệ hiện tại) · dưới 20%: +<?php echo (int) $r['step_pct']; ?>% cho mỗi 1% · giảm cả hai: phần AI -<?php echo (int) ( 100 - $r['both_pct'] ); ?>% · hệ số theo tỷ lệ hiện tại: ≤40% ×1 · 41-60% ×1,25 · 61-80% ×1,5 · trên 80% ×1,8 · Đơn tối thiểu <?php echo esc_html( vs_money( $r['min'] ) ); ?></p>
 		<div class="center-actions"><a class="btn btn--accent btn--lg" href="<?php echo esc_url( $order ); ?>">Tính giá cho bài của bạn</a></div>
 	</div>
 </section>

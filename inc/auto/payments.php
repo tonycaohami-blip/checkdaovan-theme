@@ -209,5 +209,5 @@ function vs_ajax_pay_status() {
 	$labels = vs_statuses();
 	$st     = vs_meta( $id, 'status' );
 	$view = vs_order_view( $id );
-	wp_send_json_success( array( 'status' => $st, 'label' => $labels[ $st ], 'auto' => vs_auto_view( $id ), 'results' => $view['results'], 'files' => $view['files'], 'waiting' => $view['waiting'] ) );
+	wp_send_json_success( array( 'status' => $st, 'label' => $labels[ $st ], 'auto' => vs_auto_view( $id ), 'results' => $view['results'], 'files' => $view['files'], 'waiting' => $view['waiting'], 'upsell' => $view['upsell'] ) );
 }

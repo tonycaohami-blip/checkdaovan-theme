@@ -175,13 +175,15 @@ function vs_render_settings() {
 				<?php endforeach; ?>
 			</table>
 
-			<h2>Giá giảm tỷ lệ đạo văn</h2>
+			<h2>Giá giảm tỷ lệ đạo văn &amp; AI</h2>
 			<table class="form-table">
 				<?php
 				$reduce_labels = array(
-					't30'        => 'Đơn giá / trang - mục tiêu dưới 30%',
-					't20'        => 'Đơn giá / trang - mục tiêu dưới 20%',
-					'ai_pct'     => 'Phụ phí giảm thêm tỷ lệ AI (%)',
+					't30'        => 'Đơn giá / trang - đạo văn mục tiêu 30%',
+					't20'        => 'Đơn giá / trang - đạo văn mục tiêu 20%',
+					'step_pct'   => 'Mục tiêu dưới 20%: cộng thêm (%) cho mỗi 1%',
+					'ai_unit'    => 'Đơn giá / trang - tỷ lệ AI mục tiêu 20%',
+					'both_pct'   => 'Giảm cả đạo văn + AI: tính phần AI (%)',
 					'linked_pct' => 'Giảm giá khi đặt từ đơn check (%)',
 					'min'        => 'Giá tối thiểu một đơn',
 				);

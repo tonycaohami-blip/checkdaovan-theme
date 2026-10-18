@@ -96,9 +96,12 @@ function vs_pricing_defaults() {
 			'disc3'          => 15,  // Giảm khi chọn từ 3 phần mềm.
 		),
 		'reduce' => array(
-			't30'        => 23500, // Đơn giá / trang để đạt dưới 30%.
-			't20'        => 35000, // Đơn giá / trang để đạt dưới 20%.
-			'tiers'      => array( // Hệ số theo tỷ lệ đạo văn hiện tại: [tối đa %, hệ số].
+			't30'        => 23500, // Đơn giá / trang, mục tiêu đạo văn 30% (từ 30% trở lên giữ mức này).
+			't20'        => 35000, // Đơn giá / trang, mục tiêu đạo văn 20% (từ 20-30% nội suy giữa 2 mức).
+			'step_pct'   => 4,      // Mục tiêu thấp hơn 20%: cộng thêm % đơn giá cho mỗi 1 điểm phần trăm.
+			'ai_unit'    => 25000,  // Đơn giá / trang để đưa tỷ lệ AI về 20%.
+			'both_pct'   => 50,     // Giảm cả đạo văn + AI: phần AI chỉ tính % này.
+			'tiers'      => array( // Hệ số theo tỷ lệ hiện tại (đạo văn hoặc AI): [tối đa %, hệ số].
 				array( 40, 1.0 ),
 				array( 60, 1.25 ),
 				array( 80, 1.5 ),
@@ -109,7 +112,6 @@ function vs_pricing_defaults() {
 				'fast'     => array( 'label' => 'Nhanh (48 giờ)', 'mult' => 1.3 ),
 				'urgent'   => array( 'label' => 'Hỏa tốc (24 giờ)', 'mult' => 1.6 ),
 			),
-			'ai_pct'     => 30,     // Thêm giảm tỷ lệ AI xuống dưới 20%.
 			'linked_pct' => 10,     // Giảm giá khi đặt từ đơn check đã hoàn thành.
 			'min'        => 292500, // Giá tối thiểu một đơn.
 			'max_pages'  => 500,
@@ -138,7 +140,7 @@ function vs_pricing() {
 				$p['check'][ $f ] = (int) $ovr['check'][ $f ];
 			}
 		}
-		foreach ( array( 't30', 't20', 'ai_pct', 'linked_pct', 'min' ) as $f ) {
+		foreach ( array( 't30', 't20', 'step_pct', 'ai_unit', 'both_pct', 'linked_pct', 'min' ) as $f ) {
 			if ( isset( $ovr['reduce'][ $f ] ) && '' !== $ovr['reduce'][ $f ] ) {
 				$p['reduce'][ $f ] = (int) $ovr['reduce'][ $f ];
 			}
@@ -220,46 +222,103 @@ function vs_calc_check( $tools, $mode, $pages, $express ) {
 	);
 }
 
-/**
- * Tính giá đơn giảm tỷ lệ đạo văn.
- *
- * @return array|WP_Error
- */
-function vs_calc_reduce( $target, $current, $pages, $deadline, $with_ai, $linked ) {
-	$r = vs_pricing()['reduce'];
-	if ( ! in_array( (int) $target, array( 20, 30 ), true ) ) {
-		return new WP_Error( 'target', 'Mức tỷ lệ mục tiêu không hợp lệ.' );
+/** Mục tiêu giảm của đơn: plag (đạo văn) | ai | both. Đơn cũ (trước v6.7) suy ra từ with_ai. */
+function vs_reduce_goal( $data ) {
+	if ( isset( $data['goal'] ) && in_array( $data['goal'], array( 'plag', 'ai', 'both' ), true ) ) {
+		return $data['goal'];
 	}
-	$target  = (int) $target;
-	$current = (float) $current;
-	if ( $current <= $target || $current > 100 ) {
-		return new WP_Error( 'current', 'Tỷ lệ hiện tại phải lớn hơn mức mục tiêu ' . $target . '% và không quá 100%.' );
-	}
-	if ( ! isset( $r['deadlines'][ $deadline ] ) ) {
-		return new WP_Error( 'deadline', 'Thời hạn không hợp lệ.' );
-	}
-	$pages = (int) $pages;
-	if ( $pages < 1 || $pages > $r['max_pages'] ) {
-		return new WP_Error( 'pages', 'Số trang phải từ 1 đến ' . $r['max_pages'] . '.' );
-	}
+	return ! empty( $data['with_ai'] ) ? 'both' : 'plag';
+}
+
+/** Hệ số theo tỷ lệ hiện tại. */
+function vs_reduce_tier( $current ) {
+	$r    = vs_pricing()['reduce'];
 	$mult = end( $r['tiers'] )[1];
 	foreach ( $r['tiers'] as $tier ) {
 		if ( $current <= $tier[0] ) {
-			$mult = $tier[1];
-			break;
+			return $tier[1];
 		}
 	}
-	$unit  = ( 20 === $target ? $r['t20'] : $r['t30'] ) * $mult;
-	$total = $pages * $unit * $r['deadlines'][ $deadline ]['mult'];
-	if ( $with_ai ) {
-		$total *= 1 + $r['ai_pct'] / 100;
+	return $mult;
+}
+
+/** Đơn giá / trang để đưa tỷ lệ đạo văn về mục tiêu $t (%). */
+function vs_reduce_unit_plag( $t ) {
+	$r = vs_pricing()['reduce'];
+	if ( $t >= 30 ) {
+		return $r['t30'];
 	}
-	if ( $linked ) {
+	if ( $t >= 20 ) {
+		return $r['t20'] + ( $r['t30'] - $r['t20'] ) * ( $t - 20 ) / 10;
+	}
+	return $r['t20'] * ( 1 + ( 20 - $t ) * $r['step_pct'] / 100 );
+}
+
+/** Đơn giá / trang để đưa tỷ lệ AI về mục tiêu $t (%). */
+function vs_reduce_unit_ai( $t ) {
+	$r = vs_pricing()['reduce'];
+	$f = $t >= 20 ? max( 0.7, 1 - ( $t - 20 ) * 0.02 ) : 1 + ( 20 - $t ) * $r['step_pct'] / 100;
+	return $r['ai_unit'] * $f;
+}
+
+/**
+ * Tính giá đơn giảm tỷ lệ (đạo văn / AI / cả hai) với mục tiêu do khách nhập.
+ *
+ * @param array $a goal, current, target, current_ai, target_ai, pages, deadline, linked.
+ * @return array|WP_Error ['total', 'plag' => phần đạo văn, 'ai' => phần AI]
+ */
+function vs_calc_reduce( $a ) {
+	$r     = vs_pricing()['reduce'];
+	$goal  = vs_reduce_goal( $a );
+	$pages = (int) ( isset( $a['pages'] ) ? $a['pages'] : 0 );
+	if ( $pages < 1 || $pages > $r['max_pages'] ) {
+		return new WP_Error( 'pages', 'Số trang phải từ 1 đến ' . $r['max_pages'] . '.' );
+	}
+	$deadline = isset( $a['deadline'] ) ? $a['deadline'] : 'standard';
+	if ( ! isset( $r['deadlines'][ $deadline ] ) ) {
+		return new WP_Error( 'deadline', 'Thời hạn không hợp lệ.' );
+	}
+	$parts = array( 'plag' => 0, 'ai' => 0 );
+	foreach ( array( 'plag' => array( 'current', 'target', 'đạo văn' ), 'ai' => array( 'current_ai', 'target_ai', 'AI' ) ) as $k => $f ) {
+		if ( 'both' !== $goal && $goal !== $k ) {
+			continue;
+		}
+		$cur = isset( $a[ $f[0] ] ) ? (float) $a[ $f[0] ] : 0;
+		$tgt = isset( $a[ $f[1] ] ) && '' !== $a[ $f[1] ] ? (float) $a[ $f[1] ] : -1;
+		if ( $cur <= 0 || $cur > 100 ) {
+			return new WP_Error( 'current', 'Vui lòng nhập tỷ lệ ' . $f[2] . ' hiện tại (1-100%).' );
+		}
+		if ( $tgt < 0 || $tgt >= $cur ) {
+			return new WP_Error( 'target', 'Mục tiêu tỷ lệ ' . $f[2] . ' phải từ 0% và nhỏ hơn tỷ lệ hiện tại (' . $cur . '%).' );
+		}
+		$unit        = ( 'plag' === $k ? vs_reduce_unit_plag( $tgt ) : vs_reduce_unit_ai( $tgt ) ) * vs_reduce_tier( $cur );
+		$parts[ $k ] = $pages * $unit;
+	}
+	$total = $parts['plag'] + $parts['ai'] * ( 'both' === $goal ? $r['both_pct'] / 100 : 1 );
+	$total *= $r['deadlines'][ $deadline ]['mult'];
+	if ( ! empty( $a['linked'] ) ) {
 		$total *= 1 - $r['linked_pct'] / 100;
 	}
 	return array(
 		'total' => max( $r['min'], vs_round_k( $total ) ),
-		'unit'  => (int) round( $unit ),
-		'mult'  => $mult,
+		'goal'  => $goal,
+		'plag'  => (int) round( $parts['plag'] ),
+		'ai'    => (int) round( $parts['ai'] ),
 	);
+}
+
+/** Mô tả mục tiêu của đơn giảm tỷ lệ: "Đạo văn 45% → dưới 15% · AI 60% → dưới 20%". */
+function vs_reduce_goal_text( $data, $sep = ' · ' ) {
+	$goal = vs_reduce_goal( $data );
+	$fmt  = function ( $v ) {
+		return str_replace( '.', ',', (string) (float) $v ) . '%';
+	};
+	$out  = array();
+	if ( 'ai' !== $goal ) {
+		$out[] = 'Đạo văn ' . $fmt( $data['current'] ) . ' → dưới ' . $fmt( isset( $data['target'] ) ? $data['target'] : 30 );
+	}
+	if ( 'plag' !== $goal ) {
+		$out[] = 'AI ' . ( isset( $data['current_ai'] ) && $data['current_ai'] ? $fmt( $data['current_ai'] ) . ' ' : '' ) . '→ dưới ' . $fmt( isset( $data['target_ai'] ) ? $data['target_ai'] : 20 );
+	}
+	return implode( $sep, $out );
 }

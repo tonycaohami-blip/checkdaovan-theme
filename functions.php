@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'VS_VERSION', '6.6.0' );
+define( 'VS_VERSION', '6.7.0' );
 define( 'VS_BRAND', 'Check Đạo Văn' );       // Tên thương hiệu mặc định (đổi trong Cài đặt > Chung > Tên website).
 define( 'VS_DOMAIN', 'checkdaovan247.com' );          // Tên miền chính thức.
 define( 'VS_EMAIL', 'hotro@checkdaovan247.com' );     // Email hỗ trợ mặc định.
@@ -59,6 +59,8 @@ add_action( 'wp_enqueue_scripts', function () {
 		'nonce'   => wp_create_nonce( 'vs_order' ),
 		'pricing' => vs_pricing(),
 		'maxMB'   => vs_max_upload_mb(),
+		'minWords' => VS_MIN_WORDS,
+		'maxWords' => VS_MAX_WORDS,
 		'refPct'  => vs_ref_discount_active() ? (float) vs_opt( 'ref_discount' ) : 0,
 	) );
 } );
@@ -100,9 +102,14 @@ function vs_opt( $key, $default = null ) {
 	return isset( $d[ $key ] ) ? $d[ $key ] : '';
 }
 
+/** Dung lượng file tối đa (MB): 80 MB, hoặc thấp hơn nếu hosting giới hạn. */
 function vs_max_upload_mb() {
-	return (int) min( 20, floor( wp_max_upload_size() / 1048576 ) );
+	return (int) min( 80, floor( wp_max_upload_size() / 1048576 ) );
 }
+
+/** Giới hạn số từ của tài liệu gửi kiểm tra / chỉnh sửa. */
+const VS_MIN_WORDS = 300;
+const VS_MAX_WORDS = 30000;
 
 function vs_tel( $n ) {
 	return 'tel:' . preg_replace( '/[^\d+]/', '', $n );
@@ -202,7 +209,7 @@ function vs_fallback_menu() {
 	$items = array(
 		array( 'Dịch vụ', '#', array(
 			array( 'Kiểm tra đạo văn & AI', vs_page_url( 'kiem-tra-dao-van' ), 'Turnitin, DoIT, GPTZero và ' . ( count( vs_pricing()['tools'] ) - 3 ) . ' phần mềm khác', 'target' ),
-			array( 'Giảm tỷ lệ đạo văn + AI', vs_page_url( 'giam-ty-le-dao-van' ), 'Cam kết dưới 30% / 20%, kèm giảm AI', 'pen' ),
+			array( 'Giảm tỷ lệ đạo văn + AI', vs_page_url( 'giam-ty-le-dao-van' ), 'Đạo văn / AI · tự chọn mục tiêu', 'pen' ),
 			array( 'Tra cứu đơn hàng', vs_page_url( 'tra-cuu-don-hang' ), 'Xem kết quả, tải báo cáo', 'search' ),
 		) ),
 		array( 'Khám phá', '#', array(

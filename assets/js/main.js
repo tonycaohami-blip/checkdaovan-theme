@@ -251,23 +251,28 @@
 		}).join('');
 	}
 
-	function filesHtml(results, files, waiting) {
-		var h = '';
-		if (waiting && waiting.length) h += '<div class="rs rs--modal">' + waitHtml(waiting) + '</div>';
-		if (results && results.length) {
-			h += '<div class="results results--sm">' + results.map(function (r) {
-				var v = function (x) { return x == null ? '—' : String(x).replace('.', ',') + '%'; };
-				return '<div class="result"><h4>' + esc(r.tool) + '</h4>' +
-					(r.plag != null ? '<div class="result__row"><span>Đạo văn</span><b>' + v(r.plag) + '</b></div>' : '') +
-					(r.ai != null ? '<div class="result__row"><span>Tỷ lệ AI</span><b>' + v(r.ai) + '</b></div>' : '') + '</div>';
+	/** Thẻ kết quả (giống trang tài khoản) + thẻ gợi ý giảm tỷ lệ nằm cạnh. */
+	function rsCards(results, upsell, waiting) {
+		var v = function (x) { return x == null ? '—' : String(x).replace('.', ',') + '%'; };
+		var cls = function (x) { return x == null ? '' : (x < 20 ? 'lvl-ok' : (x < 30 ? 'lvl-mid' : 'lvl-bad')); };
+		var h = (waiting && waiting.length ? waitHtml(waiting) : '') + (results || []).map(function (r) {
+			return '<div class="rs__card"><span class="rs__tool">' + esc(r.tool) + '</span>' + [['plag', 'Đạo văn'], ['ai', 'Tỷ lệ AI']].map(function (k) {
+				var x = r[k[0]]; if (x == null) return '';
+				return '<div class="rs__row"><span>' + k[1] + '</span><b class="' + cls(x) + '">' + v(x) + '</b></div><div class="bar"><i class="bar__fill ' + (x < 20 ? 'bar__fill--ok' : 'bar__fill--bad') + '" style="width:' + Math.min(100, Math.max(2, x)) + '%"></i></div>';
 			}).join('') + '</div>';
-		}
-		if (files && files.length) {
-			h += '<ul class="files">' + files.map(function (f) {
-				return '<li><a href="' + esc(f.url) + '" target="_blank" rel="noopener" download>📄 Tải ' + esc(f.name) + '</a></li>';
-			}).join('') + '</ul>';
-		}
-		return h;
+		}).join('') + (upsell || '');
+		return h ? '<div class="rs rs--wide">' + h + '</div>' : '';
+	}
+	/** Báo cáo tải xuống: thẻ file, tên rút gọn, không tràn chữ. */
+	function fcardsHtml(files, partial) {
+		if (!files || !files.length) return '';
+		return '<div class="dl-head">📄 Báo cáo đã sẵn sàng' + (partial ? '<small>Phần còn lại đang xử lý</small>' : '') + '</div><div class="fcards">' + files.map(function (f) {
+			return '<a class="fcard" href="' + esc(f.url) + '" target="_blank" rel="noopener" download title="' + esc(f.name) + '"><span class="fcard__icon">PDF</span><span class="fcard__name">' + esc(f.short || f.name) + '</span><span class="fcard__btn">Tải xuống</span></a>';
+		}).join('') + '</div>';
+	}
+
+	function filesHtml(results, files, waiting) {
+		return rsCards(results, arguments[3], waiting) + fcardsHtml(files);
 	}
 
 	if (!hasVS) return;
@@ -354,20 +359,9 @@
 			return '<span class="' + (i <= idx ? 'is-done' : '') + '">' + (done ? s[2] : (i === idx ? s[1] : s[0])) + '</span>';
 		}).join('') + '</div>';
 		html += autoHtml(d.auto);
-		if (d.waiting && d.waiting.length) html += '<div class="rs rs--track">' + waitHtml(d.waiting) + '</div>';
-		if (d.results.length) {
-			html += '<div class="results">' + d.results.map(function (r) {
-				return '<div class="result"><h4>' + esc(r.tool) + '</h4>' +
-					'<div class="result__row"><span>Đạo văn</span><b class="' + lvl(r.plag) + '">' + pct(r.plag) + '</b></div>' +
-					'<div class="result__row"><span>Tỷ lệ AI</span><b class="' + lvl(r.ai) + '">' + pct(r.ai) + '</b></div></div>';
-			}).join('') + '</div>';
-		}
-		if (d.files.length) {
-			if (d.partial) html += '<div class="dl-head">📄 Báo cáo đã sẵn sàng - tải xuống ngay<small>Phần còn lại đang xử lý</small></div>';
-			html += '<ul class="files">' + d.files.map(function (f) {
-				return '<li><a href="' + esc(f.url) + '" target="_blank" rel="noopener" download>📄 Tải ' + esc(f.name) + '</a></li>';
-			}).join('') + '</ul>';
-		}
+		var rsHtml = rsCards(d.results, d.upsell, d.waiting);
+		if (rsHtml) html += '<h4 class="tr__h">Kết quả</h4>' + rsHtml;
+		html += fcardsHtml(d.files, d.partial);
 		if (d.pay) html += payHtml(d.pay, d.total, d.code);
 		if (d.reduce) {
 			var cur = d.reduce.current, base = trackForm.dataset.orderUrl;
@@ -451,6 +445,8 @@
 	function calcCheck(f) {
 		var tools = $$('input[name="tools[]"]:checked', f).map(function (i) { return i.value; });
 		syncModes(f, tools[0], 'mode');
+		var langNote = $('[data-ai-lang]', f), md = (f.querySelector('input[name=mode]:checked') || {}).value;
+		if (langNote) langNote.hidden = !(['turnitin', 'ithenticate'].indexOf(tools[0]) >= 0 && (md === 'ai' || md === 'combo'));
 		var mode = (f.querySelector('input[name=mode]:checked') || {}).value || 'combo';
 		var pages = Math.max(1, Math.min(2000, parseInt(f.pages.value, 10) || 1));
 		var express = f.express.checked;
@@ -477,36 +473,81 @@
 		return tiers[tiers.length - 1][1];
 	}
 
+	function num(v) { var n = parseFloat(String(v == null ? '' : v).replace(',', '.')); return isNaN(n) ? null : n; }
+	function unitPlag(t) {
+		var r = P.reduce;
+		if (t >= 30) return r.t30;
+		if (t >= 20) return r.t20 + (r.t30 - r.t20) * (t - 20) / 10;
+		return r.t20 * (1 + (20 - t) * r.step_pct / 100);
+	}
+	function unitAi(t) {
+		var r = P.reduce;
+		var k = t >= 20 ? Math.max(0.7, 1 - (t - 20) * 0.02) : 1 + (20 - t) * r.step_pct / 100;
+		return r.ai_unit * k;
+	}
+	var GOAL_NAMES = { plag: 'đạo văn', ai: 'AI' };
+
+	/** Hiện/ẩn thẻ đạo văn / AI theo lựa chọn và vẽ mũi tên "45% → 20%". */
+	function syncGoal(f) {
+		var goal = (f.querySelector('input[name=goal]:checked') || {}).value || 'plag';
+		$$('[data-goal-box]', f).forEach(function (box) {
+			var k = box.dataset.goalBox, on = goal === 'both' || goal === k;
+			box.hidden = !on;
+			$$('input', box).forEach(function (i) { i.required = on; });
+		});
+		[['plag', 'current', 'target'], ['ai', 'current_ai', 'target_ai']].forEach(function (x) {
+			var el = $('[data-goal-arrow="' + x[0] + '"]', f), c = num(f[x[1]].value), t = num(f[x[2]].value);
+			if (el) el.innerHTML = c != null && t != null ? '<s>' + c + '%</s> → <b>' + t + '%</b>' : '';
+			var tIn = f[x[2]]; if (tIn && c != null) tIn.max = Math.max(0, Math.ceil(c) - 1);
+			$$('[data-chips="' + x[2] + '"] button', f).forEach(function (bt) { bt.disabled = c != null && +bt.dataset.v >= c; bt.classList.toggle('is-on', +bt.dataset.v === t); });
+		});
+		return goal;
+	}
+
 	function calcReduce(f) {
 		var r = P.reduce;
-		var cur = parseFloat(String(f.current.value).replace(',', '.')) || 0;
+		var goal = syncGoal(f);
 		var pages = parseInt(f.pages.value, 10) || 0;
-		var target = parseInt((f.querySelector('input[name=target]:checked') || {}).value || 30, 10);
 		var dlKey = (f.querySelector('input[name=deadline]:checked') || {}).value || 'standard';
-		var withAi = f.with_ai.checked;
 		var linked = f.linked.value.trim() !== '';
-
-		var t30 = f.querySelector('input[name=target][value="30"]');
-		t30.disabled = cur > 0 && cur <= 30;
-		if (t30.disabled && t30.checked) { f.querySelector('input[name=target][value="20"]').checked = true; target = 20; }
-
-		if (cur <= 0 || cur > 100) return { error: 'Nhập tỷ lệ đạo văn hiện tại (1-100%).', lines: [], total: 0 };
-		if (cur <= target) return { error: 'Tỷ lệ hiện tại (' + cur + '%) đã dưới ' + target + '%, bạn không cần giảm thêm.', lines: [], total: 0 };
 		if (pages < 1 || pages > r.max_pages) return { error: 'Số trang phải từ 1 đến ' + r.max_pages + '.', lines: [], total: 0 };
 
-		var unit = (target === 20 ? r.t20 : r.t30) * tierMult(cur);
+		var lines = [], parts = { plag: 0, ai: 0 };
+		var spec = [['plag', 'current', 'target'], ['ai', 'current_ai', 'target_ai']];
+		for (var i = 0; i < spec.length; i++) {
+			var k = spec[i][0];
+			if (goal !== 'both' && goal !== k) continue;
+			var cur = num(f[spec[i][1]].value), tgt = num(f[spec[i][2]].value);
+			if (cur == null || cur <= 0 || cur > 100) return { error: 'Nhập tỷ lệ ' + GOAL_NAMES[k] + ' hiện tại (1-100%).', lines: [], total: 0 };
+			if (tgt == null || tgt < 0 || tgt >= cur) return { error: 'Mục tiêu ' + GOAL_NAMES[k] + ' phải nhỏ hơn tỷ lệ hiện tại (' + String(cur).replace('.', ',') + '%).', lines: [], total: 0 };
+			var unit = (k === 'plag' ? unitPlag(tgt) : unitAi(tgt)) * tierMult(cur);
+			parts[k] = pages * unit;
+			lines.push([(k === 'plag' ? 'Đạo văn ' : 'AI ') + String(cur).replace('.', ',') + '% → dưới ' + tgt + '%', money(unit) + '/trang']);
+		}
+		var total = parts.plag + parts.ai;
+		lines.push([pages + ' trang', money(total)]);
+		if (goal === 'both' && r.both_pct < 100) {
+			var save = parts.ai * (1 - r.both_pct / 100);
+			lines.push(['Ưu đãi giảm cả hai (phần AI -' + (100 - r.both_pct) + '%)', '-' + money(save), 'is-disc']);
+			total -= save;
+		}
 		var dl = r.deadlines[dlKey];
-		var lines = [['Mục tiêu dưới ' + target + '% (từ ' + cur + '%)', money(unit) + '/trang']];
-		var total = pages * unit;
-		lines.push([pages + ' trang × ' + money(unit), money(total)]);
 		if (dl.mult !== 1) lines.push([dl.label + ' (×' + String(dl.mult).replace('.', ',') + ')', '+' + money(total * (dl.mult - 1))]);
 		total *= dl.mult;
-		if (withAi) { lines.push(['Giảm tỷ lệ AI (+' + r.ai_pct + '%)', '+' + money(total * r.ai_pct / 100)]); total *= 1 + r.ai_pct / 100; }
 		if (linked) { lines.push(['Ưu đãi từ đơn kiểm tra (-' + r.linked_pct + '%)', '-' + money(total * r.linked_pct / 100), 'is-disc']); total *= 1 - r.linked_pct / 100; }
 		total = roundK(total);
 		if (total < r.min) { lines.push(['Áp dụng giá tối thiểu', money(r.min)]); total = r.min; }
 		return { total: total, lines: lines, floor: r.min };
 	}
+
+	// Chọn nhanh mục tiêu
+	document.addEventListener('click', function (e) {
+		var bt = e.target.closest('[data-chips] button');
+		if (!bt || bt.disabled) return;
+		var f = bt.closest('form'), name = bt.closest('[data-chips]').dataset.chips;
+		f[name].value = bt.dataset.v;
+		update(f);
+	});
 
 	function update(f) {
 		var res = f === formCheck ? calcCheck(f) : calcReduce(f);
@@ -589,6 +630,52 @@
 		return Promise.resolve(null);
 	}
 
+	/** Đếm số từ: .docx, .txt, .rtf đọc trực tiếp; .pdf dùng pdf.js (tải khi cần). Trả về null nếu không đọc được. */
+	function countWords(file) {
+		var e = (file.name.split('.').pop() || '').toLowerCase();
+		var words = function (t) { return (t.match(/[\p{L}\p{N}]+(?:['’-][\p{L}\p{N}]+)*/gu) || []).length; };
+		if (e === 'docx' && window.JSZip) {
+			return JSZip.loadAsync(file).then(function (zip) {
+				var doc = zip.file('word/document.xml');
+				return doc ? doc.async('string').then(function (x) { return words(x.replace(/<\/w:p>|<w:tab\/>|<w:br\/>/g, ' ').replace(/<[^>]+>/g, '').replace(/&[a-z]+;/g, ' ')); }) : null;
+			});
+		}
+		if (e === 'txt') return file.text().then(words);
+		if (e === 'rtf') return file.text().then(function (t) { return words(t.replace(/\{\\\*[^{}]*\}/g, ' ').replace(/\\[a-z]+-?\d* ?/gi, ' ').replace(/[{}]/g, ' ')); });
+		if (e === 'pdf') {
+			var load = window.pdfjsLib ? Promise.resolve() : new Promise(function (ok, no) {
+				var sc = document.createElement('script');
+				sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+				sc.onload = ok; sc.onerror = no; document.head.appendChild(sc);
+			});
+			return load.then(function () {
+				pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+				return file.arrayBuffer();
+			}).then(function (buf) { return pdfjsLib.getDocument({ data: buf }).promise; }).then(function (pdf) {
+				var n = Math.min(pdf.numPages, 400), jobs = [];
+				for (var i = 1; i <= n; i++) jobs.push(pdf.getPage(i).then(function (pg) { return pg.getTextContent(); }).then(function (tc) { return tc.items.map(function (it) { return it.str; }).join(' '); }));
+				return Promise.all(jobs).then(function (t) { return words(t.join(' ')); });
+			});
+		}
+		return Promise.resolve(null);
+	}
+
+	/** Hiển thị số từ dưới ô tải file, tô đỏ khi ngoài giới hạn. */
+	function showWords(f, drop, file) {
+		var box = $('[data-words]', drop);
+		if (!box) { box = document.createElement('span'); box.className = 'drop__words'; box.setAttribute('data-words', ''); drop.appendChild(box); }
+		f._words = null;
+		if (!file) { box.textContent = ''; return; }
+		box.className = 'drop__words'; box.textContent = 'Đang đếm số từ…';
+		countWords(file).then(function (n) {
+			if (n == null) { box.textContent = ''; return; }
+			f._words = n;
+			var bad = n < VS.minWords || n > VS.maxWords;
+			box.className = 'drop__words ' + (bad ? 'is-bad' : 'is-ok');
+			box.textContent = (bad ? '✗ ' : '✓ ') + n.toLocaleString('vi-VN') + ' từ' + (n < VS.minWords ? ' - cần tối thiểu ' + VS.minWords + ' từ' : (n > VS.maxWords ? ' - vượt quá ' + VS.maxWords.toLocaleString('vi-VN') + ' từ' : ''));
+		}).catch(function () { box.textContent = ''; });
+	}
+
 	function setupDrop(f) {
 		$$('[data-drop]', f).forEach(function (drop) { setupOneDrop(f, drop); });
 	}
@@ -600,6 +687,8 @@
 			drop.classList.toggle('has-file', !!file);
 			label.textContent = file ? file.name : '';
 			label.title = file ? file.name : '';
+			if (input.name === 'file') showWords(f, drop, file);
+			if (file && file.size > VS.maxMB * 1048576) toast('File phải nhỏ hơn ' + VS.maxMB + ' MB.');
 			if (!file || !hint || input.name !== 'file') return;
 			hint.textContent = 'Đang đọc số trang…';
 			hint.classList.remove('is-ok');
@@ -646,10 +735,13 @@
 		}
 		var mode = params.get('mode');
 		if (mode && modes[mode]) { var m = $('input[name=mode][value="' + mode + '"]', formCheck); if (m) m.checked = true; }
+		var goalP = params.get('goal');
+		if (goalP) { var gi = $('input[name=goal][value="' + goalP + '"]', formReduce); if (gi) gi.checked = true; }
 		if (params.get('current')) formReduce.current.value = params.get('current');
+		if (params.get('current_ai')) formReduce.current_ai.value = params.get('current_ai');
+		if (params.get('target_ai')) formReduce.target_ai.value = params.get('target_ai');
 		if (params.get('pages')) formReduce.pages.value = params.get('pages');
-		var tg = params.get('target');
-		if (tg) { var t = $('input[name=target][value="' + tg + '"]', formReduce); if (t) t.checked = true; }
+		if (params.get('target')) formReduce.target.value = params.get('target');
 		if (params.get('phone') && !formReduce.phone.value) formReduce.phone.value = params.get('phone');
 		update(formCheck);
 		update(formReduce);
@@ -668,11 +760,14 @@
 		var msg = '';
 		if (f === formReduce && !linked) {
 			if (!file || !rep) msg = 'Vui lòng tải đủ 2 file: Word bản gốc và báo cáo PDF đạo văn/AI. Chưa có báo cáo? Bấm "Kiểm tra trước".';
-			else if (['doc', 'docx'].indexOf(ext(file)) < 0) msg = 'File bản gốc phải là Word (.doc, .docx).';
+			else if (ext(file) !== 'docx') msg = 'File bản gốc phải là Word (.docx).';
 			else if (ext(rep) !== 'pdf') msg = 'Báo cáo đạo văn/AI phải là file PDF.';
 			else if (rep.size > VS.maxMB * 1048576) msg = 'File báo cáo vượt quá ' + VS.maxMB + 'MB.';
 		} else if (!file && !linked) msg = 'Vui lòng tải lên file tài liệu.';
-		if (!msg && file && file.size > VS.maxMB * 1048576) msg = 'File vượt quá ' + VS.maxMB + 'MB.';
+		else if (f === formCheck && file && ['docx', 'pdf', 'txt', 'rtf'].indexOf(ext(file)) < 0) msg = 'Chỉ nhận file .docx, .pdf, .txt, .rtf.';
+		if (!msg && file && file.size > VS.maxMB * 1048576) msg = 'File phải nhỏ hơn ' + VS.maxMB + ' MB.';
+		else if (!msg && file && f._words != null && f._words < VS.minWords) msg = 'Tài liệu chỉ có ' + f._words.toLocaleString('vi-VN') + ' từ - cần tối thiểu ' + VS.minWords + ' từ.';
+		else if (!msg && file && f._words != null && f._words > VS.maxWords) msg = 'Tài liệu có ' + f._words.toLocaleString('vi-VN') + ' từ - vượt quá ' + VS.maxWords.toLocaleString('vi-VN') + ' từ. Vui lòng tách thành nhiều đơn.';
 		else if (name.length < 2) msg = 'Vui lòng nhập họ tên.';
 		else if (!/^(0\d{9,10}|84\d{9,10})$/.test(phone)) msg = 'Số điện thoại không hợp lệ.';
 		if (msg) return toast(msg);
@@ -736,7 +831,7 @@
 				var s = j.data.status;
 				if (s === 'cho_thanh_toan') return setTimeout(tick, 10000);
 				box.classList.add('is-paid');
-				box.innerHTML = '<span class="pay-wait__ok">✓</span><div><b>Đã nhận thanh toán!</b>' + autoHtml(j.data.auto) + filesHtml(j.data.results, j.data.files, j.data.waiting) + (s === 'hoan_thanh' ? '<span>Kết quả đã được gửi qua email và tài khoản của bạn.</span>' : (j.data.files && j.data.files.length ? '<span>Báo cáo đã sẵn sàng - bạn có thể tải ngay.</span>' : '')) + '</div>';
+				box.innerHTML = '<span class="pay-wait__ok">✓</span><div><b>Đã nhận thanh toán!</b>' + autoHtml(j.data.auto) + filesHtml(j.data.results, j.data.files, j.data.waiting, j.data.upsell) + (s === 'hoan_thanh' ? '<span>Kết quả đã được gửi qua email và tài khoản của bạn.</span>' : (j.data.files && j.data.files.length ? '<span>Báo cáo đã sẵn sàng - bạn có thể tải ngay.</span>' : '')) + '</div>';
 				['#modal-content .paycard', '#modal-content .ok-steps', '#modal-content .pay'].forEach(function (q) { var x = $(q); if (x) x.remove(); }); var pv = $('#modal-content .pay-verify'); if (pv) pv.remove();
 				if (s !== 'hoan_thanh' && s !== 'huy') setTimeout(tick, 15000);
 			}).catch(function () { setTimeout(tick, 15000); });

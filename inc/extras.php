@@ -310,7 +310,7 @@ function vs_faqs() {
 		'Tỷ lệ AI được tính như thế nào?' => 'Mỗi phần mềm dùng mô hình riêng để ước lượng phần trăm văn bản có khả năng được viết bởi AI (ChatGPT, Gemini, Claude…). Turnitin và Originality.ai là hai công cụ được nhiều trường và tạp chí tham chiếu nhất.',
 		'Nên chọn phần mềm nào?' => 'Hãy chọn đúng phần mềm mà trường hoặc tạp chí của bạn dùng. Phần lớn trường đại học dùng Turnitin; tạp chí khoa học thường dùng iThenticate. Mỗi đơn kiểm tra trên 1 phần mềm; nếu chưa rõ, hãy chọn Turnitin - phần mềm được dùng phổ biến nhất. Muốn đối chiếu thêm, bạn có thể đặt một đơn riêng trên Copyleaks.',
 		'Giảm tỷ lệ đạo văn có làm thay đổi nội dung không?' => 'Biên tập viên viết lại câu chữ, đổi cấu trúc diễn đạt, bổ sung trích dẫn đúng chuẩn nhưng giữ nguyên ý, số liệu và thuật ngữ chuyên ngành. Bạn nhận file kèm báo cáo Turnitin sau chỉnh sửa.',
-		'Nếu không đạt dưới 30% / 20% thì sao?' => 'Chúng tôi sửa tiếp miễn phí đến khi đạt. Nếu vẫn không đạt đúng hạn cam kết, bạn được hoàn 100% phí dịch vụ.',
+		'Nếu không đạt mục tiêu đã chọn thì sao?' => 'Chúng tôi sửa tiếp miễn phí đến khi đạt. Nếu vẫn không đạt đúng hạn cam kết, bạn được hoàn 100% phí dịch vụ.',
 		'Số trang được tính thế nào?' => 'Tính theo trang A4 của file bạn gửi (khoảng 300-350 chữ/trang). Khi bạn tải file Word lên, hệ thống tự đọc số trang. Với dịch vụ giảm tỷ lệ, bạn có thể chỉ gửi những chương cần sửa để tiết kiệm chi phí.',
 		'Bao lâu thì tài liệu của tôi bị xóa?' => 'File gốc được tự động xóa khỏi máy chủ sau 30 ngày kể từ ngày đặt. Bạn có thể yêu cầu xóa sớm hơn qua hotline/Zalo.',
 		'Đặt giảm tỷ lệ sau khi kiểm tra có được ưu đãi không?' => 'Có. Khi đơn kiểm tra hoàn thành, bạn bấm “Giảm dưới 30%” hoặc “Giảm dưới 20%” ngay trên trang tra cứu để được giảm thêm ' . $r['linked_pct'] . '% và không cần gửi lại file.',
@@ -368,12 +368,14 @@ add_shortcode( 'vs_bang_gia', function ( $a ) {
 add_shortcode( 'vs_bang_gia_giam', function () {
 	$r = vs_pricing()['reduce'];
 	return '<div class="table-wrap"><table class="price-table"><thead><tr><th>Mục tiêu</th><th>Đơn giá / trang</th><th>Ghi chú</th></tr></thead><tbody>'
-		. '<tr><td>Dưới 30%</td><td><b>' . esc_html( vs_money( $r['t30'] ) ) . '</b></td><td>Tỷ lệ hiện tại đến 40%</td></tr>'
-		. '<tr><td>Dưới 20%</td><td><b>' . esc_html( vs_money( $r['t20'] ) ) . '</b></td><td>Tỷ lệ hiện tại đến 40%</td></tr>'
+		. '<tr><td>Đạo văn dưới 30%</td><td><b>' . esc_html( vs_money( $r['t30'] ) ) . '</b></td><td>Tỷ lệ hiện tại đến 40%</td></tr>'
+		. '<tr><td>Đạo văn dưới 20%</td><td><b>' . esc_html( vs_money( $r['t20'] ) ) . '</b></td><td>Tỷ lệ hiện tại đến 40%</td></tr>'
+		. '<tr><td>Mục tiêu thấp hơn 20%</td><td>+' . (int) $r['step_pct'] . '% / mỗi 1%</td><td>Bạn tự chọn mục tiêu</td></tr>'
+		. '<tr><td>Tỷ lệ AI dưới 20%</td><td><b>' . esc_html( vs_money( $r['ai_unit'] ) ) . '</b></td><td>Tỷ lệ AI hiện tại đến 40%</td></tr>'
 		. implode( '', array_map( function ( $d ) {
 			return '<tr><td>' . esc_html( $d['label'] ) . '</td><td>' . ( $d['mult'] > 1 ? '+' . (int) round( ( $d['mult'] - 1 ) * 100 ) . '%' : 'Giá gốc' ) . '</td><td>Thời hạn bàn giao</td></tr>';
 		}, $r['deadlines'] ) )
-		. '<tr><td>Kèm giảm AI dưới 20%</td><td>+' . (int) $r['ai_pct'] . '%</td><td>Áp dụng trên tổng</td></tr>'
+		. '<tr><td>Giảm cả đạo văn + AI</td><td>Phần AI -' . (int) ( 100 - $r['both_pct'] ) . '%</td><td>Rẻ hơn đặt riêng</td></tr>'
 		. '<tr><td>Đặt từ đơn kiểm tra</td><td>-' . (int) $r['linked_pct'] . '%</td><td>Không cần tải lại báo cáo</td></tr>'
 		. '</tbody></table></div><p class="price-note">Tỷ lệ hiện tại cao hơn 40% áp dụng hệ số từ ×1,25. Đơn tối thiểu ' . esc_html( vs_money( $r['min'] ) ) . '.</p>';
 } );

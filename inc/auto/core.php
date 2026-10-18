@@ -487,12 +487,43 @@ function vs_job_label( $j ) {
 }
 
 function vs_auto_view( $id ) {
-	$jobs = (array) get_post_meta( $id, '_vs_jobs', true );
+	$jobs    = array_filter( (array) get_post_meta( $id, '_vs_jobs', true ) );
+	$results = (array) vs_meta( $id, 'results', array() );
+	$done    = 'hoan_thanh' === vs_meta( $id, 'status' );
+	$has     = function ( $tool, $kind ) use ( $results ) {
+		return isset( $results[ $tool ][ $kind ] ) && '' !== $results[ $tool ][ $kind ];
+	};
+
+	// Việc chạy tự động: đã có kết quả (kể cả do quản trị nhập tay khi API lỗi) hoặc đơn đã hoàn thành -> "Đã có kết quả".
+	$labels = array();
+	foreach ( $jobs as $j ) {
+		if ( $done || $has( $j['tool'], $j['kind'] ) ) {
+			$j['state'] = 'done';
+		}
+		$labels[] = vs_job_label( $j );
+	}
+
+	// Phần xử lý tay ("Turnitin (AI)", "DoIT (đạo văn)"): bỏ khỏi danh sách chờ khi đã có kết quả.
+	$names  = array();
+	foreach ( vs_pricing()['tools'] as $k => $t ) {
+		$names[ $t['name'] ] = $k;
+	}
+	$manual = array();
+	foreach ( (array) get_post_meta( $id, '_vs_manual', true ) as $m ) {
+		if ( $done ) {
+			break;
+		}
+		if ( preg_match( '/^(.*) \((AI|đạo văn)\)$/u', (string) $m, $mm ) && isset( $names[ $mm[1] ] ) && $has( $names[ $mm[1] ], 'AI' === $mm[2] ? 'ai' : 'plag' ) ) {
+			continue;
+		}
+		$manual[] = $m;
+	}
+
 	return array(
 		'paid_at' => get_post_meta( $id, '_vs_paid_at', true ) ? wp_date( 'H:i d/m/Y', (int) get_post_meta( $id, '_vs_paid_at', true ) ) : '',
 		'paid_via'=> (string) get_post_meta( $id, '_vs_paid_via', true ),
-		'jobs'    => array_map( 'vs_job_label', array_filter( $jobs ) ),
-		'manual'  => (array) get_post_meta( $id, '_vs_manual', true ),
-		'pending' => (bool) get_post_meta( $id, '_vs_auto_pending', true ),
+		'jobs'    => $labels,
+		'manual'  => $manual,
+		'pending' => ! $done && (bool) get_post_meta( $id, '_vs_auto_pending', true ),
 	);
 }

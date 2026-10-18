@@ -117,13 +117,16 @@ function vs_ajax_submit() {
 			}
 		}
 		$data = array(
-			'target'   => (int) ( isset( $post['target'] ) ? $post['target'] : 30 ),
-			'current'  => round( (float) str_replace( ',', '.', isset( $post['current'] ) ? $post['current'] : 0 ), 1 ),
+			'goal'       => isset( $post['goal'] ) && in_array( $post['goal'], array( 'plag', 'ai', 'both' ), true ) ? $post['goal'] : 'plag',
+			'target'     => round( (float) str_replace( ',', '.', isset( $post['target'] ) ? $post['target'] : 20 ), 1 ),
+			'current'    => round( (float) str_replace( ',', '.', isset( $post['current'] ) ? $post['current'] : 0 ), 1 ),
+			'target_ai'  => round( (float) str_replace( ',', '.', isset( $post['target_ai'] ) ? $post['target_ai'] : 20 ), 1 ),
+			'current_ai' => round( (float) str_replace( ',', '.', isset( $post['current_ai'] ) ? $post['current_ai'] : 0 ), 1 ),
 			'pages'    => (int) ( isset( $post['pages'] ) ? $post['pages'] : 0 ),
 			'deadline' => sanitize_key( isset( $post['deadline'] ) ? $post['deadline'] : 'standard' ),
-			'with_ai'  => ! empty( $post['with_ai'] ),
+			'with_ai'  => isset( $post['goal'] ) && in_array( $post['goal'], array( 'ai', 'both' ), true ), // Tương thích dữ liệu cũ.
 		);
-		$calc = vs_calc_reduce( $data['target'], $data['current'], $data['pages'], $data['deadline'], $data['with_ai'], (bool) $linked_id );
+		$calc = vs_calc_reduce( $data + array( 'linked' => (bool) $linked_id ) );
 	}
 	if ( is_wp_error( $calc ) ) {
 		wp_send_json_error( array( 'message' => $calc->get_error_message() ) );
@@ -155,7 +158,7 @@ function vs_ajax_submit() {
 		if ( empty( $_FILES['file']['name'] ) || empty( $_FILES['report']['name'] ) ) {
 			wp_send_json_error( array( 'message' => 'Vui lòng tải đủ 2 file: Word bản gốc và báo cáo PDF đạo văn/AI. Chưa có báo cáo? Hãy đặt kiểm tra trước.' ) );
 		}
-		$stored = vs_store_upload( $_FILES['file'], $code, array( 'doc', 'docx' ) );
+		$stored = vs_store_upload( $_FILES['file'], $code, array( 'docx' ) );
 		if ( is_wp_error( $stored ) ) {
 			wp_send_json_error( array( 'message' => 'File bản gốc: ' . $stored->get_error_message() ) );
 		}
@@ -164,7 +167,7 @@ function vs_ajax_submit() {
 			wp_send_json_error( array( 'message' => 'Báo cáo: ' . $report->get_error_message() ) );
 		}
 	} elseif ( ! empty( $_FILES['file']['name'] ) ) {
-		$stored = vs_store_upload( $_FILES['file'], $code );
+		$stored = vs_store_upload( $_FILES['file'], $code, array( 'docx', 'pdf', 'txt', 'rtf' ) );
 		if ( is_wp_error( $stored ) ) {
 			wp_send_json_error( array( 'message' => $stored->get_error_message() ) );
 		}
@@ -259,8 +262,9 @@ function vs_order_waiting( $id ) {
 				$out[] = array( 'tool' => isset( $p['tools'][ $t ] ) ? $p['tools'][ $t ]['name'] : $t, 'kinds' => $miss );
 			}
 		}
-	} elseif ( ! isset( $res['final']['plag'] ) ) {
-		$out[] = array( 'tool' => 'Sau chỉnh sửa', 'kinds' => ! empty( $data['with_ai'] ) ? array( 'Đạo văn', 'Tỷ lệ AI' ) : array( 'Đạo văn' ) );
+	} elseif ( ! isset( $res['final'][ 'ai' === vs_reduce_goal( $data ) ? 'ai' : 'plag' ] ) ) {
+		$g     = vs_reduce_goal( $data );
+		$out[] = array( 'tool' => 'Sau chỉnh sửa', 'kinds' => 'both' === $g ? array( 'Đạo văn', 'Tỷ lệ AI' ) : ( 'ai' === $g ? array( 'Tỷ lệ AI' ) : array( 'Đạo văn' ) ) );
 	}
 	return $out;
 }
@@ -282,8 +286,9 @@ function vs_order_details( $id ) {
 		$d['Thời gian trả'] = ! empty( $data['express'] ) ? 'Hỏa tốc (≤ 30 phút)' : 'Tiêu chuẩn';
 	} else {
 		$dl                 = isset( $p['reduce']['deadlines'][ $data['deadline'] ] ) ? $p['reduce']['deadlines'][ $data['deadline'] ]['label'] : '';
-		$d['Tỷ lệ hiện tại'] = str_replace( '.', ',', (string) (float) $data['current'] ) . '%';
-		$d['Mục tiêu']      = 'Dưới ' . (int) $data['target'] . '%' . ( ! empty( $data['with_ai'] ) ? ' + giảm AI dưới 20%' : '' );
+		$goals              = array( 'plag' => 'Giảm tỷ lệ đạo văn', 'ai' => 'Giảm tỷ lệ AI', 'both' => 'Giảm đạo văn + AI' );
+		$d['Dịch vụ']       = $goals[ vs_reduce_goal( $data ) ];
+		$d['Mục tiêu']      = vs_reduce_goal_text( $data );
 		$d['Số trang']      = (int) $data['pages'] . ' trang';
 		$d['Thời hạn']      = $dl;
 		if ( vs_meta( $id, 'linked' ) ) {
@@ -333,6 +338,91 @@ function vs_order_sent_files( $id ) {
 	return $out;
 }
 
+/**
+ * Thẻ gợi ý giảm tỷ lệ (hiện cạnh kết quả khi đạo văn hoặc AI > 20%).
+ * Trả về HTML (dùng chung cho trang tài khoản, tra cứu và cửa sổ đặt hàng) hoặc chuỗi rỗng.
+ */
+function vs_order_upsell_html( $id ) {
+	$status = vs_meta( $id, 'status' );
+	if ( 'check' !== vs_meta( $id, 'type' ) || ! in_array( $status, array( 'dang_xu_ly', 'hoan_thanh' ), true ) ) {
+		return '';
+	}
+	$max = array( 'plag' => null, 'ai' => null );
+	foreach ( (array) vs_meta( $id, 'results', array() ) as $r ) {
+		foreach ( array( 'plag', 'ai' ) as $k ) {
+			if ( isset( $r[ $k ] ) && '' !== $r[ $k ] ) {
+				$max[ $k ] = max( (float) $max[ $k ], (float) $r[ $k ] );
+			}
+		}
+	}
+	$high = array_keys( array_filter( $max, function ( $v ) {
+		return null !== $v && $v > 20;
+	} ) );
+	if ( ! $high ) {
+		return '';
+	}
+	$data  = (array) vs_meta( $id, 'data', array() );
+	$pages = max( 1, (int) ( isset( $data['pages'] ) ? $data['pages'] : 1 ) );
+	$code  = vs_meta( $id, 'code' );
+	$r     = vs_pricing()['reduce'];
+	$names = array( 'plag' => 'đạo văn', 'ai' => 'tỷ lệ AI', 'both' => 'đạo văn + AI' );
+	$goals = 2 === count( $high ) ? array( 'both', 'plag', 'ai' ) : $high;
+	$opts  = array();
+	foreach ( $goals as $g ) {
+		$args = array(
+			'tab'    => 'reduce',
+			'linked' => $code,
+			'goal'   => $g,
+			'pages'  => $pages,
+		);
+		if ( 'ai' !== $g ) {
+			$args['current'] = $max['plag'];
+			$args['target']  = 20;
+		}
+		if ( 'plag' !== $g ) {
+			$args['current_ai'] = $max['ai'];
+			$args['target_ai']  = 20;
+		}
+		$calc   = vs_calc_reduce( $args + array( 'deadline' => 'standard', 'linked' => true ) );
+		$opts[] = array(
+			'goal'  => $g,
+			'label' => 'Giảm ' . $names[ $g ] . ' dưới 20%',
+			'url'   => vs_page_url( 'dat-hang', $args ),
+			'price' => is_wp_error( $calc ) ? '' : vs_money( $calc['total'] ),
+		);
+	}
+	$fmt  = function ( $v ) {
+		return str_replace( '.', ',', (string) (float) $v ) . '%';
+	};
+	$head = array();
+	foreach ( $high as $k ) {
+		$head[] = ( 'plag' === $k ? 'Đạo văn ' : 'AI ' ) . $fmt( $max[ $k ] );
+	}
+	ob_start();
+	?>
+	<div class="rs__card rs__card--up">
+		<span class="up__badge"><?php echo vs_icon( 'target', 14 ); // phpcs:ignore ?> Cao hơn mức an toàn 20%</span>
+		<b class="up__title"><?php echo esc_html( implode( ' · ', $head ) ); ?></b>
+		<div class="up__meters">
+			<?php foreach ( $high as $k ) : ?>
+				<div class="up__meter"><span><?php echo 'plag' === $k ? 'Đạo văn' : 'Tỷ lệ AI'; ?></span><s><?php echo esc_html( $fmt( $max[ $k ] ) ); ?></s><i aria-hidden="true">→</i><b>&lt; 20%</b></div>
+			<?php endforeach; ?>
+		</div>
+		<?php $main = array_shift( $opts ); ?>
+		<a class="btn btn--accent btn--sm btn--block up__cta" href="<?php echo esc_url( $main['url'] ); ?>"><span><?php echo esc_html( $main['label'] ); ?></span><?php if ( $main['price'] ) : ?><small>từ <?php echo esc_html( $main['price'] ); ?></small><?php endif; ?></a>
+		<?php if ( $opts ) : ?>
+			<div class="up__alt">
+				<?php foreach ( $opts as $op ) : ?>
+					<a href="<?php echo esc_url( $op['url'] ); ?>"><?php echo esc_html( 'Chỉ ' . str_replace( 'Giảm ', 'giảm ', $op['label'] ) ); ?></a>
+				<?php endforeach; ?>
+			</div>
+		<?php endif; ?>
+		<small class="up__note">Không cần gửi lại file · giảm thêm <?php echo (int) $r['linked_pct']; ?>% · tự chọn mục tiêu khác ở bước tiếp</small>
+	</div>
+	<?php
+	return trim( ob_get_clean() );
+}
+
 /** Dữ liệu đơn hàng hiển thị cho khách (tra cứu, trang tài khoản). */
 function vs_order_view( $id ) {
 	$code     = vs_meta( $id, 'code' );
@@ -361,13 +451,14 @@ function vs_order_view( $id ) {
 		foreach ( array_filter( array_map( 'intval', explode( ',', (string) vs_meta( $id, 'report_ids' ) ) ) ) as $fid ) {
 			$url = wp_get_attachment_url( $fid );
 			if ( $url ) {
-				$files[] = array( 'url' => $url, 'name' => basename( (string) get_attached_file( $fid ) ) );
+				$n       = basename( (string) get_attached_file( $fid ) );
+				$files[] = array( 'url' => $url, 'name' => $n, 'short' => vs_short_filename( $n, 34 ) );
 			}
 		}
 	}
 	if ( $visible ) {
 		foreach ( vs_auto_files( $id ) as $i => $f ) {
-			$files[] = array( 'url' => vs_file_url( $id, $i ), 'name' => $f['name'] );
+			$files[] = array( 'url' => vs_file_url( $id, $i ), 'name' => $f['name'], 'short' => vs_short_filename( $f['name'], 34 ) );
 		}
 	}
 
@@ -392,8 +483,7 @@ function vs_order_view( $id ) {
 		'auto'    => 'check' === $type ? vs_auto_view( $id ) : null,
 		'pay'     => 'cho_thanh_toan' === $status ? vs_payment_info( $code, vs_meta( $id, 'price' ) ) : null,
 		// Gợi ý đặt giảm tỷ lệ khi đơn kiểm tra đã xong và tỷ lệ còn trên 20%.
-		'reduce'  => ( 'check' === $type && 'hoan_thanh' === $status && $max_plag > 20 )
-			? array( 'current' => $max_plag, 'pages' => (int) $data['pages'], 'discount' => $p['reduce']['linked_pct'] )
-			: null,
+		'reduce'  => null, // Thay bằng thẻ gợi ý 'upsell' (đạo văn và/hoặc AI > 20%).
+		'upsell'  => $visible ? vs_order_upsell_html( $id ) : '',
 	);
 }

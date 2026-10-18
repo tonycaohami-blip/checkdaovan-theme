@@ -69,6 +69,28 @@ function vs_new_code() {
 
 /* ---------- Lưu file khách gửi vào thư mục được bảo vệ ---------- */
 
+/** Đếm số từ của tài liệu .docx / .txt / .rtf. Trả về null nếu không đọc được. */
+function vs_count_words( $path, $ext ) {
+	$text = '';
+	if ( 'docx' === $ext && class_exists( 'ZipArchive' ) ) {
+		$z = new ZipArchive();
+		if ( true === $z->open( $path ) ) {
+			$xml = (string) $z->getFromName( 'word/document.xml' );
+			$z->close();
+			$text = html_entity_decode( wp_strip_all_tags( str_replace( array( '</w:p>', '<w:tab/>', '<w:br/>' ), ' ', $xml ) ), ENT_QUOTES | ENT_XML1, 'UTF-8' );
+		}
+	} elseif ( 'txt' === $ext ) {
+		$text = (string) file_get_contents( $path );
+	} elseif ( 'rtf' === $ext ) {
+		$raw  = (string) file_get_contents( $path );
+		$text = preg_replace( array( '/\{\\\\\*[^{}]*\}/', '/\\\\[a-z]+-?\d* ?/i', '/[{}]/' ), ' ', $raw ); // Bỏ nhóm \* và lệnh RTF.
+	}
+	if ( '' === trim( $text ) ) {
+		return null;
+	}
+	return (int) preg_match_all( '/[\p{L}\p{N}]+(?:[\'’-][\p{L}\p{N}]+)*/u', $text );
+}
+
 function vs_private_dir() {
 	$dir = trailingslashit( wp_upload_dir()['basedir'] ) . 'vs-orders';
 	if ( ! is_dir( $dir ) ) {
@@ -89,13 +111,13 @@ function vs_store_upload( $file, $code, $exts = null ) {
 		return new WP_Error( 'file', 'Vui lòng tải lên file tài liệu.' );
 	}
 	if ( $file['size'] > vs_max_upload_mb() * 1048576 ) {
-		return new WP_Error( 'file', 'File vượt quá ' . vs_max_upload_mb() . 'MB.' );
+		return new WP_Error( 'file', 'File phải nhỏ hơn ' . vs_max_upload_mb() . ' MB.' );
 	}
 	$allowed = array(
-		'doc'  => 'application/msword',
 		'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 		'pdf'  => 'application/pdf',
 		'txt'  => 'text/plain',
+		'rtf'  => 'application/rtf',
 	);
 	if ( $exts ) {
 		$allowed = array_intersect_key( $allowed, array_flip( $exts ) );
@@ -103,6 +125,16 @@ function vs_store_upload( $file, $code, $exts = null ) {
 	$check = wp_check_filetype_and_ext( $file['tmp_name'], $file['name'], $allowed );
 	if ( empty( $check['ext'] ) ) {
 		return new WP_Error( 'file', 'Chỉ nhận file ' . implode( ', ', array_map( function ( $e ) { return '.' . $e; }, array_keys( $allowed ) ) ) . '.' );
+	}
+	// Số từ (đọc được với .docx, .txt, .rtf; .pdf được kiểm tra trên trình duyệt).
+	if ( 'pdf' !== $check['ext'] ) {
+		$words = vs_count_words( $file['tmp_name'], $check['ext'] );
+		if ( null !== $words && $words < VS_MIN_WORDS ) {
+			return new WP_Error( 'file', 'Tài liệu chỉ có ' . number_format( $words, 0, ',', '.' ) . ' từ - cần tối thiểu ' . VS_MIN_WORDS . ' từ.' );
+		}
+		if ( null !== $words && $words > VS_MAX_WORDS ) {
+			return new WP_Error( 'file', 'Tài liệu có ' . number_format( $words, 0, ',', '.' ) . ' từ - vượt quá ' . number_format( VS_MAX_WORDS, 0, ',', '.' ) . ' từ. Vui lòng tách thành nhiều đơn.' );
+		}
 	}
 	$dest = vs_private_dir() . '/' . $code . '-' . wp_generate_password( 12, false ) . '.' . $check['ext'];
 	if ( ! move_uploaded_file( $file['tmp_name'], $dest ) ) {
@@ -153,14 +185,7 @@ function vs_order_summary( $id ) {
 		);
 	}
 	$dl = isset( $p['reduce']['deadlines'][ $data['deadline'] ] ) ? $p['reduce']['deadlines'][ $data['deadline'] ]['label'] : '';
-	return sprintf(
-		'Giảm đạo văn %s%% → dưới %d%% · %d trang · %s%s',
-		(float) $data['current'],
-		(int) $data['target'],
-		(int) $data['pages'],
-		$dl,
-		! empty( $data['with_ai'] ) ? ' · Kèm giảm AI' : ''
-	);
+	return sprintf( 'Giảm %s · %d trang · %s', vs_reduce_goal_text( $data, ', ' ), (int) $data['pages'], $dl );
 }
 
 /* ---------- Danh sách đơn trong quản trị ---------- */
@@ -336,7 +361,8 @@ function vs_result_rows( $id ) {
 			$rows[ $t ] = array( isset( $p['tools'][ $t ] ) ? $p['tools'][ $t ]['name'] : $t, $kinds );
 		}
 	} else {
-		$rows['final'] = array( 'Sau chỉnh sửa', ! empty( $data['with_ai'] ) ? array( 'plag', 'ai' ) : array( 'plag' ) );
+		$g             = vs_reduce_goal( $data );
+		$rows['final'] = array( 'Sau chỉnh sửa', 'both' === $g ? array( 'plag', 'ai' ) : array( 'ai' === $g ? 'ai' : 'plag' ) );
 	}
 	return $rows;
 }
