@@ -58,7 +58,7 @@ add_action( 'admin_init', function () {
 } );
 /* Có bài mẫu / nội dung mới sau khi theme tự cập nhật: nhập ở nền (WP-Cron), không cần mở trang quản trị. */
 add_action( 'init', function () {
-	if ( (int) get_option( 'vs_content_imported' ) < 16 && ! wp_next_scheduled( 'vs_run_import' ) ) {
+	if ( (int) get_option( 'vs_content_imported' ) < 17 && ! wp_next_scheduled( 'vs_run_import' ) ) {
 		wp_schedule_single_event( time() + 5, 'vs_run_import' );
 	}
 } );
@@ -74,17 +74,18 @@ function vs_maybe_import() {
 	if ( get_transient( 'vs_su_lock' ) ) {
 		return;
 	}
-	if ( (int) get_option( 'vs_content_imported' ) < 16 ) {
+	if ( (int) get_option( 'vs_content_imported' ) < 17 ) {
 		$old_mail = vs_opt( 'email', get_option( 'admin_email' ) );
 		vs_contact_migrate( $old_mail );
-		vs_import_content();
+		$n = vs_import_content();
 		vs_brand_migrate( 'VănSạch', VS_BRAND );
 		vs_brand_migrate( 'checkdaovan.vn', VS_DOMAIN );
 		if ( $old_mail && VS_EMAIL !== $old_mail ) {
 			vs_brand_migrate( $old_mail, VS_EMAIL );
 		}
 		vs_brand_migrate( 'CheckĐạoVăn', VS_BRAND );
-		update_option( 'vs_content_imported', 16 );
+		update_option( 'vs_content_imported', 17 );
+		update_option( 'vs_import_log', array( 'time' => time(), 'v' => VS_VERSION, 'n' => $n ), false );
 	}
 }
 
@@ -115,6 +116,10 @@ function vs_brand_migrate( $old, $new ) {
 	$ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_type IN ('post','page','vs_case') AND ( post_content LIKE %s OR post_title LIKE %s OR post_excerpt LIKE %s )", '%' . $wpdb->esc_like( $old ) . '%', '%' . $wpdb->esc_like( $old ) . '%', '%' . $wpdb->esc_like( $old ) . '%' ) );
 	foreach ( $ids as $id ) {
 		$p    = get_post( $id );
+		// LIKE của MySQL không phân biệt dấu (CheckĐạoVăn khớp cả checkdaovan247.com): so khớp chính xác lại.
+		if ( false === strpos( $p->post_title . $p->post_content . $p->post_excerpt, $old ) ) {
+			continue;
+		}
 		$keep = 'post' === $p->post_type && get_post_meta( $id, '_vs_import_hash', true ) && vs_sample_untouched( $p );
 		wp_update_post( wp_slash( array(
 			'ID'           => $id,

@@ -243,7 +243,7 @@ add_action( 'rest_api_init', function () {
 				}
 				sleep( 20 );
 			}
-			return array( 'ok' => true, 'result' => $result );
+			return array( 'ok' => true, 'result' => $result, 'content' => (int) get_option( 'vs_content_imported' ), 'import' => get_option( 'vs_import_log' ) );
 		},
 	) );
 } );
