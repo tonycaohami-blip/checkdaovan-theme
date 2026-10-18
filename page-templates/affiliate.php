@@ -61,7 +61,9 @@ get_template_part( 'template-parts/page-hero', null, array(
 				'Rút tiền như thế nào?' => 'Khi số dư đã duyệt đạt ' . vs_money( $min ) . ', bạn bấm “Yêu cầu rút tiền” trong trang tài khoản. Chúng tôi chuyển khoản trong 1-3 ngày làm việc.',
 				'Tôi có được tự đặt đơn qua link của mình không?' => 'Không. Đơn có số điện thoại trùng với tài khoản cộng tác viên sẽ không được tính hoa hồng.',
 				'Khách được giới thiệu nhận ưu đãi gì?' => 'Khách vào web qua link của bạn được giảm ' . $disc . '% (không cộng dồn với mã giảm giá khác).',
-				'Có được chạy quảng cáo bằng tên thương hiệu không?' => 'Bạn được chia sẻ tự do trên mạng xã hội, nhóm học tập. Không được chạy quảng cáo từ khóa bằng tên thương hiệu hoặc đưa thông tin sai về dịch vụ.',
+				'Hoa hồng có phải nộp thuế không?' => 'Có. Hoa hồng là thu nhập chịu thuế thu nhập cá nhân theo quy định. Khi chi trả, chúng tôi có thể khấu trừ thuế theo mức luật định và cần bạn cung cấp họ tên, số CCCD/mã số thuế để kê khai. Bạn tự chịu trách nhiệm quyết toán thuế phần thu nhập của mình.',
+				'Chương trình có nhiều cấp không?' => 'Không. Bạn chỉ nhận hoa hồng từ đơn của khách mua dịch vụ qua link của bạn; không có hoa hồng từ việc tuyển thêm cộng tác viên và không thu phí tham gia.',
+				'Có được chạy quảng cáo bằng tên thương hiệu không?' => 'Bạn được chia sẻ tự do trên mạng xã hội, nhóm học tập. Không được chạy quảng cáo từ khóa bằng tên thương hiệu hoặc đưa thông tin sai về dịch vụ (ví dụ “cam kết qua Turnitin”, “lách AI”, “làm luận văn trọn gói”).',
 			);
 			foreach ( $faq as $q => $a ) :
 				?>

@@ -770,6 +770,7 @@
 		else if (!msg && file && f._words != null && f._words > VS.maxWords) msg = 'Tài liệu có ' + f._words.toLocaleString('vi-VN') + ' từ - vượt quá ' + VS.maxWords.toLocaleString('vi-VN') + ' từ. Vui lòng tách thành nhiều đơn.';
 		else if (name.length < 2) msg = 'Vui lòng nhập họ tên.';
 		else if (!/^(0\d{9,10}|84\d{9,10})$/.test(phone)) msg = 'Số điện thoại không hợp lệ.';
+		if (!msg) { var unc = $$('input[type=checkbox][required]', f).filter(function (c) { return !c.checked && !c.closest('[hidden]'); })[0]; if (unc) { msg = unc.dataset.msg || 'Vui lòng đánh dấu xác nhận.'; unc.focus(); } }
 		if (msg) return toast(msg);
 
 		var data = new FormData(f);

@@ -31,4 +31,5 @@ $email = $u->exists() ? $u->user_email : '';
 	<span class="label">Ghi chú <small>(phần mềm trường dùng, bộ lọc loại trừ trích dẫn/tài liệu tham khảo, chương cần sửa…)</small></span>
 	<textarea name="note" rows="3"></textarea>
 </label>
+<label class="check check--req"><input type="checkbox" name="consent" value="1" required data-msg="Vui lòng đồng ý Điều khoản dịch vụ và việc xử lý dữ liệu cá nhân."> Tôi đồng ý với <a href="<?php echo esc_url( vs_page_url( 'dieu-khoan-dich-vu' ) ); ?>" target="_blank">Điều khoản dịch vụ</a> và đồng ý cho xử lý dữ liệu cá nhân (họ tên, số điện thoại, email, tài liệu) để thực hiện đơn hàng theo <a href="<?php echo esc_url( vs_page_url( 'chinh-sach-bao-mat' ) ); ?>" target="_blank">Chính sách bảo mật</a>.</label>
 <label class="hp" aria-hidden="true">Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label>

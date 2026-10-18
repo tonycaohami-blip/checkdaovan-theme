@@ -23,7 +23,7 @@ get_template_part( 'template-parts/page-hero', null, array(
 		<div class="plan-grid">
 			<?php foreach ( $p['tools'] as $k => $t ) : ?>
 				<article class="plan reveal<?php echo 'turnitin' === $k ? ' plan--hot' : ''; ?>">
-					<?php if ( 'turnitin' === $k ) : ?><span class="badge">Phổ biến nhất</span><?php endif; ?>
+					<?php if ( 'turnitin' === $k ) : ?><span class="badge">Nhiều người chọn</span><?php endif; ?>
 					<div class="plan__head">
 						<div class="tool__logo tool__logo--sm<?php echo esc_attr( vs_tool_mark_class( $k ) ); ?>" style="--c:<?php echo esc_attr( $meta[ $k ][1] ); ?>"><?php echo vs_tool_mark( $k ); // phpcs:ignore ?></div>
 						<div><h3><?php echo esc_html( $t['name'] ); ?></h3><small><?php echo esc_html( $meta[ $k ][2] ); ?></small></div>
@@ -64,7 +64,7 @@ get_template_part( 'template-parts/page-hero', null, array(
 	<div class="container">
 		<div class="price-head reveal">
 			<h2>Giảm tỷ lệ đạo văn &amp; AI</h2>
-			<p>Bạn tự chọn mục tiêu (thấp hơn tỷ lệ hiện tại). Tính theo số trang cần chỉnh sửa. Cam kết đạt mục tiêu, không đạt hoàn tiền 100%.</p>
+			<p>Bạn tự chọn mục tiêu (thấp hơn tỷ lệ hiện tại). Tính theo số trang cần chỉnh sửa. Mục tiêu là mức tham khảo: chưa đạt trên cùng phần mềm và thiết lập thì biên tập bổ sung miễn phí hoặc hoàn phí theo chính sách. Dịch vụ chỉ dành cho bài do chính bạn viết.</p>
 		</div>
 		<div class="pricing">
 			<div class="price-card reveal">

@@ -58,7 +58,7 @@ add_action( 'admin_init', function () {
 } );
 /* Có bài mẫu / nội dung mới sau khi theme tự cập nhật: nhập ở nền (WP-Cron), không cần mở trang quản trị. */
 add_action( 'init', function () {
-	if ( (int) get_option( 'vs_content_imported' ) < 13 && ! wp_next_scheduled( 'vs_run_import' ) ) {
+	if ( (int) get_option( 'vs_content_imported' ) < 15 && ! wp_next_scheduled( 'vs_run_import' ) ) {
 		wp_schedule_single_event( time() + 5, 'vs_run_import' );
 	}
 } );
@@ -70,7 +70,7 @@ add_action( 'vs_run_import', function () {
 } );
 
 function vs_maybe_import() {
-	if ( (int) get_option( 'vs_content_imported' ) < 13 ) {
+	if ( (int) get_option( 'vs_content_imported' ) < 15 ) {
 		$old_mail = vs_opt( 'email', get_option( 'admin_email' ) );
 		vs_contact_migrate( $old_mail );
 		vs_import_content();
@@ -80,7 +80,7 @@ function vs_maybe_import() {
 			vs_brand_migrate( $old_mail, VS_EMAIL );
 		}
 		vs_brand_migrate( 'CheckĐạoVăn', VS_BRAND );
-		update_option( 'vs_content_imported', 13 );
+		update_option( 'vs_content_imported', 15 );
 	}
 }
 
@@ -176,6 +176,30 @@ function vs_sample_untouched( $post ) {
 		return md5( $post->post_content ) === $hash;
 	}
 	return ! wp_get_post_revisions( $post->ID, array( 'fields' => 'ids', 'posts_per_page' => 1 ) );
+}
+
+/**
+ * Trang chính sách mẫu còn nguyên: có mã kiểm tra khớp, hoặc (bản cũ chưa có mã) nội dung gần như
+ * trùng với mẫu của bản 6.8 - chỉ khác do đổi tên thương hiệu/email.
+ */
+function vs_page_untouched( $post, $slug ) {
+	if ( get_post_meta( $post->ID, '_vs_import_hash', true ) ) {
+		return vs_sample_untouched( $post );
+	}
+	static $legacy = null;
+	if ( null === $legacy ) {
+		$legacy = require VS_DIR . '/inc/content/pages-legacy.php';
+	}
+	if ( empty( $legacy[ $slug ] ) ) {
+		return false;
+	}
+	$norm = function ( $h ) {
+		return preg_replace( '/\s+/u', ' ', trim( wp_strip_all_tags( $h ) ) );
+	};
+	$a = $norm( $post->post_content );
+	$b = $norm( vs_fill_placeholders( $legacy[ $slug ]['content'] ) );
+	similar_text( $a, $b, $pct );
+	return $pct >= 92;
 }
 
 /** Gắn ảnh đại diện từ assets/img/blog của theme (nhập vào Thư viện ảnh 1 lần). */
@@ -293,6 +317,16 @@ function vs_import_content( $force = false ) {
 		$existing = get_page_by_path( $slug );
 		if ( $existing ) {
 			$ids[ $slug ] = $existing->ID;
+			// Trang chính sách mẫu: cập nhật nội dung mới nếu quản trị viên chưa tự sửa.
+			if ( '' !== $p['content'] && ( $force || vs_page_untouched( $existing, $slug ) ) ) {
+				$new = vs_fill_placeholders( trim( $p['content'] ) );
+				if ( $new !== $existing->post_content ) {
+					wp_update_post( array( 'ID' => $existing->ID, 'post_title' => $p['title'], 'post_content' => $new ) );
+					clean_post_cache( $existing->ID );
+					$created++;
+				}
+				update_post_meta( $existing->ID, '_vs_import_hash', md5( get_post_field( 'post_content', $existing->ID, 'raw' ) ) );
+			}
 			continue;
 		}
 		$ids[ $slug ] = wp_insert_post( array(
@@ -305,7 +339,21 @@ function vs_import_content( $force = false ) {
 		if ( ! empty( $p['template'] ) ) {
 			update_post_meta( $ids[ $slug ], '_wp_page_template', 'page-templates/' . $p['template'] . '.php' );
 		}
+		if ( $ids[ $slug ] && ! is_wp_error( $ids[ $slug ] ) ) {
+			update_post_meta( $ids[ $slug ], '_vs_import_hash', md5( get_post_field( 'post_content', $ids[ $slug ], 'raw' ) ) );
+		}
 		$created++;
+	}
+
+	// Kết quả mẫu đã nhập từ bản cũ: cập nhật mô tả và số liệu theo bản mới (chỉ mục còn đánh dấu "Ví dụ minh họa").
+	foreach ( require VS_DIR . '/inc/content/cases.php' as $cs ) {
+		$old = get_posts( array( 'post_type' => 'vs_case', 'post_status' => 'any', 'title' => $cs['title'], 'posts_per_page' => 1, 'meta_key' => '_vs_sample', 'meta_value' => '1' ) );
+		if ( $old ) {
+			wp_update_post( array( 'ID' => $old[0]->ID, 'post_excerpt' => $cs['note'] ) );
+			foreach ( $cs['meta'] as $k => $v ) {
+				update_post_meta( $old[0]->ID, '_vs_' . $k, $v );
+			}
+		}
 	}
 
 	// Kết quả mẫu (đánh dấu "Ví dụ minh họa").

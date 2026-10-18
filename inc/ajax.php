@@ -86,6 +86,12 @@ function vs_ajax_submit() {
 	if ( mb_strlen( $name ) < 2 ) {
 		wp_send_json_error( array( 'message' => 'Vui lòng nhập họ tên.' ) );
 	}
+	if ( empty( $post['consent'] ) ) {
+		wp_send_json_error( array( 'message' => 'Vui lòng đồng ý Điều khoản dịch vụ và việc xử lý dữ liệu cá nhân theo Chính sách bảo mật.' ) );
+	}
+	if ( 'reduce' === $type && empty( $post['integrity'] ) ) {
+		wp_send_json_error( array( 'message' => 'Vui lòng xác nhận cam kết liêm chính học thuật: bạn là tác giả của bài và dịch vụ chỉ hỗ trợ biên tập.' ) );
+	}
 	if ( ! preg_match( '/^0\d{9,10}$/', $phone ) ) {
 		wp_send_json_error( array( 'message' => 'Số điện thoại không hợp lệ.' ) );
 	}
@@ -195,6 +201,7 @@ function vs_ajax_submit() {
 		'phone'     => $phone,
 		'email'     => $email,
 		'note'      => $note,
+		'consent'   => array( 'time' => time(), 'integrity' => 'reduce' === $type ),
 		'price'     => $calc['total'],
 		'status'    => 'cho_thanh_toan',
 		'data'      => $data,
@@ -401,7 +408,7 @@ function vs_order_upsell_html( $id ) {
 	ob_start();
 	?>
 	<div class="rs__card rs__card--up">
-		<span class="up__badge"><?php echo vs_icon( 'target', 14 ); // phpcs:ignore ?> Cao hơn mức an toàn 20%</span>
+		<span class="up__badge"><?php echo vs_icon( 'target', 14 ); // phpcs:ignore ?> Trên mức 20% (tham khảo)</span>
 		<b class="up__title"><?php echo esc_html( implode( ' · ', $head ) ); ?></b>
 		<div class="up__meters">
 			<?php foreach ( $high as $k ) : ?>
@@ -417,7 +424,7 @@ function vs_order_upsell_html( $id ) {
 				<?php endforeach; ?>
 			</div>
 		<?php endif; ?>
-		<small class="up__note">Không cần gửi lại file · giảm thêm <?php echo (int) $r['linked_pct']; ?>% · tự chọn mục tiêu khác ở bước tiếp</small>
+		<small class="up__note">Hỗ trợ biên tập cho bài do bạn viết · không cần gửi lại file · giảm thêm <?php echo (int) $r['linked_pct']; ?>%</small>
 	</div>
 	<?php
 	return trim( ob_get_clean() );

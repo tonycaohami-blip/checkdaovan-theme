@@ -260,12 +260,12 @@ HTML
 		'cat'     => 'dich-vu',
 		'cover'   => 'dich-vu-giam-ty-le-dao-van-ai-check-dao-van.jpg',
 		'tags'    => array( 'giảm tỷ lệ đạo văn', 'giảm tỷ lệ AI', 'dịch vụ chỉnh sửa luận văn' ),
-		'title'   => 'Dịch vụ giảm tỷ lệ đạo văn + AI dưới 20%, 30%: Quy trình, cam kết và bảng giá',
-		'excerpt' => 'Dịch vụ giảm tỷ lệ đạo văn và tỷ lệ AI do biên tập viên chuyên ngành thực hiện: giữ nguyên ý, bổ sung trích dẫn, viết lại tự nhiên. Cam kết dưới 30% hoặc 20% trên Turnitin, báo giá tự động theo số trang.',
+		'title'   => 'Dịch vụ giảm tỷ lệ đạo văn + AI dưới 20%, 30%: Quy trình, nguyên tắc và bảng giá',
+		'excerpt' => 'Dịch vụ giảm tỷ lệ đạo văn và tỷ lệ AI do biên tập viên chuyên ngành thực hiện: hỗ trợ diễn đạt lại và bổ sung trích dẫn cho bài do chính bạn viết, hướng tới mức dưới 30% hoặc 20%, tuân thủ liêm chính học thuật. Báo giá tự động theo số trang.',
 		'content' => <<<'HTML'
 <div class="tldr"><b>Tóm tắt nhanh</b><ul>
-	<li>Biên tập viên chuyên ngành chỉnh sửa bài để đạt mục tiêu dưới 30% hoặc dưới 20%.</li>
-	<li>Có thể kèm giảm tỷ lệ AI xuống dưới 20%.</li>
+	<li>Biên tập viên chuyên ngành hỗ trợ diễn đạt và trích dẫn cho bài do chính bạn viết, hướng tới mức dưới 30% hoặc 20%.</li>
+	<li>Có thể kèm rà soát các đoạn bị đánh dấu AI trong bài bạn tự viết; không hỗ trợ che giấu nội dung do AI tạo.</li>
 	<li>Cần 2 file: bản Word gốc và báo cáo PDF các phần bị trùng (hoặc AI).</li>
 	<li>Giá tính theo số trang và tỷ lệ hiện tại, hiển thị ngay khi bạn nhập thông tin.</li>
 </ul></div>
@@ -277,7 +277,8 @@ HTML
 	<li><strong>Bổ sung trích dẫn</strong> cho các đoạn lấy ý từ tài liệu khác nhưng chưa ghi nguồn.</li>
 	<li><strong>Viết lại theo hướng tổng hợp</strong>, so sánh, phân tích thay vì tóm tắt từng tài liệu.</li>
 	<li><strong>Diễn đạt lại tự nhiên</strong>, giữ nguyên ý và thuật ngữ chuyên ngành.</li>
-	<li><strong>Giảm tỷ lệ AI</strong> (nếu chọn): làm văn bản cụ thể, có giọng văn riêng, bớt khuôn mẫu.</li>
+	<li><strong>Rà soát đoạn bị đánh dấu AI</strong> (nếu chọn): góp ý để bạn bổ sung dữ liệu, ví dụ và lập luận của chính mình; biên tập ngôn ngữ cho phần bạn tự viết.</li>
+	<li><strong>Không viết thay</strong>, không tạo số liệu, không bịa nguồn trích dẫn.</li>
 	<li><strong>Không dùng mẹo gian lận</strong> như thay ký tự, chèn chữ ẩn, chuyển văn bản thành ảnh.</li>
 </ul>
 
@@ -294,31 +295,31 @@ HTML
 <figure><img src="{theme}assets/img/blog/dich-vu-giam-ty-le-dao-van-ai-bars.svg" alt="Biểu đồ tỷ lệ đạo văn và AI trước và sau chỉnh sửa" width="1200" height="675" loading="lazy"><figcaption>Ví dụ minh họa: đạo văn từ 42% xuống 14%, AI từ 35% xuống 8%.</figcaption></figure>
 <p>Kết quả thực tế phụ thuộc vào độ dài bài, tỷ lệ ban đầu và chuyên ngành. Xem các <a href="{home}ket-qua-thuc-te/">kết quả thực tế</a> mà khách hàng đã đạt được.</p>
 
-<div class="callout callout--info"><b>Cam kết</b>Bàn giao kèm báo cáo Turnitin mới chứng minh tỷ lệ đạt mục tiêu. Nếu không đạt, chúng tôi tiếp tục chỉnh sửa miễn phí hoặc hoàn tiền theo chính sách.</div>
+<div class="callout callout--info"><b>Mục tiêu là mức tham khảo</b>Bàn giao kèm báo cáo kiểm tra lại để bạn đối chiếu. Nếu chưa đạt trên cùng phần mềm và thiết lập, chúng tôi biên tập bổ sung miễn phí hoặc hoàn phí theo chính sách. Kết quả cuối cùng do cơ sở đào tạo hoặc tạp chí đánh giá.</div>
 
 <h2>Bạn nhận được gì khi bàn giao?</h2>
 <ol>
 	<li>File Word đã chỉnh sửa, giữ nguyên định dạng.</li>
 	<li>Báo cáo Turnitin mới sau chỉnh sửa.</li>
-	<li>Báo cáo AI mới (nếu chọn kèm giảm AI).</li>
+	<li>Báo cáo AI mới (nếu chọn kèm rà soát AI).</li>
 </ol>
 <div class="callout callout--tip"><b>Mẹo</b>Đọc lại toàn bộ bản đã chỉnh sửa trước khi nộp để nắm chắc nội dung - bạn là người sẽ bảo vệ trước hội đồng.</div>
 
 <h2>Biên tập viên làm việc như thế nào?</h2>
-<p>Mỗi đơn được giao cho biên tập viên có nền tảng gần với chuyên ngành của bạn - kinh tế, giáo dục, kỹ thuật, y dược, luật… Biên tập viên đọc báo cáo, xác định các nguồn trùng lớn nhất, rồi xử lý theo thứ tự ưu tiên. Với phần tổng quan, họ tái cấu trúc theo chủ đề và bổ sung trích dẫn; với phần phương pháp, họ diễn đạt ngắn gọn và dẫn nguồn gốc; với các đoạn bị đánh giá AI, họ đưa vào chi tiết cụ thể từ chính dữ liệu và bối cảnh nghiên cứu của bạn.</p>
+<p>Mỗi đơn được giao cho biên tập viên có nền tảng gần với chuyên ngành của bạn - kinh tế, giáo dục, kỹ thuật, y dược, luật… Biên tập viên đọc báo cáo, xác định các nguồn trùng lớn nhất, rồi xử lý theo thứ tự ưu tiên. Với phần tổng quan, họ tái cấu trúc theo chủ đề và bổ sung trích dẫn; với phần phương pháp, họ diễn đạt ngắn gọn và dẫn nguồn gốc; với các đoạn bị đánh giá AI, họ chỉ ra vị trí cần bạn bổ sung chi tiết cụ thể từ chính dữ liệu và bối cảnh nghiên cứu của bạn.</p>
 <p>Trong quá trình làm, nếu có thuật ngữ hay ý nào chưa rõ, biên tập viên sẽ liên hệ với bạn qua Zalo hoặc email để giữ đúng nội dung chuyên môn. Bạn có thể theo dõi trạng thái đơn trong tài khoản bất cứ lúc nào.</p>
 <h2>Bảo mật và quyền tác giả</h2>
-<p>Bài của bạn vẫn là của bạn. Tài liệu không được chia sẻ, không được dùng lại cho bất kỳ khách hàng nào khác và được xóa theo chính sách lưu trữ sau khi bàn giao. Mọi lần kiểm tra trong quá trình chỉnh sửa đều ở chế độ không lưu bài.</p>
+<p>Bạn vẫn là tác giả và chịu trách nhiệm về nội dung. Nếu trường hoặc tạp chí yêu cầu khai báo việc sử dụng hỗ trợ biên tập hoặc AI, hãy khai báo trung thực. Tài liệu không được chia sẻ, không được dùng lại cho bất kỳ khách hàng nào khác và được xóa theo chính sách lưu trữ sau khi bàn giao. Mọi lần kiểm tra trong quá trình chỉnh sửa đều ở chế độ không lưu bài.</p>
 
 <h2>Câu hỏi thường gặp</h2>
 <h3>Chỉnh sửa có làm thay đổi nội dung nghiên cứu không?</h3>
 <p>Không. Biên tập viên giữ nguyên ý, số liệu, kết quả và thuật ngữ chuyên ngành; chỉ thay đổi cách diễn đạt và bổ sung trích dẫn.</p>
 <h3>Có giảm được tỷ lệ AI không?</h3>
-<p>Có, khi chọn tùy chọn kèm giảm AI dưới 20%. Văn bản được viết lại cụ thể, tự nhiên hơn.</p>
+<p>Với bài do chính bạn viết nhưng bị công cụ đánh dấu nhầm, biên tập viên rà soát và góp ý để văn bản cụ thể, mang dấu ấn của bạn hơn. Chúng tôi không nhận viết lại nội dung do AI tạo ra nhằm che giấu nguồn gốc.</p>
 <h3>Tự sửa có được không?</h3>
 <p>Hoàn toàn được. Tham khảo <a href="{home}cach-giam-ty-le-dao-van-hop-le/">7 cách giảm tỷ lệ đạo văn hợp lệ</a>.</p>
 
-<blockquote>Tính giá ngay cho bài của bạn: <a href="{home}dat-hang/?tab=reduce">đặt giảm tỷ lệ đạo văn + AI</a> - cam kết dưới 30% hoặc 20%.</blockquote>
+<blockquote>Tính giá ngay cho bài của bạn: <a href="{home}dat-hang/?tab=reduce">đặt giảm tỷ lệ đạo văn + AI</a> - hỗ trợ biên tập cho bài do bạn viết.</blockquote>
 HTML
 		,
 	),
@@ -372,7 +373,7 @@ HTML
 
 <h2>Giá giảm tỷ lệ đạo văn + AI</h2>
 [vs_bang_gia_giam]
-<p>Chi tiết quy trình và cam kết: <a href="{home}dich-vu-giam-ty-le-dao-van-ai/">dịch vụ giảm tỷ lệ đạo văn + AI</a>.</p>
+<p>Chi tiết quy trình và nguyên tắc: <a href="{home}dich-vu-giam-ty-le-dao-van-ai/">dịch vụ giảm tỷ lệ đạo văn + AI</a>.</p>
 
 <h2>5 mẹo tiết kiệm chi phí</h2>
 <ol>

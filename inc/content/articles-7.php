@@ -335,7 +335,7 @@ HTML
 <h3>Có thể đặt mục tiêu 0% không?</h3>
 <p>Về kỹ thuật là có thể nhập, nhưng không cần thiết và rất tốn kém. Bài nghiên cứu nào cũng có thuật ngữ, tên riêng, trích dẫn trùng với nguồn khác.</p>
 <h3>Nếu không đạt mục tiêu thì sao?</h3>
-<p>Dịch vụ cam kết chỉnh sửa tiếp miễn phí đến khi đạt; nếu vẫn không đạt, hoàn tiền theo chính sách.</p>
+<p>Mục tiêu là mức tham khảo. Nếu bản bàn giao chưa đạt trên cùng phần mềm và thiết lập, dịch vụ biên tập bổ sung miễn phí hoặc hoàn phí theo chính sách.</p>
 <h3>Mục tiêu tính trên phần mềm nào?</h3>
 <p>Kết quả được xác nhận bằng báo cáo của phần mềm kiểm tra sau chỉnh sửa - nên chọn đúng phần mềm mà trường bạn sử dụng.</p>
 

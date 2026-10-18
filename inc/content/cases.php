@@ -12,7 +12,7 @@ return array(
 	array(
 		'title' => 'Luận văn thạc sĩ Quản trị kinh doanh',
 		'note'  => 'Tổng quan tài liệu dài, trích nhiều nguồn tiếng Anh dịch sát. Viết lại theo hướng tổng hợp, bổ sung trích dẫn APA.',
-		'meta'  => array( 'service' => 'reduce', 'doc_type' => 'Luận văn thạc sĩ', 'field' => 'Quản trị kinh doanh', 'tool' => 'Turnitin', 'pages' => 96, 'before' => 47, 'after' => 13, 'ai_before' => 22, 'ai_after' => 0, 'days' => '48 giờ' ),
+		'meta'  => array( 'service' => 'reduce', 'doc_type' => 'Luận văn thạc sĩ', 'field' => 'Quản trị kinh doanh', 'tool' => 'Turnitin', 'pages' => 96, 'before' => 47, 'after' => 13, 'ai_before' => '', 'ai_after' => '', 'days' => '48 giờ' ),
 	),
 	array(
 		'title' => 'Khóa luận tốt nghiệp ngành Kế toán',
@@ -31,8 +31,8 @@ return array(
 	),
 	array(
 		'title' => 'Tiểu luận môn Marketing căn bản',
-		'note'  => 'Bài nhiều đoạn viết bằng công cụ AI. Viết lại bằng giọng văn cá nhân, thêm ví dụ thị trường Việt Nam.',
-		'meta'  => array( 'service' => 'reduce', 'doc_type' => 'Tiểu luận', 'field' => 'Marketing', 'tool' => 'Turnitin + Originality.ai', 'pages' => 24, 'before' => 31, 'after' => 16, 'ai_before' => 68, 'ai_after' => 4, 'days' => '48 giờ' ),
+		'note'  => 'Bài do sinh viên tự viết nhưng nhiều câu khuôn mẫu bị đánh dấu AI. Biên tập viên chỉ ra đoạn cần làm rõ, sinh viên bổ sung ví dụ thị trường Việt Nam từ khảo sát của mình.',
+		'meta'  => array( 'service' => 'reduce', 'doc_type' => 'Tiểu luận', 'field' => 'Marketing', 'tool' => 'Turnitin + Originality.ai', 'pages' => 24, 'before' => 31, 'after' => 16, 'ai_before' => 41, 'ai_after' => 12, 'days' => '48 giờ' ),
 	),
 	array(
 		'title' => 'Kiểm tra trước khi nộp: Luận văn Luật kinh tế',

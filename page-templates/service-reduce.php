@@ -7,10 +7,10 @@ $r     = vs_pricing()['reduce'];
 $order = vs_page_url( 'dat-hang', array( 'tab' => 'reduce' ) );
 
 get_template_part( 'template-parts/page-hero', null, array(
-	'title'   => 'Giảm tỷ lệ đạo văn + AI<br><span class="hl">đúng mức bạn chọn</span>',
-	'eyebrow' => 'Dịch vụ · Cam kết kết quả',
+	'title'   => 'Giảm tỷ lệ đạo văn + AI<br><span class="hl">bằng biên tập học thuật</span>',
+	'eyebrow' => 'Dịch vụ · Hỗ trợ biên tập',
 	'crumbs'  => array( 'Dịch vụ' => vs_page_url( 'bang-gia' ) ),
-	'lead'    => 'Biên tập viên theo chuyên ngành viết lại câu chữ, bổ sung trích dẫn đúng chuẩn, <strong>giữ nguyên ý và số liệu</strong>. Không đạt mục tiêu - hoàn tiền 100%.',
+	'lead'    => 'Biên tập viên theo chuyên ngành hỗ trợ diễn đạt lại, bổ sung trích dẫn đúng chuẩn cho <strong>bài do chính bạn nghiên cứu và viết</strong>, giữ nguyên ý và số liệu. Bạn vẫn là tác giả và rà soát mọi chỉnh sửa trước khi nộp.',
 	'actions' => '<a class="btn btn--accent btn--lg" href="' . esc_url( $order ) . '">Tính giá &amp; đặt hàng</a><a class="btn btn--glass btn--lg" href="' . esc_url( vs_page_url( 'ket-qua-thuc-te' ) ) . '">Xem kết quả</a>',
 	'aside'   => '<div class="goal-hero"><div class="goal-hero__card"><span>Mục tiêu dưới</span><b>30%</b><em>từ ' . esc_html( vs_money( $r['t30'] ) ) . '/trang</em></div><div class="goal-hero__card goal-hero__card--hot"><span>Mục tiêu dưới</span><b>20%</b><em>từ ' . esc_html( vs_money( $r['t20'] ) ) . '/trang</em></div><div class="goal-hero__card"><span>Tỷ lệ AI dưới</span><b>20%</b><em>từ ' . esc_html( vs_money( $r['ai_unit'] ) ) . '/trang</em></div></div>',
 ) );
@@ -19,17 +19,18 @@ get_template_part( 'template-parts/page-hero', null, array(
 <section class="section">
 	<div class="container">
 		<div class="section__head reveal">
-			<span class="eyebrow">Cam kết</span>
-			<h2>Vì sao an tâm giao bài cho chúng tôi</h2>
+			<span class="eyebrow">Nguyên tắc</span>
+			<h2>Biên tập minh bạch, đúng liêm chính học thuật</h2>
+			<p>Dịch vụ không viết thay, không tạo nội dung mới, không bịa nguồn và không dùng mẹo che giấu. <a href="<?php echo esc_url( vs_page_url( 'liem-chinh-hoc-thuat' ) ); ?>">Đọc chính sách liêm chính học thuật</a>.</p>
 		</div>
 		<div class="features">
 			<?php
 			foreach ( array(
-				array( 'target', 'Đạt đúng mục tiêu', 'Kiểm tra lại bằng Turnitin sau khi sửa. Chưa đạt thì sửa tiếp miễn phí.' ),
-				array( 'refund', 'Không đạt hoàn tiền', 'Quá hạn cam kết mà vẫn chưa đạt mục tiêu, bạn được hoàn 100% phí.' ),
-				array( 'pen', 'Giữ nguyên nội dung', 'Không thay đổi số liệu, kết quả nghiên cứu, thuật ngữ chuyên ngành.' ),
-				array( 'file', 'Kèm báo cáo sau sửa', 'Bạn nhận file Word đã chỉnh sửa và báo cáo Turnitin chứng minh kết quả.' ),
-				array( 'lock', 'Bảo mật tuyệt đối', 'Tài liệu chỉ người xử lý được xem, tự xóa sau 30 ngày.' ),
+				array( 'target', 'Mục tiêu tham khảo', 'Kiểm tra lại trên cùng phần mềm sau khi biên tập. Chưa đạt thì biên tập bổ sung miễn phí.' ),
+				array( 'refund', 'Hoàn phí rõ ràng', 'Chưa đạt sau khi đã biên tập bổ sung đúng hạn: hoàn phí theo Chính sách hoàn tiền.' ),
+				array( 'pen', 'Bạn vẫn là tác giả', 'Không thay đổi số liệu, kết quả nghiên cứu, lập luận; bạn có thể yêu cầu bản Track Changes để rà soát.' ),
+				array( 'file', 'Kèm báo cáo sau sửa', 'Bạn nhận file Word đã biên tập và báo cáo kiểm tra lại để đối chiếu.' ),
+				array( 'lock', 'Bảo mật tài liệu', 'Chỉ người xử lý được xem, tự xóa sau 30 ngày.' ),
 				array( 'clock', 'Đúng hạn', 'Tiêu chuẩn 3-5 ngày, nhanh 48 giờ, hỏa tốc 24 giờ.' ),
 			) as $f ) :
 				?>

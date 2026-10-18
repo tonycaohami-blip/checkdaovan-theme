@@ -19,7 +19,7 @@ $done      = vs_completed_count();
 		<div class="hero__copy reveal">
 			<span class="pill pill--light"><span class="dot"></span> Hoạt động 24/7 · Không lưu bài · Bảo mật tài liệu</span>
 			<h1>Nền tảng kiểm tra <span class="hl">đạo văn</span> &amp; <span class="hl">tỷ lệ AI</span> cho người làm học thuật</h1>
-			<p class="hero__lead">Kiểm tra bằng Turnitin, iThenticate, DoIT, Copyleaks, Originality.ai, GPTZero và nhiều phần mềm khác. Tỷ lệ cao? Biên tập viên chuyên ngành giúp bạn đưa bài xuống <strong>dưới 30%</strong> hoặc <strong>dưới 20%</strong> - không đạt hoàn tiền.</p>
+			<p class="hero__lead">Kiểm tra bằng Turnitin, iThenticate, DoIT, Copyleaks, Originality.ai, GPTZero và nhiều phần mềm khác. Tỷ lệ cao? Biên tập viên chuyên ngành hỗ trợ sửa diễn đạt, bổ sung trích dẫn đúng chuẩn, hướng tới mức <strong>dưới 30%</strong> hoặc <strong>dưới 20%</strong> - bạn vẫn là tác giả của bài.</p>
 			<div class="hero__actions">
 				<a href="<?php echo esc_url( vs_page_url( 'dat-hang', array( 'tab' => 'check' ) ) ); ?>" class="btn btn--accent btn--lg">Đặt kiểm tra ngay <?php echo vs_icon( 'arrow', 18 ); // phpcs:ignore ?></a>
 				<a href="<?php echo esc_url( vs_page_url( 'giam-ty-le-dao-van' ) ); ?>" class="btn btn--glass btn--lg">Giảm tỷ lệ đạo văn</a>
@@ -27,7 +27,7 @@ $done      = vs_completed_count();
 			<ul class="hero__trust">
 				<li><?php echo vs_icon( 'shield', 19 ); // phpcs:ignore ?>Chế độ No Repository</li>
 				<li><?php echo vs_icon( 'qr', 19 ); // phpcs:ignore ?>Thanh toán VietQR</li>
-				<li><?php echo vs_icon( 'refund', 19 ); // phpcs:ignore ?>Không đạt hoàn tiền</li>
+				<li><?php echo vs_icon( 'pen', 19 ); // phpcs:ignore ?>Tôn trọng liêm chính học thuật</li>
 			</ul>
 		</div>
 
@@ -56,7 +56,7 @@ $done      = vs_completed_count();
 
 	<div class="container">
 		<div class="logos reveal">
-			<span class="logos__label">Kiểm tra trên <?php echo count( $tools ); ?> phần mềm hàng đầu</span>
+			<span class="logos__label">Kiểm tra trên <?php echo count( $tools ); ?> phần mềm phổ biến</span>
 			<div class="logos__list">
 				<?php foreach ( $tools as $k => $t ) : ?>
 					<span class="logos__item"><i class="<?php echo esc_attr( trim( vs_tool_mark_class( $k ) ) ); ?>" style="--c:<?php echo esc_attr( $meta[ $k ][1] ); ?>"><?php echo vs_tool_mark( $k ); // phpcs:ignore ?></i><?php echo esc_html( $t['name'] ); ?></span>
@@ -69,14 +69,14 @@ $done      = vs_completed_count();
 <!-- ================= SỐ LIỆU ================= -->
 <section class="facts">
 	<div class="container facts__grid">
-		<div class="fact reveal"><b>4</b><span>phần mềm kiểm tra phổ biến nhất</span></div>
+		<div class="fact reveal"><b><?php echo count( $tools ); ?></b><span>phần mềm kiểm tra được hỗ trợ</span></div>
 		<div class="fact reveal"><b>24/7</b><span>nhận đơn, thanh toán &amp; xử lý</span></div>
 		<?php if ( $done >= 100 ) : ?>
 			<div class="fact reveal"><b><?php echo esc_html( number_format( $done, 0, ',', '.' ) ); ?>+</b><span>đơn hàng đã hoàn thành</span></div>
 		<?php else : ?>
 			<div class="fact reveal"><b>100<small>%</small></b><span>kiểm tra ở chế độ không lưu bài</span></div>
 		<?php endif; ?>
-		<div class="fact reveal"><b>&lt;20<small>%</small></b><span>mục tiêu cam kết khi giảm tỷ lệ</span></div>
+		<div class="fact reveal"><b>&lt;20<small>%</small></b><span>mức mục tiêu tham khảo khi biên tập</span></div>
 	</div>
 </section>
 
@@ -95,8 +95,8 @@ $done      = vs_completed_count();
 			$svcs = array(
 				array( 'target', 'Kiểm tra đạo văn', 'Báo cáo Similarity gốc từ Turnitin, iThenticate, Copyleaks.', vs_page_url( 'kiem-tra-dao-van' ), 'Từ ' . vs_money( vs_min_price( 'plag' ) ) ),
 				array( 'chart', 'Kiểm tra tỷ lệ AI', 'Phát hiện văn bản do ChatGPT, Gemini, Claude… tạo ra.', vs_page_url( 'kiem-tra-dao-van' ), 'Từ ' . vs_money( vs_min_price( 'ai' ) ) ),
-				array( 'pen', 'Giảm tỷ lệ đạo văn', 'Giảm đạo văn và/hoặc tỷ lệ AI xuống đúng mức bạn chọn, cam kết kết quả.', vs_page_url( 'giam-ty-le-dao-van' ), 'Từ ' . vs_money( $reduce['t30'] ) . '/trang' ),
-				array( 'shield', 'Giảm tỷ lệ AI', 'Viết lại theo giọng văn tự nhiên, đưa tỷ lệ AI dưới 20%.', vs_page_url( 'giam-ty-le-dao-van' ), 'Tùy chọn kèm đơn giảm tỷ lệ' ),
+				array( 'pen', 'Giảm tỷ lệ đạo văn', 'Biên tập diễn đạt, bổ sung trích dẫn cho bài do chính bạn viết, hướng tới mức tỷ lệ bạn chọn.', vs_page_url( 'giam-ty-le-dao-van' ), 'Từ ' . vs_money( $reduce['t30'] ) . '/trang' ),
+				array( 'shield', 'Rà soát đoạn bị đánh dấu AI', 'Góp ý và biên tập ngôn ngữ cho bài do chính bạn viết, không che giấu nội dung do AI tạo.', vs_page_url( 'giam-ty-le-dao-van' ), 'Tùy chọn kèm đơn giảm tỷ lệ' ),
 			);
 			foreach ( $svcs as $i => $s ) :
 				?>

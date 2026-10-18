@@ -307,10 +307,11 @@ function vs_faqs() {
 	$r = vs_pricing()['reduce'];
 	return array(
 		'Bài của tôi có bị lưu vào kho dữ liệu Turnitin không?' => 'Không. Chúng tôi kiểm tra bằng tài khoản ở chế độ No Repository, bài không được lưu, nên khi bạn nộp chính thức ở trường sẽ không bị trùng với chính bài của mình.',
-		'Tỷ lệ AI được tính như thế nào?' => 'Mỗi phần mềm dùng mô hình riêng để ước lượng phần trăm văn bản có khả năng được viết bởi AI (ChatGPT, Gemini, Claude…). Turnitin và Originality.ai là hai công cụ được nhiều trường và tạp chí tham chiếu nhất.',
-		'Nên chọn phần mềm nào?' => 'Hãy chọn đúng phần mềm mà trường hoặc tạp chí của bạn dùng. Phần lớn trường đại học dùng Turnitin; tạp chí khoa học thường dùng iThenticate. Mỗi đơn kiểm tra trên 1 phần mềm; nếu chưa rõ, hãy chọn Turnitin - phần mềm được dùng phổ biến nhất. Muốn đối chiếu thêm, bạn có thể đặt một đơn riêng trên Copyleaks.',
-		'Giảm tỷ lệ đạo văn có làm thay đổi nội dung không?' => 'Biên tập viên viết lại câu chữ, đổi cấu trúc diễn đạt, bổ sung trích dẫn đúng chuẩn nhưng giữ nguyên ý, số liệu và thuật ngữ chuyên ngành. Bạn nhận file kèm báo cáo Turnitin sau chỉnh sửa.',
-		'Nếu không đạt mục tiêu đã chọn thì sao?' => 'Chúng tôi sửa tiếp miễn phí đến khi đạt. Nếu vẫn không đạt đúng hạn cam kết, bạn được hoàn 100% phí dịch vụ.',
+		'Tỷ lệ AI được tính như thế nào?' => 'Mỗi phần mềm dùng mô hình riêng để ước lượng phần trăm văn bản có khả năng được viết bởi AI (ChatGPT, Gemini, Claude…). Turnitin và Originality.ai là hai công cụ được nhiều trường và tạp chí tham chiếu. Kết quả AI là ước lượng xác suất, không phải bằng chứng kết luận vi phạm.',
+		'Nên chọn phần mềm nào?' => 'Hãy chọn đúng phần mềm mà trường hoặc tạp chí của bạn dùng. Phần lớn trường đại học dùng Turnitin; tạp chí khoa học thường dùng iThenticate. Mỗi đơn kiểm tra trên 1 phần mềm; nếu chưa rõ, hãy chọn Turnitin - phần mềm được nhiều trường đại học sử dụng. Muốn đối chiếu thêm, bạn có thể đặt một đơn riêng trên Copyleaks.',
+		'Giảm tỷ lệ đạo văn có làm thay đổi nội dung không?' => 'Biên tập viên viết lại câu chữ, đổi cấu trúc diễn đạt, bổ sung trích dẫn đúng chuẩn nhưng giữ nguyên ý, số liệu và thuật ngữ chuyên ngành. Chúng tôi không viết thay nội dung, không bịa nguồn và không dùng mẹo che giấu. Bạn nhận file đã biên tập (có thể yêu cầu bản Track Changes để rà soát) kèm báo cáo kiểm tra lại.',
+		'Nếu không đạt mục tiêu đã chọn thì sao?' => 'Mục tiêu là mức tham khảo vì kết quả phụ thuộc cơ sở dữ liệu của phần mềm. Nếu bản bàn giao chưa đạt khi kiểm tra trên cùng phần mềm và thiết lập, chúng tôi biên tập bổ sung miễn phí hoặc hoàn phí theo Chính sách hoàn tiền.',
+		'Dịch vụ có vi phạm liêm chính học thuật không?' => 'Chúng tôi chỉ hỗ trợ biên tập ngôn ngữ và trích dẫn cho bài do chính bạn nghiên cứu, viết. Không nhận viết thuê, không tạo nội dung thay bạn, không bịa trích dẫn và không giúp che giấu nội dung do AI tạo. Bạn cần tuân thủ quy định của trường hoặc tạp chí, kể cả việc khai báo hỗ trợ biên tập và sử dụng AI nếu được yêu cầu.',
 		'Số trang được tính thế nào?' => 'Tính theo trang A4 của file bạn gửi (khoảng 300-350 chữ/trang). Khi bạn tải file Word lên, hệ thống tự đọc số trang. Với dịch vụ giảm tỷ lệ, bạn có thể chỉ gửi những chương cần sửa để tiết kiệm chi phí.',
 		'Bao lâu thì tài liệu của tôi bị xóa?' => 'File gốc được tự động xóa khỏi máy chủ sau 30 ngày kể từ ngày đặt. Bạn có thể yêu cầu xóa sớm hơn qua hotline/Zalo.',
 		'Đặt giảm tỷ lệ sau khi kiểm tra có được ưu đãi không?' => 'Có. Khi đơn kiểm tra hoàn thành, bạn bấm “Giảm dưới 30%” hoặc “Giảm dưới 20%” ngay trên trang tra cứu để được giảm thêm ' . $r['linked_pct'] . '% và không cần gửi lại file.',
@@ -330,6 +331,24 @@ add_action( 'pre_get_posts', function ( $q ) {
  *   [vs_bang_gia]                     -> bảng giá kiểm tra của mọi phần mềm
  *   [vs_bang_gia_giam]                -> đơn giá giảm tỷ lệ
  * ======================================================= */
+/** [vs_thong_tin_dn]: thông tin đơn vị cung cấp dịch vụ (lấy từ Cài đặt, luôn cập nhật). */
+add_shortcode( 'vs_thong_tin_dn', function () {
+	$rows = array(
+		'Đơn vị'              => vs_opt( 'company', get_bloginfo( 'name' ) ),
+		'Người đại diện'      => vs_opt( 'owner' ),
+		'Mã số thuế / ĐKKD'   => vs_opt( 'tax_code' ),
+		'Giấy chứng nhận'     => vs_opt( 'license' ),
+		'Địa chỉ'             => vs_opt( 'address' ),
+		'Điện thoại'          => vs_opt( 'hotline' ),
+		'Email'               => vs_opt( 'email' ),
+	);
+	$html = '<ul class="biz-info">';
+	foreach ( array_filter( $rows ) as $k => $v ) {
+		$html .= '<li><b>' . esc_html( $k ) . ':</b> ' . esc_html( $v ) . '</li>';
+	}
+	return $html . '</ul>';
+} );
+
 add_shortcode( 'vs_gia', function ( $a ) {
 	$a     = shortcode_atts( array( 'tool' => 'turnitin', 'mode' => 'plag' ), $a );
 	$tools = vs_pricing()['tools'];

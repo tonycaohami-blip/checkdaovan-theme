@@ -24,7 +24,7 @@ function vs_pricing_defaults() {
 			),
 			'ithenticate' => array(
 				'name'  => 'iThenticate',
-				'desc'  => 'Dùng cho bài báo khoa học, luận án gửi tạp chí. Cơ sở dữ liệu Crossref lớn nhất thế giới.',
+				'desc'  => 'Dùng cho bài báo khoa học, luận án gửi tạp chí. So khớp với cơ sở dữ liệu Crossref gồm nhiều bài báo khoa học đã xuất bản.',
 				'plag'  => 136500,
 				'ai'    => 78000,
 				'combo' => 195000,

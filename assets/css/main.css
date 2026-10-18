@@ -1665,3 +1665,15 @@ body.adm-lock { overflow: hidden; }
 	.fcard { grid-template-columns: auto minmax(0, 1fr); }
 	.fcard__btn { grid-column: 1 / -1; justify-content: center; }
 }
+
+/* ===== 6.9: Liêm chính học thuật & đồng ý xử lý dữ liệu ===== */
+.integrity{margin:18px 0 6px;padding:16px 18px;border:1px solid #c7d2fe;background:#eef2ff;border-radius:14px;font-size:14px;line-height:1.55}
+.integrity>b{display:block;margin-bottom:6px;color:#3730a3;font-size:15px}
+.integrity ul{margin:0 0 10px;padding-left:18px}
+.integrity li{margin:3px 0}
+.check--req{display:block;position:relative;padding-left:28px;font-size:14px;line-height:1.5;margin:12px 0 4px;cursor:pointer}
+.check--req input{position:absolute;left:0;top:2px;margin:0;width:18px;height:18px;accent-color:var(--primary,#4f46e5)}
+.check--req a{text-decoration:underline}
+.biz-info{list-style:none;padding:14px 18px;margin:0 0 20px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc}
+.biz-info li{margin:3px 0}
+.site-footer__bct{display:inline-block;margin-top:6px;font-size:13px;color:inherit;opacity:.85;text-decoration:underline}

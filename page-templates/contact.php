@@ -6,7 +6,7 @@ get_header();
 get_template_part( 'template-parts/page-hero', null, array(
 	'title'   => 'Liên hệ với chúng tôi',
 	'eyebrow' => 'Hỗ trợ ' . vs_opt( 'hours' ),
-	'lead'    => 'Nhắn Zalo để được tư vấn nhanh nhất. Đội ngũ phản hồi trong vài phút trong giờ làm việc.',
+	'lead'    => 'Nhắn Zalo để được được tư vấn nhanh. Đội ngũ phản hồi trong vài phút trong giờ làm việc.',
 	'size'    => 'sm',
 ) );
 $cards = array(

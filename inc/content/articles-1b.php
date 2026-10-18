@@ -71,7 +71,7 @@ return array(
 <h3>Dùng công cụ paraphrase tự động có được không?</h3>
 <p>Không nên. Văn bản thường thiếu tự nhiên, sai nghĩa chuyên ngành và có thể làm tỷ lệ AI tăng.</p>
 
-<blockquote>Không đủ thời gian tự sửa? <a href="{home}giam-ty-le-dao-van/">Dịch vụ giảm tỷ lệ đạo văn + AI</a> do biên tập viên chuyên ngành thực hiện, cam kết dưới 30% hoặc 20%.</blockquote>
+<blockquote>Không đủ thời gian tự sửa? <a href="{home}giam-ty-le-dao-van/">Dịch vụ giảm tỷ lệ đạo văn + AI</a> hỗ trợ biên tập diễn đạt và trích dẫn cho bài do chính bạn viết, hướng tới mức dưới 30% hoặc 20%.</blockquote>
 HTML
 		,
 	),

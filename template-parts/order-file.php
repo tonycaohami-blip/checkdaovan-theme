@@ -7,7 +7,7 @@ $a = wp_parse_args( isset( $args ) ? $args : array(), array(
 	'name'   => 'file',
 	'accept' => '.docx,.pdf,.txt,.rtf',
 	'title'  => 'Kéo thả hoặc bấm để chọn file',
-	'sub'    => '.docx, .pdf, .txt, .rtf · dưới ' . vs_max_upload_mb() . ' MB · bảo mật tuyệt đối',
+	'sub'    => '.docx, .pdf, .txt, .rtf · dưới ' . vs_max_upload_mb() . ' MB · bảo mật tài liệu',
 	'icon'   => 'upload',
 ) );
 $icons = array(

@@ -88,7 +88,7 @@ $min_check = vs_min_check_price();
 			<legend><span class="num">1</span> Bạn muốn giảm</legend>
 			<div class="goal-tabs">
 				<label><input type="radio" name="goal" value="plag" checked><span><b>Tỷ lệ đạo văn</b><small>Viết lại, bổ sung trích dẫn</small></span></label>
-				<label><input type="radio" name="goal" value="ai"><span><b>Tỷ lệ AI</b><small>Viết lại tự nhiên, cụ thể</small></span></label>
+				<label><input type="radio" name="goal" value="ai"><span><b>Tỷ lệ AI</b><small>Rà soát đoạn bị đánh dấu</small></span></label>
 				<label><input type="radio" name="goal" value="both"><span><b>Đạo văn + AI</b><small>Tiết kiệm <?php echo (int) ( 100 - $reduce['both_pct'] ); ?>% phần AI</small></span></label>
 			</div>
 		</fieldset>
@@ -166,8 +166,18 @@ $min_check = vs_min_check_price();
 			<input type="text" name="linked" placeholder="VD: VS1018AB2C" autocomplete="off">
 		</label>
 
+		<div class="integrity">
+			<b>Cam kết liêm chính học thuật</b>
+			<ul>
+				<li>Dịch vụ là <strong>hỗ trợ biên tập ngôn ngữ và trích dẫn</strong>; bạn là tác giả và chịu trách nhiệm về nội dung.</li>
+				<li>Chúng tôi không viết thay, không tạo số liệu hay nguồn giả, không dùng mẹo che giấu (chèn ký tự, chữ ẩn, chuyển ảnh…).</li>
+				<li>Không hỗ trợ che giấu nội dung do AI tạo ra. Hãy khai báo việc sử dụng AI và hỗ trợ biên tập nếu trường hoặc tạp chí yêu cầu.</li>
+			</ul>
+			<label class="check check--req"><input type="checkbox" name="integrity" value="1" required data-msg="Vui lòng xác nhận cam kết liêm chính học thuật."> Tôi xác nhận bài là do tôi nghiên cứu và viết, đã đọc <a href="<?php echo esc_url( vs_page_url( 'liem-chinh-hoc-thuat' ) ); ?>" target="_blank">Chính sách liêm chính học thuật</a> và sẽ rà soát bản biên tập trước khi nộp.</label>
+		</div>
+
 		<?php get_template_part( 'template-parts/order', 'common' ); ?>
 	</div>
 
-	<?php get_template_part( 'template-parts/order', 'summary', array( 'note' => 'Cam kết đạt tỷ lệ mục tiêu trên Turnitin. Không đạt - hoàn tiền 100%.' ) ); ?>
+	<?php get_template_part( 'template-parts/order', 'summary', array( 'note' => 'Mục tiêu là mức tham khảo. Chưa đạt trên cùng phần mềm và thiết lập: biên tập bổ sung miễn phí hoặc hoàn phí theo chính sách.' ) ); ?>
 </form>
