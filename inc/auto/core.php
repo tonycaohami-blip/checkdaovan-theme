@@ -374,6 +374,39 @@ add_action( 'template_redirect', function () {
 	exit;
 } );
 
+/* Tải lại file khách đã gửi (tài liệu / báo cáo PDF gốc): link có chữ ký theo mã đơn. */
+function vs_src_key( $id, $which ) {
+	return substr( wp_hash( $id . '|src|' . $which . '|' . vs_meta( $id, 'code' ), 'auth' ), 0, 24 );
+}
+
+function vs_src_url( $id, $which ) {
+	return add_query_arg( array( 'vs_src' => $id, 'w' => $which, 'k' => vs_src_key( $id, $which ) ), home_url( '/' ) );
+}
+
+add_action( 'template_redirect', function () {
+	if ( empty( $_GET['vs_src'] ) ) {
+		return;
+	}
+	$id    = (int) $_GET['vs_src'];
+	$which = isset( $_GET['w'] ) && 'src_report' === $_GET['w'] ? 'src_report' : 'file';
+	$k     = isset( $_GET['k'] ) ? (string) $_GET['k'] : '';
+	if ( 'vs_order' !== get_post_type( $id ) || ! vs_meta( $id, $which ) || ! hash_equals( vs_src_key( $id, $which ), $k ) ) {
+		wp_die( 'Liên kết không hợp lệ hoặc đã hết hạn.', 'Không tải được file', array( 'response' => 403 ) );
+	}
+	$path = vs_private_dir() . '/' . basename( vs_meta( $id, $which ) );
+	if ( ! is_file( $path ) ) {
+		wp_die( 'File đã được xóa theo chính sách lưu trữ 30 ngày.', 'Không tìm thấy file', array( 'response' => 404 ) );
+	}
+	$name = (string) vs_meta( $id, $which . '_name', basename( $path ) );
+	nocache_headers();
+	header( 'Content-Type: application/octet-stream' );
+	header( "Content-Disposition: attachment; filename=\"" . sanitize_file_name( remove_accents( $name ) ) . "\"; filename*=UTF-8''" . rawurlencode( $name ) );
+	header( 'Content-Length: ' . filesize( $path ) );
+	header( 'X-Robots-Tag: noindex' );
+	readfile( $path );
+	exit;
+} );
+
 /* Dọn file báo cáo tự động theo cùng chính sách 30 ngày. */
 add_action( 'vs_cleanup_files', function () {
 	$days = (int) apply_filters( 'vs_file_retention_days', 30 );

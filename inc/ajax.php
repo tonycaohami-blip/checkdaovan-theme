@@ -282,14 +282,47 @@ function vs_order_details( $id ) {
 			$d['Từ đơn kiểm tra'] = vs_meta( $id, 'linked' );
 		}
 	}
-	if ( vs_meta( $id, 'file_name' ) ) {
-		$d['File đã gửi'] = vs_meta( $id, 'file_name' ) . ( vs_meta( $id, 'src_report_name' ) ? ' + ' . vs_meta( $id, 'src_report_name' ) : '' );
-	}
 	if ( vs_meta( $id, 'coupon' ) ) {
 		$d['Ưu đãi'] = vs_meta( $id, 'coupon' );
 	}
 	$d['Ngày đặt'] = get_the_date( 'H:i d/m/Y', $id );
 	return array_filter( $d );
+}
+
+/** Rút gọn tên file dài, giữ đuôi file: "Luan-van-thac-si-nguyen…v3.docx". */
+function vs_short_filename( $name, $max = 26 ) {
+	$name = (string) $name;
+	if ( mb_strlen( $name ) <= $max ) {
+		return $name;
+	}
+	$ext  = pathinfo( $name, PATHINFO_EXTENSION );
+	$base = $ext ? mb_substr( $name, 0, -( mb_strlen( $ext ) + 1 ) ) : $name;
+	$keep = max( 6, $max - mb_strlen( $ext ) - 4 );
+	$head = (int) ceil( $keep * 0.7 );
+	$tail = $keep - $head;
+	return mb_substr( $base, 0, $head ) . '…' . ( $tail ? mb_substr( $base, -$tail ) : '' ) . ( $ext ? '.' . $ext : '' );
+}
+
+/** File khách đã gửi kèm đơn: tên đầy đủ, tên ngắn, dung lượng, link tải có chữ ký. */
+function vs_order_sent_files( $id ) {
+	$out = array();
+	foreach ( array( 'file' => 'Tài liệu', 'src_report' => 'Báo cáo PDF' ) as $which => $label ) {
+		$stored = vs_meta( $id, $which );
+		if ( ! $stored ) {
+			continue;
+		}
+		$name = (string) vs_meta( $id, $which . '_name', basename( $stored ) );
+		$path = vs_private_dir() . '/' . basename( $stored );
+		$out[] = array(
+			'label' => $label,
+			'name'  => $name,
+			'short' => vs_short_filename( $name ),
+			'ext'   => strtoupper( pathinfo( $name, PATHINFO_EXTENSION ) ),
+			'size'  => is_file( $path ) ? size_format( filesize( $path ), filesize( $path ) < 10240 ? 1 : 0 ) : '',
+			'url'   => is_file( $path ) ? vs_src_url( $id, $which ) : '',
+		);
+	}
+	return $out;
 }
 
 /** Dữ liệu đơn hàng hiển thị cho khách (tra cứu, trang tài khoản). */
@@ -344,6 +377,7 @@ function vs_order_view( $id ) {
 		'waiting' => 'dang_xu_ly' === $status ? vs_order_waiting( $id ) : array(),
 		'title'   => 'check' === $type ? 'Kiểm tra đạo văn & AI' : 'Giảm tỷ lệ đạo văn + AI',
 		'details' => vs_order_details( $id ),
+		'sent'    => vs_order_sent_files( $id ),
 		'paid_at' => get_post_meta( $id, '_vs_paid_at', true ) ? wp_date( 'H:i d/m/Y', (int) get_post_meta( $id, '_vs_paid_at', true ) ) : '',
 		'done_at' => get_post_meta( $id, '_vs_done_at', true ) ? wp_date( 'H:i d/m/Y', (int) get_post_meta( $id, '_vs_done_at', true ) ) : '',
 		'files'   => $files,

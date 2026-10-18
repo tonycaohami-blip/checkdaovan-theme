@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'VS_VERSION', '6.3.4' );
+define( 'VS_VERSION', '6.3.5' );
 define( 'VS_BRAND', 'Check Đạo Văn' );       // Tên thương hiệu mặc định (đổi trong Cài đặt > Chung > Tên website).
 define( 'VS_DOMAIN', 'checkdaovan247.com' );          // Tên miền chính thức.
 define( 'VS_EMAIL', 'hotro@checkdaovan247.com' );     // Email hỗ trợ mặc định.

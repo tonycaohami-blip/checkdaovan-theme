@@ -161,6 +161,22 @@ $render_order = function ( $o, $open = false ) {
 							<?php foreach ( $o['details'] as $k => $v ) : ?>
 								<dt><?php echo esc_html( $k ); ?></dt><dd><?php echo esc_html( $v ); ?></dd>
 							<?php endforeach; ?>
+							<?php if ( ! empty( $o['sent'] ) ) : ?>
+								<dt class="sent-files__dt">File đã gửi</dt>
+								<dd class="sent-files">
+									<?php foreach ( $o['sent'] as $sf ) : ?>
+										<?php $tag = $sf['url'] ? 'a' : 'span'; ?>
+										<<?php echo $tag; // phpcs:ignore ?> class="sent-file<?php echo $sf['url'] ? '' : ' is-gone'; ?>"<?php echo $sf['url'] ? ' href="' . esc_url( $sf['url'] ) . '" download' : ''; ?> title="<?php echo esc_attr( $sf['label'] . ': ' . $sf['name'] . ( $sf['url'] ? ' - bấm để tải xuống' : ' - file đã được xóa theo chính sách lưu trữ' ) ); ?>">
+											<span class="sent-file__ext sent-file__ext--<?php echo esc_attr( strtolower( $sf['ext'] ) ); ?>"><?php echo esc_html( $sf['ext'] ? $sf['ext'] : 'FILE' ); ?></span>
+											<span class="sent-file__body">
+												<span class="sent-file__name"><?php echo esc_html( $sf['short'] ); ?></span>
+												<span class="sent-file__meta"><?php echo esc_html( $sf['label'] . ( $sf['size'] ? ' · ' . $sf['size'] : '' ) ); ?></span>
+											</span>
+											<?php if ( $sf['url'] ) : ?><span class="sent-file__dl" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg></span><?php endif; ?>
+										</<?php echo $tag; // phpcs:ignore ?>>
+									<?php endforeach; ?>
+								</dd>
+							<?php endif; ?>
 							<dt>Thành tiền</dt><dd><b><?php echo esc_html( vs_money( $o['total'] ) ); ?></b></dd>
 						</dl>
 						<a class="oc__help" href="<?php echo esc_url( vs_zalo( vs_opt( 'zalo' ) ) ); ?>" target="_blank" rel="noopener"><?php echo vs_icon( 'chat', 16 ); // phpcs:ignore ?> Cần hỗ trợ đơn này? Nhắn Zalo</a>
