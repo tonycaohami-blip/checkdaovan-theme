@@ -20,11 +20,12 @@ $init   = mb_strtoupper( mb_substr( end( $words ), 0, 1 ) );
 /** Khối chi tiết 1 đơn hàng. */
 $render_order = function ( $o, $open = false ) {
 	$is_check = 'check' === $o['type'];
+	// Mỗi bước: [tên khi chưa tới, tên khi đang làm, tên khi đã xong, thời gian, đã xong?]
 	$steps    = array(
-		array( 'Đặt hàng', $o['date'], true ),
-		array( 'Thanh toán', $o['paid_at'], in_array( $o['status'], array( 'dang_xu_ly', 'hoan_thanh' ), true ) ),
-		array( 'Đang xử lý', '', 'hoan_thanh' === $o['status'] ),
-		array( 'Hoàn thành', $o['done_at'], 'hoan_thanh' === $o['status'] ),
+		array( 'Đặt hàng', 'Đặt hàng', 'Đã đặt hàng', $o['date'], true ),
+		array( 'Thanh toán', 'Chờ thanh toán', 'Đã thanh toán', $o['paid_at'], in_array( $o['status'], array( 'dang_xu_ly', 'hoan_thanh' ), true ) ),
+		array( 'Xử lý', 'Đang xử lý', 'Đã xử lý', '', 'hoan_thanh' === $o['status'] ),
+		array( 'Hoàn thành', 'Hoàn thành', 'Đã hoàn thành', $o['done_at'], 'hoan_thanh' === $o['status'] ),
 	);
 	$current  = array( 'cho_thanh_toan' => 2, 'dang_xu_ly' => 3, 'hoan_thanh' => 4, 'huy' => -1 );
 	$cur_step = isset( $current[ $o['status'] ] ) ? $current[ $o['status'] ] : 0;
@@ -48,10 +49,11 @@ $render_order = function ( $o, $open = false ) {
 			<?php if ( 'huy' !== $o['status'] ) : ?>
 				<ol class="stepper">
 					<?php foreach ( $steps as $i => $s ) : ?>
-						<li class="<?php echo $s[2] ? 'is-done' : ''; ?><?php echo ( $i + 1 ) === $cur_step ? ' is-current' : ''; ?>">
-							<span class="stepper__dot"><?php echo $s[2] ? vs_icon( 'check', 14 ) : (int) ( $i + 1 ); // phpcs:ignore ?></span>
-							<b><?php echo esc_html( $s[0] ); ?></b>
-							<?php if ( $s[1] ) : ?><small><?php echo esc_html( $s[1] ); ?></small><?php endif; ?>
+						<?php $is_cur = ( $i + 1 ) === $cur_step; ?>
+						<li class="<?php echo $s[4] ? 'is-done' : ''; ?><?php echo $is_cur ? ' is-current' : ''; ?>">
+							<span class="stepper__dot"><?php echo $s[4] ? vs_icon( 'check', 14 ) : (int) ( $i + 1 ); // phpcs:ignore ?></span>
+							<b><?php echo esc_html( $s[4] ? $s[2] : ( $is_cur ? $s[1] : $s[0] ) ); ?></b>
+							<?php if ( $s[3] ) : ?><small><?php echo esc_html( $s[3] ); ?></small><?php endif; ?>
 						</li>
 					<?php endforeach; ?>
 				</ol>

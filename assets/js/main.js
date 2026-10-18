@@ -343,11 +343,16 @@
 	var pct = function (v) { return v == null ? '—' : String(v).replace('.', ',') + '%'; };
 
 	function renderTrack(d) {
-		var steps = ['Đã đặt hàng', 'Đang xử lý', 'Hoàn thành'];
+		// Mỗi bước: [chưa tới, đang làm, đã xong]
+		var steps = [['Đặt hàng', 'Đã đặt hàng', 'Đã đặt hàng'], ['Xử lý', 'Đang xử lý', 'Đã xử lý'], ['Hoàn thành', 'Hoàn thành', 'Đã hoàn thành']];
 		var idx = { cho_thanh_toan: 0, dang_xu_ly: 1, hoan_thanh: 2 }[d.status];
 		var html = '<div class="tr__head"><span class="tr__code">' + esc(d.code) + '</span><span class="status status--' + esc(d.status) + '">' + esc(d.label) + '</span></div>' +
 			'<div class="tr__meta">' + esc(d.summary) + ' · <b>' + money(d.total) + '</b> · Đặt lúc ' + esc(d.date) + '</div>';
-		if (idx != null) html += '<div class="progress">' + steps.map(function (s, i) { return '<span class="' + (i <= idx ? 'is-done' : '') + '">' + s + '</span>'; }).join('') + '</div>';
+		if (idx != null) html += '<div class="progress">' + steps.map(function (s, i) {
+			// Bước đã qua (hoặc bước cuối khi đơn hoàn thành) -> "Đã ..."; bước hiện tại -> "Đang ...".
+			var done = i < idx || (i === idx && (d.status === 'hoan_thanh' || i === 0));
+			return '<span class="' + (i <= idx ? 'is-done' : '') + '">' + (done ? s[2] : (i === idx ? s[1] : s[0])) + '</span>';
+		}).join('') + '</div>';
 		html += autoHtml(d.auto);
 		if (d.waiting && d.waiting.length) html += '<div class="rs rs--track">' + waitHtml(d.waiting) + '</div>';
 		if (d.results.length) {
