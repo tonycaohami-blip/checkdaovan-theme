@@ -225,12 +225,15 @@ add_action( 'rest_api_init', function () {
 		'permission_callback' => '__return_true', // Chỉ kích hoạt việc kiểm tra kho cố định; không nhận dữ liệu.
 		'callback'            => function () {
 			if ( get_transient( 'vs_su_hook' ) ) {
-				return array( 'ok' => true, 'queued' => true );
+				return array( 'ok' => true, 'skipped' => 'Vừa kiểm tra, thử lại sau 20 giây.' );
 			}
 			set_transient( 'vs_su_hook', 1, 20 );
-			wp_schedule_single_event( time(), 'vs_su_tick' );
-			spawn_cron();
-			return array( 'ok' => true );
+			// Chạy trực tiếp (không phụ thuộc WP-Cron); vẫn chạy tiếp nếu GitHub ngắt kết nối sớm.
+			ignore_user_abort( true );
+			if ( function_exists( 'set_time_limit' ) ) {
+				@set_time_limit( 180 ); // phpcs:ignore
+			}
+			return array( 'ok' => true, 'result' => vs_su_run( true ) );
 		},
 	) );
 } );
