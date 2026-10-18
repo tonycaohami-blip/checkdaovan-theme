@@ -60,7 +60,7 @@ $cols = array(
 	</div>
 	<div class="container site-footer__bottom">
 		<span>© <?php echo esc_html( wp_date( 'Y' ) ); ?> <?php echo esc_html( vs_opt( 'company', get_bloginfo( 'name' ) ) ); ?><?php echo vs_opt( 'tax_code' ) ? ' · MST/ĐKKD: ' . esc_html( vs_opt( 'tax_code' ) ) : ''; ?></span>
-		<span class="site-footer__note">Turnitin, iThenticate, Copyleaks, Originality.ai, GPTZero, Winston AI, Grammarly, DoIT là nhãn hiệu của các chủ sở hữu tương ứng. Chúng tôi là đơn vị cung cấp dịch vụ độc lập, không phải đại diện của các hãng.</span>
+		<span class="site-footer__note">Turnitin, iThenticate, Copyleaks, Originality.ai, GPTZero, Winston AI, Grammarly, DoIT, QuillBot, Undetectable.AI là nhãn hiệu của các chủ sở hữu tương ứng. Chúng tôi là đơn vị cung cấp dịch vụ độc lập, không phải đại diện của các hãng.</span>
 	</div>
 </footer>
 

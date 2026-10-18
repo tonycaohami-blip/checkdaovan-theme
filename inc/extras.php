@@ -205,7 +205,7 @@ add_action( 'wp_head', function () {
 		return;
 	}
 
-	$desc  = vs_opt( 'meta_desc', 'Kiểm tra tỷ lệ đạo văn và tỷ lệ AI bằng Turnitin, iThenticate, DoIT, Copyleaks, Originality.ai, GPTZero, Winston AI, Grammarly. Không lưu bài, kết quả từ 30 phút. Dịch vụ giảm tỷ lệ đạo văn dưới 30%, dưới 20%.' );
+	$desc  = vs_opt( 'meta_desc', 'Kiểm tra tỷ lệ đạo văn và tỷ lệ AI bằng Turnitin, iThenticate, DoIT, Copyleaks, Originality.ai, GPTZero, Winston AI, Grammarly, QuillBot, Undetectable.AI. Không lưu bài, kết quả từ 30 phút. Dịch vụ giảm tỷ lệ đạo văn dưới 30%, dưới 20%.' );
 	$title = wp_get_document_title();
 	$url   = home_url( add_query_arg( array() ) );
 	$type  = 'website';

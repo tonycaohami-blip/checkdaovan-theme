@@ -11,7 +11,7 @@ get_template_part( 'template-parts/page-hero', null, array(
 	'title'   => 'Kiểm tra đạo văn &amp; tỷ lệ AI',
 	'eyebrow' => 'Dịch vụ',
 	'crumbs'  => array( 'Dịch vụ' => vs_page_url( 'bang-gia' ) ),
-	'lead'    => 'Nhận báo cáo PDF gốc từ <strong>Turnitin, iThenticate, DoIT, Copyleaks, Originality.ai, GPTZero, Winston AI, Grammarly</strong>. Kiểm tra ở chế độ không lưu bài, kết quả từ 30 phút.',
+	'lead'    => 'Nhận báo cáo PDF gốc từ <strong>Turnitin, iThenticate, DoIT, Copyleaks, Originality.ai, GPTZero, Winston AI, Grammarly, QuillBot, Undetectable.AI</strong>. Kiểm tra ở chế độ không lưu bài, kết quả từ 30 phút.',
 	'actions' => '<a class="btn btn--accent btn--lg" href="' . esc_url( $order ) . '">Đặt kiểm tra - từ ' . esc_html( vs_money( vs_min_check_price() ) ) . '</a><a class="btn btn--glass btn--lg" href="' . esc_url( vs_page_url( 'bang-gia' ) ) . '">Xem bảng giá</a>',
 	'aside'   => '<div class="mini-report"><div class="mini-report__head"><span>Báo cáo kiểm tra</span><em>Minh họa</em></div><div class="mini-report__grid"><div><b class="lvl-ok">14%</b><span>Similarity</span></div><div><b style="color:#3d5cff">0%</b><span>AI writing</span></div></div><ul><li><i style="width:64%"></i>Internet Sources<b>9%</b></li><li><i style="width:30%"></i>Publications<b>4%</b></li><li><i style="width:10%"></i>Student Papers<b>1%</b></li></ul></div>',
 ) );
@@ -32,7 +32,7 @@ get_template_part( 'template-parts/page-hero', null, array(
 						<p><?php echo esc_html( $t['desc'] ); ?></p>
 					</div>
 					<div class="tool-row__prices">
-						<span>Đạo văn <b><?php echo esc_html( vs_price_label( $t['plag'] ) ); ?></b></span>
+						<span class="<?php echo $t['plag'] > 0 ? '' : 'is-na'; ?>">Đạo văn <b><?php echo esc_html( vs_price_label( $t['plag'] ) ); ?></b></span>
 						<span class="<?php echo $t['ai'] > 0 ? '' : 'is-na'; ?>">AI <b><?php echo esc_html( vs_price_label( $t['ai'] ) ); ?></b></span>
 						<?php if ( $t['combo'] > 0 ) : ?><span class="is-best">Combo <b><?php echo esc_html( vs_money( $t['combo'] ) ); ?></b></span><?php endif; ?>
 					</div>

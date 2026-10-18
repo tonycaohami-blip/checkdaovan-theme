@@ -70,6 +70,22 @@ function vs_pricing_defaults() {
 				'plag'  => 150000,
 				'ai'    => 0,
 				'combo' => 0,
+				'note'  => array( 'Cơ sở dữ liệu', 'Tài liệu tiếng Việt' ),
+			),
+			'quillbot'    => array(
+				'name'  => 'QuillBot',
+				'desc'  => 'Kiểm tra đạo văn và phát hiện AI của QuillBot - quen thuộc với sinh viên viết bài tiếng Anh, kết quả nhanh, chi phí thấp.',
+				'plag'  => 39000,
+				'ai'    => 29000,
+				'combo' => 59000,
+			),
+			'undetectable' => array(
+				'name'  => 'Undetectable.AI',
+				'desc'  => 'Bộ phát hiện AI tổng hợp: đối chiếu văn bản với nhiều công cụ phát hiện AI phổ biến trong một lần kiểm tra.',
+				'plag'  => 0,
+				'ai'    => 39000,
+				'combo' => 0,
+				'note'  => array( 'Đối chiếu', 'Nhiều bộ phát hiện AI' ),
 			),
 		),
 		'check'  => array(

@@ -28,18 +28,23 @@ get_template_part( 'template-parts/page-hero', null, array(
 						<div class="tool__logo tool__logo--sm" style="--c:<?php echo esc_attr( $meta[ $k ][1] ); ?>"><?php echo esc_html( $meta[ $k ][0] ); ?></div>
 						<div><h3><?php echo esc_html( $t['name'] ); ?></h3><small><?php echo esc_html( $meta[ $k ][2] ); ?></small></div>
 					</div>
-					<?php if ( $t['combo'] > 0 ) : ?>
-						<div class="plan__price"><b><?php echo esc_html( vs_money( $t['combo'] ) ); ?></b><span>Đạo văn + AI</span></div>
-					<?php else : ?>
-						<div class="plan__price"><b><?php echo esc_html( vs_money( $t['plag'] ) ); ?></b><span>Kiểm tra đạo văn</span></div>
-					<?php endif; ?>
+					<?php
+					if ( $t['combo'] > 0 ) {
+						$head = array( $t['combo'], 'Đạo văn + AI' );
+					} elseif ( $t['plag'] > 0 ) {
+						$head = array( $t['plag'], 'Kiểm tra đạo văn' );
+					} else {
+						$head = array( $t['ai'], 'Kiểm tra tỷ lệ AI' );
+					}
+					?>
+					<div class="plan__price"><b><?php echo esc_html( vs_money( $head[0] ) ); ?></b><span><?php echo esc_html( $head[1] ); ?></span></div>
 					<ul class="plan__list">
-						<li><span>Chỉ đạo văn</span><b><?php echo esc_html( vs_price_label( $t['plag'] ) ); ?></b></li>
+						<li><span>Chỉ đạo văn</span><b class="<?php echo $t['plag'] > 0 ? '' : 'is-na'; ?>"><?php echo esc_html( vs_price_label( $t['plag'] ) ); ?></b></li>
 						<li><span>Chỉ tỷ lệ AI</span><b class="<?php echo $t['ai'] > 0 ? '' : 'is-na'; ?>"><?php echo esc_html( vs_price_label( $t['ai'] ) ); ?></b></li>
 						<?php if ( $t['combo'] > 0 ) : ?>
 							<li><span>Tiết kiệm khi chọn combo</span><b class="lvl-ok"><?php echo esc_html( vs_money( $t['plag'] + $t['ai'] - $t['combo'] ) ); ?></b></li>
-						<?php else : ?>
-							<li><span>Cơ sở dữ liệu</span><b>Tài liệu tiếng Việt</b></li>
+						<?php elseif ( ! empty( $t['note'] ) ) : ?>
+							<li><span><?php echo esc_html( $t['note'][0] ); ?></span><b><?php echo esc_html( $t['note'][1] ); ?></b></li>
 						<?php endif; ?>
 					</ul>
 					<a class="btn <?php echo 'turnitin' === $k ? 'btn--accent' : 'btn--outline'; ?> btn--block" href="<?php echo esc_url( vs_page_url( 'dat-hang', array( 'tab' => 'check', 'tool' => $k ) ) ); ?>">Đặt <?php echo esc_html( $t['name'] ); ?></a>

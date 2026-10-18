@@ -329,11 +329,11 @@ HTML
 		'cat'     => 'dich-vu',
 		'cover'   => 'bang-gia-kiem-tra-dao-van-ai-check-dao-van.jpg',
 		'tags'    => array( 'bảng giá kiểm tra đạo văn', 'giá check Turnitin', 'giá kiểm tra AI' ),
-		'title'   => 'Bảng giá kiểm tra đạo văn và AI 2026: So sánh 8 phần mềm, chọn đúng cho bài của bạn',
-		'excerpt' => 'Bảng giá kiểm tra đạo văn và tỷ lệ AI cập nhật 2026 cho 8 phần mềm: Turnitin, iThenticate, Copyleaks, Originality.ai, GPTZero, Winston AI, Grammarly và DoIT. Cách tính giá, phụ phí và mẹo tiết kiệm.',
+		'title'   => 'Bảng giá kiểm tra đạo văn và AI 2026: So sánh 10 phần mềm, chọn đúng cho bài của bạn',
+		'excerpt' => 'Bảng giá kiểm tra đạo văn và tỷ lệ AI cập nhật 2026 cho 10 phần mềm: Turnitin, iThenticate, Copyleaks, Originality.ai, GPTZero, Winston AI, Grammarly, QuillBot, Undetectable.AI và DoIT. Cách tính giá, phụ phí và mẹo tiết kiệm.',
 		'content' => <<<'HTML'
 <div class="tldr"><b>Tóm tắt nhanh</b><ul>
-	<li>8 phần mềm, 3 hình thức: chỉ đạo văn, chỉ AI, combo Đạo văn + AI.</li>
+	<li>10 phần mềm, 3 hình thức: chỉ đạo văn, chỉ AI, combo Đạo văn + AI.</li>
 	<li>Giá cho mỗi file, hiển thị đầy đủ trước khi thanh toán.</li>
 	<li>Thấp nhất từ [vs_gia tool="grammarly" mode="plag"]; DoIT [vs_gia tool="doit" mode="plag"]; Turnitin combo [vs_gia tool="turnitin" mode="combo"].</li>
 	<li>Chọn phần mềm theo nơi bạn nộp bài, không theo giá rẻ nhất.</li>
@@ -341,7 +341,7 @@ HTML
 
 <p>“Check Turnitin giá bao nhiêu?”, “Kiểm tra AI có đắt không?” - đây là những câu hỏi đầu tiên khi bạn tìm dịch vụ kiểm tra đạo văn. Bài viết này tổng hợp <strong>bảng giá kiểm tra đạo văn và AI 2026</strong> cho 8 phần mềm tại {company}, giải thích cách tính giá và giúp bạn chọn đúng phần mềm cho bài của mình. Bảng giá dưới đây luôn được cập nhật tự động theo giá hiện hành.</p>
 
-<h2>Bảng giá kiểm tra 8 phần mềm</h2>
+<h2>Bảng giá kiểm tra 10 phần mềm</h2>
 [vs_bang_gia]
 
 <h2>Cách tính giá</h2>
@@ -364,7 +364,8 @@ HTML
 		<tr><td>Chỉ cần tỷ lệ AI, kể cả bài tiếng Việt</td><td><a href="{home}kiem-tra-ai-originality-ai/">Originality.ai</a></td></tr>
 		<tr><td>Giảng viên dùng GPTZero</td><td><a href="{home}kiem-tra-ai-gptzero/">GPTZero</a></td></tr>
 		<tr><td>AI + đạo văn, có bản scan</td><td><a href="{home}kiem-tra-ai-winston-ai/">Winston AI</a></td></tr>
-		<tr><td>Essay tiếng Anh, kiểm tra sơ bộ chi phí thấp</td><td><a href="{home}kiem-tra-dao-van-grammarly/">Grammarly</a></td></tr>
+		<tr><td>Essay tiếng Anh, kiểm tra sơ bộ chi phí thấp</td><td><a href="{home}kiem-tra-dao-van-grammarly/">Grammarly</a> hoặc <a href="{home}dat-hang/?tab=check&amp;tool=quillbot">QuillBot</a></td></tr>
+		<tr><td>Muốn đối chiếu tỷ lệ AI trên nhiều công cụ cùng lúc</td><td><a href="{home}dat-hang/?tab=check&amp;tool=undetectable&amp;mode=ai">Undetectable.AI</a> (chỉ kiểm tra AI)</td></tr>
 	</tbody>
 </table>
 <div class="callout callout--warn"><b>Đừng chọn theo giá rẻ nhất</b>Điều quan trọng là kết quả trên phần mềm mà trường hoặc tạp chí sử dụng. Kết quả trên công cụ khác chỉ mang tính tham khảo.</div>

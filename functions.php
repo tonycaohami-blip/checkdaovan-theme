@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'VS_VERSION', '6.4.1' );
+define( 'VS_VERSION', '6.5.0' );
 define( 'VS_BRAND', 'Check Đạo Văn' );       // Tên thương hiệu mặc định (đổi trong Cài đặt > Chung > Tên website).
 define( 'VS_DOMAIN', 'checkdaovan247.com' );          // Tên miền chính thức.
 define( 'VS_EMAIL', 'hotro@checkdaovan247.com' );     // Email hỗ trợ mặc định.
@@ -138,6 +138,8 @@ function vs_tool_meta() {
 		'winston'     => array( 'W', '#0284c7', 'AI + đạo văn' ),
 		'grammarly'   => array( 'G', '#16a34a', 'Bài tiếng Anh' ),
 		'doit'        => array( 'D', '#be123c', 'Việt Nam' ),
+		'quillbot'    => array( 'Q', '#65a30d', 'Đạo văn + AI' ),
+		'undetectable' => array( 'UA', '#334155', 'AI tổng hợp' ),
 	);
 }
 
@@ -178,7 +180,7 @@ function vs_icon( $name, $size = 24 ) {
 function vs_fallback_menu() {
 	$items = array(
 		array( 'Dịch vụ', '#', array(
-			array( 'Kiểm tra đạo văn & AI', vs_page_url( 'kiem-tra-dao-van' ), 'Turnitin, DoIT, GPTZero và 5 phần mềm khác', 'target' ),
+			array( 'Kiểm tra đạo văn & AI', vs_page_url( 'kiem-tra-dao-van' ), 'Turnitin, DoIT, GPTZero và ' . ( count( vs_pricing()['tools'] ) - 3 ) . ' phần mềm khác', 'target' ),
 			array( 'Giảm tỷ lệ đạo văn + AI', vs_page_url( 'giam-ty-le-dao-van' ), 'Cam kết dưới 30% / 20%, kèm giảm AI', 'pen' ),
 			array( 'Tra cứu đơn hàng', vs_page_url( 'tra-cuu-don-hang' ), 'Xem kết quả, tải báo cáo', 'search' ),
 		) ),
