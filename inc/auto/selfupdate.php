@@ -107,7 +107,7 @@ function vs_su_run( $force = false ) {
 	return 'Đã cập nhật lên bản ' . substr( $sha, 0, 7 ) . '.';
 }
 
-/** Tải gói zip của commit và thay thư mục theme (giữ bản cũ để khôi phục nếu lỗi). */
+/** Tải gói zip của commit và chép đè lên thư mục theme (giống cách WordPress cập nhật plugin). */
 function vs_su_install( $sha ) {
 	require_once ABSPATH . 'wp-admin/includes/file.php';
 	if ( ! WP_Filesystem() ) {
@@ -134,59 +134,74 @@ function vs_su_install( $sha ) {
 		return new WP_Error( 'pkg', 'Gói tải về không phải theme hợp lệ.' );
 	}
 
-	// Chép bản mới vào thư mục tạm NẰM CẠNH thư mục theme (cùng ổ đĩa) để đổi tên an toàn.
-	// Không dùng $wp_filesystem->move() cho thư mục: khi khác ổ đĩa, hàm này có thể "chép" thư mục thành tệp rỗng.
+	// Chép đè từng tệp, KHÔNG đổi tên thư mục đang chạy (đổi tên có thể bị kẹt khi website đang đọc tệp,
+	// và $wp_filesystem->move() có thể "chép" thư mục thành tệp rỗng khi khác ổ đĩa).
+	// Mỗi tệp được ghi ra tệp tạm rồi đổi tên đè lên tệp cũ; functions.php và style.css được chép sau cùng.
 	$dest  = untrailingslashit( get_template_directory() );
-	$stamp = time();
-	$new   = $dest . '-new-' . $stamp;
-	$old   = $dest . '-old-' . $stamp;
-	wp_mkdir_p( $new );
-	$copied = copy_dir( $src, $new );
-	$wp_filesystem->delete( $work, true );
-	if ( is_wp_error( $copied ) || ! vs_su_valid_dir( $new, $src ) ) {
-		$wp_filesystem->delete( $new, true );
-		return new WP_Error( 'copy', 'Không chép được bản mới, website vẫn dùng bản cũ.' );
+	$files = vs_su_list( $src );
+	if ( count( $files ) < 20 || ! in_array( 'functions.php', $files, true ) ) {
+		$wp_filesystem->delete( $work, true );
+		return new WP_Error( 'pkg', 'Gói tải về thiếu tệp, website vẫn dùng bản cũ.' );
+	}
+	usort( $files, function ( $x, $y ) {
+		$last = array( 'style.css' => 1, 'functions.php' => 2 );
+		return ( isset( $last[ $x ] ) ? $last[ $x ] : 0 ) - ( isset( $last[ $y ] ) ? $last[ $y ] : 0 );
+	} );
+	$failed = array();
+	foreach ( $files as $rel ) {
+		$from = $src . '/' . $rel;
+		$to   = $dest . '/' . $rel;
+		if ( is_file( $to ) && filesize( $to ) === filesize( $from ) && md5_file( $to ) === md5_file( $from ) ) {
+			continue; // Không đổi.
+		}
+		wp_mkdir_p( dirname( $to ) );
+		$tmp = $to . '.vs-new';
+		$ok  = @copy( $from, $tmp ) && filesize( $tmp ) === filesize( $from ); // phpcs:ignore
+		if ( $ok && ! @rename( $tmp, $to ) ) { // phpcs:ignore
+			$ok = @copy( $from, $to ) && filesize( $to ) === filesize( $from ); // phpcs:ignore
+		}
+		if ( file_exists( $tmp ) ) {
+			@unlink( $tmp ); // phpcs:ignore
+		}
+		if ( ! $ok ) {
+			$failed[] = $rel;
+		}
+	}
+	if ( $failed ) {
+		$wp_filesystem->delete( $work, true );
+		return new WP_Error( 'copy', 'Chưa chép được ' . count( $failed ) . ' tệp (VD ' . $failed[0] . '), sẽ thử lại ở lần kiểm tra sau.' );
 	}
 
-	// Đổi chỗ: hiện tại -> old, new -> hiện tại. Kiểm tra sau mỗi bước, lỗi thì khôi phục.
-	if ( ! @rename( $dest, $old ) || ! is_dir( $old ) || file_exists( $dest ) ) { // phpcs:ignore
-		if ( ! is_dir( $dest ) && is_dir( $old ) ) {
-			@rename( $old, $dest ); // phpcs:ignore
+	// Xóa tệp không còn trong bản mới (chỉ trong thư mục theme).
+	$keep = array_flip( $files );
+	foreach ( vs_su_list( $dest ) as $rel ) {
+		if ( ! isset( $keep[ $rel ] ) ) {
+			@unlink( $dest . '/' . $rel ); // phpcs:ignore
 		}
-		$wp_filesystem->delete( $new, true );
-		return new WP_Error( 'swap', 'Không đổi tên được thư mục theme hiện tại, website vẫn dùng bản cũ.' );
 	}
-	if ( ! @rename( $new, $dest ) || ! vs_su_valid_dir( $dest ) ) { // phpcs:ignore
-		if ( file_exists( $dest ) && ! is_dir( $dest ) ) {
-			@unlink( $dest ); // phpcs:ignore
-		}
-		if ( ! is_dir( $dest ) ) {
-			@rename( $old, $dest ); // phpcs:ignore -- khôi phục bản cũ.
-		}
-		$wp_filesystem->delete( $new, true );
-		return new WP_Error( 'swap', 'Không thay được bản mới, đã khôi phục bản cũ.' );
+	$wp_filesystem->delete( $work, true );
+	// Dọn thư mục tạm của cách cập nhật cũ (nếu có).
+	foreach ( (array) glob( $dest . '-new-*', GLOB_ONLYDIR ) as $d ) {
+		$wp_filesystem->delete( $d, true );
 	}
-	$wp_filesystem->delete( $old, true );
 	return true;
 }
 
-/** Thư mục theme hợp lệ: là thư mục, có style.css và functions.php không rỗng (và đủ số tệp nếu có $ref). */
-function vs_su_valid_dir( $dir, $ref = '' ) {
-	if ( ! is_dir( $dir ) ) {
-		return false;
-	}
-	foreach ( array( 'style.css', 'functions.php' ) as $f ) {
-		if ( ! is_file( $dir . '/' . $f ) || filesize( $dir . '/' . $f ) < 100 ) {
-			return false;
+/** Danh sách tệp (đường dẫn tương đối) trong thư mục, bỏ qua .git. */
+function vs_su_list( $dir ) {
+	$out = array();
+	$it  = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $dir, FilesystemIterator::SKIP_DOTS ) );
+	foreach ( $it as $file ) {
+		if ( ! $file->isFile() ) {
+			continue;
 		}
+		$rel = str_replace( '\\', '/', substr( $file->getPathname(), strlen( $dir ) + 1 ) );
+		if ( 0 === strpos( $rel, '.git/' ) ) {
+			continue;
+		}
+		$out[] = $rel;
 	}
-	if ( $ref ) {
-		$count = function ( $d ) {
-			return iterator_count( new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $d, FilesystemIterator::SKIP_DOTS ) ) );
-		};
-		return $count( $dir ) === $count( $ref );
-	}
-	return true;
+	return $out;
 }
 
 /* ---------- Lịch kiểm tra 5 phút ---------- */
