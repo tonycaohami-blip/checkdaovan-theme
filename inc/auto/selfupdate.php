@@ -134,19 +134,58 @@ function vs_su_install( $sha ) {
 		return new WP_Error( 'pkg', 'Gói tải về không phải theme hợp lệ.' );
 	}
 
-	$dest = get_template_directory();
-	$old  = $dest . '-old-' . time();
-	if ( ! $wp_filesystem->move( $dest, $old ) ) {
-		$wp_filesystem->delete( $work, true );
-		return new WP_Error( 'move', 'Không đổi tên được thư mục theme hiện tại.' );
+	// Chép bản mới vào thư mục tạm NẰM CẠNH thư mục theme (cùng ổ đĩa) để đổi tên an toàn.
+	// Không dùng $wp_filesystem->move() cho thư mục: khi khác ổ đĩa, hàm này có thể "chép" thư mục thành tệp rỗng.
+	$dest  = untrailingslashit( get_template_directory() );
+	$stamp = time();
+	$new   = $dest . '-new-' . $stamp;
+	$old   = $dest . '-old-' . $stamp;
+	wp_mkdir_p( $new );
+	$copied = copy_dir( $src, $new );
+	$wp_filesystem->delete( $work, true );
+	if ( is_wp_error( $copied ) || ! vs_su_valid_dir( $new, $src ) ) {
+		$wp_filesystem->delete( $new, true );
+		return new WP_Error( 'copy', 'Không chép được bản mới, website vẫn dùng bản cũ.' );
 	}
-	if ( ! $wp_filesystem->move( $src, $dest ) ) {
-		$wp_filesystem->move( $old, $dest ); // Khôi phục bản cũ.
-		$wp_filesystem->delete( $work, true );
-		return new WP_Error( 'move', 'Không chép được bản mới, đã giữ nguyên bản cũ.' );
+
+	// Đổi chỗ: hiện tại -> old, new -> hiện tại. Kiểm tra sau mỗi bước, lỗi thì khôi phục.
+	if ( ! @rename( $dest, $old ) || ! is_dir( $old ) || file_exists( $dest ) ) { // phpcs:ignore
+		if ( ! is_dir( $dest ) && is_dir( $old ) ) {
+			@rename( $old, $dest ); // phpcs:ignore
+		}
+		$wp_filesystem->delete( $new, true );
+		return new WP_Error( 'swap', 'Không đổi tên được thư mục theme hiện tại, website vẫn dùng bản cũ.' );
+	}
+	if ( ! @rename( $new, $dest ) || ! vs_su_valid_dir( $dest ) ) { // phpcs:ignore
+		if ( file_exists( $dest ) && ! is_dir( $dest ) ) {
+			@unlink( $dest ); // phpcs:ignore
+		}
+		if ( ! is_dir( $dest ) ) {
+			@rename( $old, $dest ); // phpcs:ignore -- khôi phục bản cũ.
+		}
+		$wp_filesystem->delete( $new, true );
+		return new WP_Error( 'swap', 'Không thay được bản mới, đã khôi phục bản cũ.' );
 	}
 	$wp_filesystem->delete( $old, true );
-	$wp_filesystem->delete( $work, true );
+	return true;
+}
+
+/** Thư mục theme hợp lệ: là thư mục, có style.css và functions.php không rỗng (và đủ số tệp nếu có $ref). */
+function vs_su_valid_dir( $dir, $ref = '' ) {
+	if ( ! is_dir( $dir ) ) {
+		return false;
+	}
+	foreach ( array( 'style.css', 'functions.php' ) as $f ) {
+		if ( ! is_file( $dir . '/' . $f ) || filesize( $dir . '/' . $f ) < 100 ) {
+			return false;
+		}
+	}
+	if ( $ref ) {
+		$count = function ( $d ) {
+			return iterator_count( new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $d, FilesystemIterator::SKIP_DOTS ) ) );
+		};
+		return $count( $dir ) === $count( $ref );
+	}
 	return true;
 }
 
