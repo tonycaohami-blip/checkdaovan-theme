@@ -8,13 +8,39 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /** Tự nhập 1 lần khi kích hoạt theme. */
-add_action( 'after_switch_theme', function () {
-	// Tên website còn là tên mặc định của WordPress: đặt theo thương hiệu.
-	if ( in_array( trim( (string) get_option( 'blogname' ) ), array( '', 'WordPress', 'My WordPress Site', 'My WordPress Website', 'My Blog', 'Một trang web WordPress khác' ), true ) ) {
+/** Tên website là tên mặc định của WordPress hoặc chỉ là tên miền (Hostinger tự đặt khi cài)? */
+function vs_is_placeholder_title( $name ) {
+	$name = trim( (string) $name );
+	return '' === $name
+		|| in_array( $name, array( 'WordPress', 'My WordPress Site', 'My WordPress Website', 'My Blog', 'Một trang web WordPress khác' ), true )
+		|| (bool) preg_match( '/^(https?:\/\/)?(www\.)?[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}\/?$/i', $name );
+}
+
+/** Đặt tên website theo thương hiệu khi tên hiện tại chỉ là tên mặc định / tên miền. */
+function vs_fix_site_title() {
+	if ( vs_is_placeholder_title( get_option( 'blogname' ) ) ) {
 		update_option( 'blogname', VS_BRAND );
 	}
+	$s = get_option( 'vs_settings', array() );
+	if ( is_array( $s ) && isset( $s['company'] ) && vs_is_placeholder_title( $s['company'] ) ) {
+		$s['company'] = VS_BRAND;
+		update_option( 'vs_settings', $s );
+	}
+}
+
+add_action( 'after_switch_theme', function () {
+	vs_fix_site_title();
 	vs_default_tagline();
 	vs_maybe_import();
+} );
+
+// Chạy 1 lần sau khi theme tự cập nhật (không cần vào trang quản trị).
+add_action( 'init', function () {
+	if ( (int) get_option( 'vs_title_fixed' ) < 1 ) {
+		vs_fix_site_title();
+		vs_default_tagline();
+		update_option( 'vs_title_fixed', 1 );
+	}
 } );
 
 add_action( 'init', function () {

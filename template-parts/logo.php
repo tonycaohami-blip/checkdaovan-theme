@@ -7,6 +7,10 @@ $GLOBALS['vs_logo_n'] = isset( $GLOBALS['vs_logo_n'] ) ? $GLOBALS['vs_logo_n'] +
 $gid     = 'vsg' . $GLOBALS['vs_logo_n'];
 $variant = isset( $args['variant'] ) ? $args['variant'] : 'dark';
 $name    = get_bloginfo( 'name' );
+// Tên website chỉ là tên miền / tên mặc định: hiển thị tên thương hiệu.
+if ( function_exists( 'vs_is_placeholder_title' ) && vs_is_placeholder_title( $name ) ) {
+	$name = VS_BRAND;
+}
 // Tô màu phần "Đạo Văn" khi dùng tên thương hiệu mặc định (Check Đạo Văn).
 $word = esc_html( $name );
 foreach ( array( 'Đạo Văn', 'ĐạoVăn', 'Sạch' ) as $accent ) {
