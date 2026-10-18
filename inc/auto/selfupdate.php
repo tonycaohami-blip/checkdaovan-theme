@@ -220,6 +220,35 @@ add_action( 'vs_su_tick', function () {
 
 /* ---------- Webhook GitHub: cập nhật ngay khi có push ---------- */
 add_action( 'rest_api_init', function () {
+	// Trạng thái công khai (không chứa dữ liệu nhạy cảm). Nếu nội dung mẫu của bản mới chưa nhập thì nhập ngay.
+	register_rest_route( 'vansach/v1', '/status', array(
+		'methods'             => 'GET',
+		'permission_callback' => '__return_true',
+		'callback'            => function () {
+			$ran = false;
+			if ( function_exists( 'vs_maybe_import' ) && ! get_transient( 'vs_import_busy' ) ) {
+				$before = (int) get_option( 'vs_content_imported' );
+				set_transient( 'vs_import_busy', 1, 120 );
+				ignore_user_abort( true );
+				if ( function_exists( 'set_time_limit' ) ) {
+					@set_time_limit( 300 ); // phpcs:ignore
+				}
+				vs_maybe_import();
+				delete_transient( 'vs_import_busy' );
+				$ran = (int) get_option( 'vs_content_imported' ) !== $before;
+			}
+			nocache_headers();
+			return array(
+				'version' => VS_VERSION,
+				'content' => (int) get_option( 'vs_content_imported' ),
+				'import'  => get_option( 'vs_import_log' ),
+				'ran'     => $ran,
+				'su_lock' => (bool) get_transient( 'vs_su_lock' ),
+				'next'    => wp_next_scheduled( 'vs_run_import' ),
+			);
+		},
+	) );
+
 	register_rest_route( 'vansach/v1', '/deploy', array(
 		'methods'             => 'POST',
 		'permission_callback' => '__return_true', // Chỉ kích hoạt việc kiểm tra kho cố định; không nhận dữ liệu.
