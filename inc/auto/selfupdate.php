@@ -233,7 +233,17 @@ add_action( 'rest_api_init', function () {
 			if ( function_exists( 'set_time_limit' ) ) {
 				@set_time_limit( 180 ); // phpcs:ignore
 			}
-			return array( 'ok' => true, 'result' => vs_su_run( true ) );
+			// API GitHub có thể còn trả bản cũ (lưu đệm ~60 giây) ngay sau khi push: thử lại tối đa 4 lần, mỗi lần cách 20 giây.
+			// Không dùng mã commit trong nội dung webhook vì ai cũng gọi được địa chỉ này.
+			$before = vs_su_state()['sha'];
+			for ( $i = 0; $i < 5; $i++ ) {
+				$result = vs_su_run( true );
+				if ( vs_su_state()['sha'] !== $before || 0 === strpos( $result, 'Lỗi' ) ) {
+					break;
+				}
+				sleep( 20 );
+			}
+			return array( 'ok' => true, 'result' => $result );
 		},
 	) );
 } );
