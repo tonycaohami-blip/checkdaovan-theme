@@ -8,6 +8,7 @@ $tab    = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'tong-quan';
 $tabs   = array(
 	'tong-quan'     => array( 'Tổng quan', 'home' ),
 	'don-hang'      => array( 'Đơn hàng', 'list' ),
+	'thong-bao'     => array( 'Thông báo', 'bell' ),
 	'cong-tac-vien' => array( 'Cộng tác viên', 'gift' ),
 	'thong-tin'     => array( 'Thông tin tài khoản', 'user' ),
 );
@@ -28,7 +29,8 @@ $render_order = function ( $o, $open = false ) {
 	$current  = array( 'cho_thanh_toan' => 2, 'dang_xu_ly' => 3, 'hoan_thanh' => 4, 'huy' => -1 );
 	$cur_step = isset( $current[ $o['status'] ] ) ? $current[ $o['status'] ] : 0;
 	?>
-	<details class="oc oc--<?php echo esc_attr( $o['status'] ); ?><?php echo $o['files'] ? ' has-files' : ''; ?>" <?php echo ( $open || ( $o['files'] && 'dang_xu_ly' === $o['status'] ) ) ? 'open' : ''; ?>>
+	<?php $open = $open || ( isset( $_GET['don'] ) && sanitize_text_field( wp_unslash( $_GET['don'] ) ) === $o['code'] ); ?>
+	<details id="<?php echo esc_attr( $o['code'] ); ?>" class="oc oc--<?php echo esc_attr( $o['status'] ); ?><?php echo $o['files'] ? ' has-files' : ''; ?>" <?php echo ( $open || ( $o['files'] && 'dang_xu_ly' === $o['status'] ) ) ? 'open' : ''; ?>>
 		<summary class="oc__head">
 			<span class="oc__icon oc__icon--<?php echo esc_attr( $o['type'] ); ?>"><?php echo vs_icon( $is_check ? 'target' : 'pen', 22 ); // phpcs:ignore ?></span>
 			<span class="oc__main">
@@ -257,6 +259,44 @@ foreach ( $orders as $o ) {
 					<div class="o-list"><?php foreach ( $orders as $i => $o ) { $render_order( $o, 0 === $i ); } ?></div>
 				<?php else : ?>
 					<div class="empty-box"><?php echo vs_icon( 'file', 40 ); // phpcs:ignore ?><p>Bạn chưa có đơn hàng nào.</p><a class="btn btn--primary" href="<?php echo esc_url( vs_page_url( 'dat-hang' ) ); ?>">Đặt đơn đầu tiên</a></div>
+				<?php endif; ?>
+
+			<?php elseif ( 'thong-bao' === $tab ) : ?>
+				<?php
+				$notices = vs_user_notices( $uid );
+				// Mở tab là đã xem tất cả.
+				if ( vs_user_unread( $uid ) ) {
+					update_user_meta( $uid, '_vs_notices', array_map( function ( $n ) {
+						$n['was_unread'] = empty( $n['read'] );
+						$n['read']       = 1;
+						return $n;
+					}, $notices ) );
+				}
+				?>
+				<div class="acc-head">
+					<h1>Thông báo</h1>
+					<p class="muted">Cập nhật về đơn hàng, kết quả kiểm tra và hoa hồng cộng tác viên.</p>
+				</div>
+				<?php if ( ! $notices ) : ?>
+					<div class="empty-box"><?php echo vs_icon( 'bell', 32 ); // phpcs:ignore ?><p>Chưa có thông báo nào.</p></div>
+				<?php else : ?>
+					<ul class="notif-list">
+						<?php foreach ( $notices as $n ) : ?>
+							<li class="notif notif--<?php echo esc_attr( $n['type'] ); ?><?php echo empty( $n['read'] ) ? ' is-new' : ''; ?>">
+								<span class="notif__icon" aria-hidden="true"></span>
+								<div class="notif__body">
+									<?php if ( ! empty( $n['url'] ) ) : ?>
+										<a class="notif__title" href="<?php echo esc_url( $n['url'] ); ?>"><?php echo esc_html( $n['title'] ); ?></a>
+									<?php else : ?>
+										<b class="notif__title"><?php echo esc_html( $n['title'] ); ?></b>
+									<?php endif; ?>
+									<?php if ( $n['text'] ) : ?><p><?php echo esc_html( $n['text'] ); ?></p><?php endif; ?>
+									<small><?php echo esc_html( vs_time_ago( $n['t'] ) ); ?></small>
+								</div>
+								<?php if ( empty( $n['read'] ) ) : ?><span class="notif__dot" title="Mới"></span><?php endif; ?>
+							</li>
+						<?php endforeach; ?>
+					</ul>
 				<?php endif; ?>
 
 			<?php elseif ( 'cong-tac-vien' === $tab ) : ?>

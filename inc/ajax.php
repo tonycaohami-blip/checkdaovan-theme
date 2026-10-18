@@ -59,9 +59,17 @@ function vs_contact_info() {
 add_action( 'wp_ajax_vs_submit_order', 'vs_ajax_submit' );
 add_action( 'wp_ajax_nopriv_vs_submit_order', 'vs_ajax_submit' );
 
+/* Nonce mới cho form đặt hàng (không bao giờ bị lưu đệm vì là POST tới admin-ajax). */
+add_action( 'wp_ajax_vs_fresh_nonce', 'vs_ajax_fresh_nonce' );
+add_action( 'wp_ajax_nopriv_vs_fresh_nonce', 'vs_ajax_fresh_nonce' );
+function vs_ajax_fresh_nonce() {
+	nocache_headers();
+	wp_send_json_success( array( 'nonce' => wp_create_nonce( 'vs_order' ) ) );
+}
+
 function vs_ajax_submit() {
 	if ( ! check_ajax_referer( 'vs_order', 'nonce', false ) ) {
-		wp_send_json_error( array( 'message' => 'Phiên làm việc đã hết hạn, vui lòng tải lại trang.' ), 403 );
+		wp_send_json_error( array( 'message' => 'Phiên làm việc đã hết hạn, vui lòng thử lại.', 'code' => 'nonce' ), 403 );
 	}
 	if ( ! empty( $_POST['website'] ) ) { // Honeypot.
 		wp_send_json_error( array( 'message' => 'Yêu cầu không hợp lệ.' ), 400 );

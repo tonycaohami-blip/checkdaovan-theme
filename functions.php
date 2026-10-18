@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'VS_VERSION', '6.3.5' );
+define( 'VS_VERSION', '6.4.0' );
 define( 'VS_BRAND', 'Check Đạo Văn' );       // Tên thương hiệu mặc định (đổi trong Cài đặt > Chung > Tên website).
 define( 'VS_DOMAIN', 'checkdaovan247.com' );          // Tên miền chính thức.
 define( 'VS_EMAIL', 'hotro@checkdaovan247.com' );     // Email hỗ trợ mặc định.
@@ -28,6 +28,8 @@ require VS_DIR . '/inc/auto/providers.php';
 require VS_DIR . '/inc/auto/pdf.php';
 require VS_DIR . '/inc/auto/admin.php';
 require VS_DIR . '/inc/auto/selfupdate.php';
+require VS_DIR . '/inc/notify.php';
+require VS_DIR . '/inc/admin-orders.php';
 require VS_DIR . '/inc/content.php';
 
 add_action( 'after_setup_theme', function () {
@@ -149,6 +151,7 @@ function vs_icon( $name, $size = 24 ) {
 		'pen'    => '<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>',
 		'qr'     => '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/>',
 		'chat'   => '<path d="M4 5h16v11H9l-5 4z"/>',
+		'bell'   => '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
 		'refund' => '<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 8v8"/>',
 		'target' => '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
 		'user'   => '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/>',

@@ -57,7 +57,7 @@ add_action( 'admin_init', function () {
 	}
 } );
 function vs_maybe_import() {
-	if ( (int) get_option( 'vs_content_imported' ) < 10 ) {
+	if ( (int) get_option( 'vs_content_imported' ) < 11 ) {
 		$old_mail = vs_opt( 'email', get_option( 'admin_email' ) );
 		vs_contact_migrate( $old_mail );
 		vs_import_content();
@@ -67,7 +67,7 @@ function vs_maybe_import() {
 			vs_brand_migrate( $old_mail, VS_EMAIL );
 		}
 		vs_brand_migrate( 'CheckĐạoVăn', VS_BRAND );
-		update_option( 'vs_content_imported', 10 );
+		update_option( 'vs_content_imported', 11 );
 	}
 }
 

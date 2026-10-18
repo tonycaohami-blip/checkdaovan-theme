@@ -271,6 +271,54 @@
 	}
 
 	if (!hasVS) return;
+
+	/* ================= Chuông thông báo (khách đã đăng nhập) ================= */
+	(function () {
+		var bell = $('[data-bell]');
+		if (!bell) return;
+		var btn = $('[data-bell-toggle]', bell), panel = $('[data-bell-panel]', bell), list = $('[data-bell-list]', bell), count = $('[data-bell-count]', bell);
+		var last = parseInt(count.textContent, 10) || 0, loaded = false;
+		var ICON = { order: '🧾', paid: '💳', result: '📊', done: '✅', cancel: '⛔', money: '💸', info: '🔔' };
+		function setCount(n) { count.textContent = n > 99 ? '99+' : n; count.hidden = !n; }
+		function render(items) {
+			list.innerHTML = items.length ? items.map(function (n) {
+				var tag = n.url ? 'a href="' + esc(n.url) + '"' : 'div';
+				return '<' + tag + ' class="bell__item' + (n.read ? '' : ' is-new') + '" data-id="' + esc(n.id) + '">' +
+					'<span class="bell__ic">' + (ICON[n.type] || ICON.info) + '</span>' +
+					'<span class="bell__txt"><b>' + esc(n.title) + '</b>' + (n.text ? '<span>' + esc(n.text) + '</span>' : '') + '<small>' + esc(n.ago) + '</small></span>' +
+					'</' + (n.url ? 'a' : 'div') + '>';
+			}).join('') : '<div class="bell__empty">Chưa có thông báo nào.</div>';
+		}
+		function load(mark) {
+			var fd = new FormData(); fd.append('action', 'vs_notices'); if (mark) fd.append('mark', mark);
+			return post(fd).then(function (j) {
+				if (!j || !j.success) return;
+				setCount(j.data.unread);
+				if (j.data.unread > last && loaded === 'poll') {
+					var fresh = j.data.items.filter(function (n) { return !n.read; })[0];
+					if (fresh) toast('🔔 ' + fresh.title);
+				}
+				last = j.data.unread;
+				render(j.data.items);
+				return j.data;
+			});
+		}
+		function open(on) {
+			panel.hidden = !on; btn.setAttribute('aria-expanded', on ? 'true' : 'false');
+			if (on) load();
+		}
+		btn.addEventListener('click', function (e) { e.stopPropagation(); open(panel.hidden); });
+		document.addEventListener('click', function (e) { if (!panel.hidden && !bell.contains(e.target)) open(false); });
+		document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !panel.hidden) open(false); });
+		$('[data-bell-readall]', bell).addEventListener('click', function () { load('all'); });
+		list.addEventListener('click', function (e) {
+			var it = e.target.closest('.bell__item.is-new');
+			if (it) { var fd = new FormData(); fd.append('action', 'vs_notices'); fd.append('mark', it.dataset.id); navigator.sendBeacon ? navigator.sendBeacon(VS.ajax, fd) : post(fd); }
+		});
+		// Kiểm tra thông báo mới mỗi phút khi tab đang mở.
+		loaded = 'poll';
+		setInterval(function () { if (!document.hidden) load(); }, 60000);
+	})();
 	var P = VS.pricing;
 	var modes = { plag: 'Chỉ đạo văn', ai: 'Chỉ tỷ lệ AI', combo: 'Đạo văn + AI' };
 
@@ -633,7 +681,11 @@
 
 		var btn = f.querySelector('[type=submit]'), html = btn.innerHTML;
 		btn.disabled = true; btn.textContent = 'Đang gửi đơn…';
-		post(data)
+		// Lấy mã bảo mật mới trước khi gửi: trang có thể là bản lưu đệm cũ của hosting.
+		var fn = new FormData(); fn.append('action', 'vs_fresh_nonce');
+		post(fn)
+			.then(function (n) { if (n && n.success) { VS.nonce = n.data.nonce; data.set('nonce', VS.nonce); } }, function () {})
+			.then(function () { return post(data); })
 			.then(function (j) {
 				if (!j.success) throw new Error((j.data && j.data.message) || 'Có lỗi xảy ra.');
 				showSuccess(j.data, phone);

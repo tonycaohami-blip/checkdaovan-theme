@@ -141,7 +141,7 @@ function vs_soft_limit( $bucket, $max ) {
 add_action( 'admin_post_nopriv_vs_login', 'vs_handle_login' );
 add_action( 'admin_post_vs_login', 'vs_handle_login' );
 function vs_handle_login() {
-	vs_check_form_nonce( 'vs_login' );
+	// Không kiểm tra nonce: trang đăng nhập có thể nằm trong bộ nhớ đệm của hosting (nonce cũ -> báo hết phiên).
 	vs_soft_limit( 'login', 10 );
 	$id   = trim( (string) wp_unslash( isset( $_POST['login'] ) ? $_POST['login'] : '' ) );
 	$pass = (string) wp_unslash( isset( $_POST['password'] ) ? $_POST['password'] : '' );
@@ -161,8 +161,8 @@ function vs_handle_login() {
 	if ( is_wp_error( $user ) ) {
 		vs_back( 'login_fail' );
 	}
-	$to = isset( $_POST['redirect_to'] ) ? wp_validate_redirect( wp_unslash( $_POST['redirect_to'] ), vs_account_url() ) : vs_account_url();
-	wp_safe_redirect( $to );
+	$to = ! empty( $_POST['redirect_to'] ) ? wp_validate_redirect( wp_unslash( $_POST['redirect_to'] ), vs_account_url() ) : vs_account_url();
+	wp_safe_redirect( remove_query_arg( 'vs_msg', $to ) );
 	exit;
 }
 
@@ -171,7 +171,7 @@ function vs_handle_login() {
 add_action( 'admin_post_nopriv_vs_register', 'vs_handle_register' );
 add_action( 'admin_post_vs_register', 'vs_handle_register' );
 function vs_handle_register() {
-	vs_check_form_nonce( 'vs_register' );
+	// Không kiểm tra nonce (xem vs_handle_login); chống spam bằng bẫy "website" + giới hạn số lần.
 	if ( ! empty( $_POST['website'] ) ) {
 		vs_back( 'reg_fail' );
 	}

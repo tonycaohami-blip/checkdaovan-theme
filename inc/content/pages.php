@@ -20,6 +20,7 @@ return array(
 	'tai-khoan'            => array( 'title' => 'Tài khoản', 'content' => '', 'template' => 'account' ),
 	'tra-cuu-don-hang'     => array( 'title' => 'Tra cứu đơn hàng', 'content' => '', 'template' => 'track' ),
 	'lien-he'              => array( 'title' => 'Liên hệ', 'content' => '', 'template' => 'contact' ),
+	'quan-tri'             => array( 'title' => 'Quản trị đơn hàng', 'content' => '', 'template' => 'admin-orders' ),
 
 	'chinh-sach-bao-mat'   => array(
 		'title'   => 'Chính sách bảo mật',

@@ -49,7 +49,7 @@
 			?>
 			<div class="nav__mobile-cta">
 				<?php if ( $me->exists() ) : ?>
-					<a class="btn btn--outline btn--block" href="<?php echo esc_url( vs_account_url() ); ?>">Tài khoản của tôi</a>
+					<a class="btn btn--outline btn--block" href="<?php echo esc_url( vs_account_url() ); ?>">Tài khoản: <?php echo esc_html( $me->display_name ); ?></a>
 				<?php else : ?>
 					<a class="btn btn--outline btn--block" href="<?php echo esc_url( vs_account_url() ); ?>">Đăng nhập / Đăng ký</a>
 				<?php endif; ?>
@@ -62,9 +62,10 @@
 				<span><small>Hotline</small><?php echo esc_html( vs_opt( 'hotline' ) ); ?></span>
 			</a>
 			<?php if ( $me->exists() ) : ?>
-				<a class="acct-btn" href="<?php echo esc_url( vs_account_url() ); ?>" title="Tài khoản của tôi">
+				<?php echo vs_bell_html(); // phpcs:ignore -- đã escape. ?>
+				<a class="acct-btn acct-btn--in" href="<?php echo esc_url( vs_account_url() ); ?>" title="<?php echo esc_attr( 'Tài khoản: ' . $me->display_name ); ?>">
 					<span class="avatar avatar--sm"><?php $w = preg_split( '/\s+/u', trim( $me->display_name ) ); echo esc_html( mb_strtoupper( mb_substr( end( $w ), 0, 1 ) ) ); ?></span>
-					<span class="acct-btn__name">Tài khoản</span>
+					<span class="acct-btn__name"><small>Xin chào</small><?php echo esc_html( $me->display_name ); ?></span>
 				</a>
 			<?php else : ?>
 				<a class="acct-btn" href="<?php echo esc_url( vs_account_url() ); ?>"><?php echo vs_icon( 'user', 18 ); // phpcs:ignore ?><span class="acct-btn__name">Đăng nhập</span></a>

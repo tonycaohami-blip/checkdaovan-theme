@@ -69,6 +69,7 @@ function vs_ajax_coupon() {
  * ======================================================= */
 
 function vs_telegram( $text ) {
+	do_action( 'vs_telegram', $text ); // Thông báo trong trang quản trị (inc/notify.php).
 	$token = vs_opt( 'tg_token' );
 	$chat  = vs_opt( 'tg_chat' );
 	if ( ! $token || ! $chat ) {
@@ -385,3 +386,49 @@ add_filter( 'wp_mail_from', function ( $from ) {
 add_filter( 'wp_mail_from_name', function () {
 	return wp_specialchars_decode( vs_opt( 'company', get_bloginfo( 'name' ) ), ENT_QUOTES );
 } );
+
+/* =========================================================
+ * Bộ nhớ đệm (LiteSpeed / CDN của Hostinger)
+ * Trang tài khoản, đặt hàng, tra cứu, quản trị có nội dung riêng của từng người và mã bảo mật:
+ * không được lưu đệm. Người đã đăng nhập cũng không nhận bản lưu đệm.
+ * ======================================================= */
+function vs_is_private_page() {
+	if ( is_user_logged_in() ) {
+		return true;
+	}
+	if ( ! is_page() ) {
+		return false;
+	}
+	$tpl = (string) get_page_template_slug();
+	foreach ( array( 'account', 'order', 'track', 'admin-orders' ) as $t ) {
+		if ( false !== strpos( $tpl, 'page-templates/' . $t . '.php' ) ) {
+			return true;
+		}
+	}
+	return false;
+}
+
+add_action( 'template_redirect', function () {
+	if ( ! vs_is_private_page() ) {
+		return;
+	}
+	if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+		define( 'DONOTCACHEPAGE', true );
+	}
+	do_action( 'litespeed_control_set_nocache', 'Check Dao Van: trang riêng' );
+	nocache_headers();
+	header( 'X-LiteSpeed-Cache-Control: no-cache' );
+	header( 'CDN-Cache-Control: no-store' );
+}, 1 );
+
+// Sau mỗi lần cập nhật theme: xóa toàn bộ bộ nhớ đệm 1 lần để khách nhận giao diện / mã mới.
+add_action( 'init', function () {
+	if ( get_option( 'vs_cache_flushed' ) === VS_VERSION ) {
+		return;
+	}
+	update_option( 'vs_cache_flushed', VS_VERSION );
+	do_action( 'litespeed_purge_all' );
+	if ( ! headers_sent() ) {
+		header( 'X-LiteSpeed-Purge: *' );
+	}
+}, 99 );
