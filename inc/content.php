@@ -56,8 +56,21 @@ add_action( 'admin_init', function () {
 		vs_maybe_import();
 	}
 } );
+/* Có bài mẫu / nội dung mới sau khi theme tự cập nhật: nhập ở nền (WP-Cron), không cần mở trang quản trị. */
+add_action( 'init', function () {
+	if ( (int) get_option( 'vs_content_imported' ) < 13 && ! wp_next_scheduled( 'vs_run_import' ) ) {
+		wp_schedule_single_event( time() + 5, 'vs_run_import' );
+	}
+} );
+add_action( 'vs_run_import', function () {
+	if ( function_exists( 'set_time_limit' ) ) {
+		@set_time_limit( 300 ); // phpcs:ignore
+	}
+	vs_maybe_import();
+} );
+
 function vs_maybe_import() {
-	if ( (int) get_option( 'vs_content_imported' ) < 12 ) {
+	if ( (int) get_option( 'vs_content_imported' ) < 13 ) {
 		$old_mail = vs_opt( 'email', get_option( 'admin_email' ) );
 		vs_contact_migrate( $old_mail );
 		vs_import_content();
@@ -67,7 +80,7 @@ function vs_maybe_import() {
 			vs_brand_migrate( $old_mail, VS_EMAIL );
 		}
 		vs_brand_migrate( 'CheckĐạoVăn', VS_BRAND );
-		update_option( 'vs_content_imported', 12 );
+		update_option( 'vs_content_imported', 13 );
 	}
 }
 
@@ -142,6 +155,8 @@ function vs_fill_placeholders( $html ) {
 /** Danh sách bài viết mẫu, mới nhất trước. */
 function vs_sample_articles() {
 	return array_merge(
+		require VS_DIR . '/inc/content/articles-6.php',
+		require VS_DIR . '/inc/content/articles-7.php',
 		require VS_DIR . '/inc/content/articles-4.php',
 		require VS_DIR . '/inc/content/articles-5.php',
 		require VS_DIR . '/inc/content/articles-3.php',

@@ -117,8 +117,8 @@ function vs_render_settings() {
 		<?php if ( isset( $_GET['vs_imported'] ) ) : ?>
 			<div class="notice notice-success"><p>Đã nhập / cập nhật <?php echo (int) $_GET['vs_imported']; ?> bài viết / trang mẫu.</p></div>
 		<?php endif; ?>
-		<p><a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=vs_import' ), 'vs_import' ) ); ?>">📄 Nhập / cập nhật 30 bài viết mẫu & trang chính sách</a> <span class="description">Tạo bài còn thiếu và cập nhật bài mẫu chưa bị sửa. Bài bạn đã sửa được giữ nguyên.</span></p>
-		<p><a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=vs_import&force=1' ), 'vs_import' ) ); ?>" onclick="return confirm('Ghi đè toàn bộ 30 bài viết mẫu bằng bản mới nhất? Những chỉnh sửa của bạn trên các bài này sẽ mất (WordPress vẫn lưu bản cũ trong mục Revisions).');">♻️ Ghi đè bằng bản mới nhất</a> <span class="description">Chỉ áp dụng cho 30 bài mẫu theo đường dẫn, không ảnh hưởng bài khác.</span></p>
+		<p><a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=vs_import' ), 'vs_import' ) ); ?>">📄 Nhập / cập nhật 38 bài viết mẫu & trang chính sách</a> <span class="description">Tạo bài còn thiếu và cập nhật bài mẫu chưa bị sửa. Bài bạn đã sửa được giữ nguyên.</span></p>
+		<p><a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=vs_import&force=1' ), 'vs_import' ) ); ?>" onclick="return confirm('Ghi đè toàn bộ 38 bài viết mẫu bằng bản mới nhất? Những chỉnh sửa của bạn trên các bài này sẽ mất (WordPress vẫn lưu bản cũ trong mục Revisions).');">♻️ Ghi đè bằng bản mới nhất</a> <span class="description">Chỉ áp dụng cho 38 bài mẫu theo đường dẫn, không ảnh hưởng bài khác.</span></p>
 		<form method="post" action="options.php">
 			<?php settings_fields( 'vs_settings_group' ); ?>
 

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" font-family="'Segoe UI', 'Be Vietnam Pro', Roboto, 'Helvetica Neue', Arial, sans-serif">
+	<rect width="1200" height="675" rx="28" fill="#f8fafc"/>
+	<rect x="1" y="1" width="1198" height="673" rx="27" fill="none" stroke="#e2e8f0" stroke-width="2"/>
+	<text x="60" y="78" font-size="34" font-weight="800" fill="#0f172a">Mức tỷ lệ đạo văn thường gặp (tham khảo)</text>
+	<text x="60" y="118" font-size="21" fill="#64748b">Luôn đối chiếu quy định của trường hoặc tạp chí</text>
+	<g transform="translate(60 170)">
+			<text x="0" y="36" font-size="22" font-weight="700" fill="#0f172a">Tiểu luận</text>
+			<rect x="270" y="14" width="680" height="30" rx="15" fill="#eef2f7"/>
+			<rect x="270" y="14" width="680" height="30" rx="15" fill="#86efac"/>
+			<text x="970" y="37" font-size="22" font-weight="800" fill="#334155">dưới 30-40%</text>
+		</g><g transform="translate(60 228)">
+			<text x="0" y="36" font-size="22" font-weight="700" fill="#0f172a">Khóa luận</text>
+			<rect x="270" y="14" width="680" height="30" rx="15" fill="#eef2f7"/>
+			<rect x="270" y="14" width="544" height="30" rx="15" fill="#4ade80"/>
+			<text x="970" y="37" font-size="22" font-weight="800" fill="#334155">dưới 25-30%</text>
+		</g><g transform="translate(60 286)">
+			<text x="0" y="36" font-size="22" font-weight="700" fill="#0f172a">Luận văn ThS</text>
+			<rect x="270" y="14" width="680" height="30" rx="15" fill="#eef2f7"/>
+			<rect x="270" y="14" width="427.42857142857144" height="30" rx="15" fill="#22c55e"/>
+			<text x="970" y="37" font-size="22" font-weight="800" fill="#334155">dưới 20-25%</text>
+		</g><g transform="translate(60 344)">
+			<text x="0" y="36" font-size="22" font-weight="700" fill="#0f172a">Luận án TS</text>
+			<rect x="270" y="14" width="680" height="30" rx="15" fill="#eef2f7"/>
+			<rect x="270" y="14" width="349.7142857142857" height="30" rx="15" fill="#16a34a"/>
+			<text x="970" y="37" font-size="22" font-weight="800" fill="#334155">dưới 15-20%</text>
+		</g><g transform="translate(60 402)">
+			<text x="0" y="36" font-size="22" font-weight="700" fill="#0f172a">Bài báo</text>
+			<rect x="270" y="14" width="680" height="30" rx="15" fill="#eef2f7"/>
+			<rect x="270" y="14" width="291.42857142857144" height="30" rx="15" fill="#15803d"/>
+			<text x="970" y="37" font-size="22" font-weight="800" fill="#334155">dưới 15-20%</text>
+		</g>
+</svg>

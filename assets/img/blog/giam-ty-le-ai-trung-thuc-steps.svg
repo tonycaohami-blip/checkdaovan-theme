@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" font-family="'Segoe UI', 'Be Vietnam Pro', Roboto, 'Helvetica Neue', Arial, sans-serif">
+	<rect width="1200" height="675" rx="28" fill="#f8fafc"/>
+	<rect x="1" y="1" width="1198" height="673" rx="27" fill="none" stroke="#e2e8f0" stroke-width="2"/>
+	<text x="60" y="78" font-size="34" font-weight="800" fill="#0f172a">Viết lại để bài mang dấu ấn của bạn</text>
+	<text x="60" y="118" font-size="21" fill="#64748b">Cải thiện nội dung, không dùng mẹo che giấu</text>
+	<defs><marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#cbd5e1"/></marker></defs><g transform="translate(60 190)">
+			<rect width="196.8" height="400" rx="22" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+			<circle cx="98.4" cy="90" r="48" fill="#7c3aed"/>
+			<text x="98.4" y="108" text-anchor="middle" font-size="46" font-weight="800" fill="#fff">1</text>
+			<text x="98.4" y="200" text-anchor="middle" font-size="25" font-weight="800" fill="#0f172a">Đọc báo cáo</text>
+			<text x="98.4" y="290" text-anchor="middle" font-size="19" fill="#64748b">Xác định đoạn bị</text><text x="98.4" y="320" text-anchor="middle" font-size="19" fill="#64748b">đánh dấu</text>
+		</g><path d="M260.8 390 l16 0" stroke="#cbd5e1" stroke-width="4" marker-end="url(#a)"/><g transform="translate(280.8 190)">
+			<rect width="196.8" height="400" rx="22" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+			<circle cx="98.4" cy="90" r="48" fill="#7c3aed"/>
+			<text x="98.4" y="108" text-anchor="middle" font-size="46" font-weight="800" fill="#fff">2</text>
+			<text x="98.4" y="200" text-anchor="middle" font-size="25" font-weight="800" fill="#0f172a">Thêm dữ liệu</text>
+			<text x="98.4" y="290" text-anchor="middle" font-size="19" fill="#64748b">Số liệu, ví dụ từ</text><text x="98.4" y="320" text-anchor="middle" font-size="19" fill="#64748b">nghiên cứu của bạn</text>
+		</g><path d="M481.6 390 l16 0" stroke="#cbd5e1" stroke-width="4" marker-end="url(#a)"/><g transform="translate(501.6 190)">
+			<rect width="196.8" height="400" rx="22" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+			<circle cx="98.4" cy="90" r="48" fill="#7c3aed"/>
+			<text x="98.4" y="108" text-anchor="middle" font-size="46" font-weight="800" fill="#fff">3</text>
+			<text x="98.4" y="200" text-anchor="middle" font-size="25" font-weight="800" fill="#0f172a">Lập luận</text><text x="98.4" y="234" text-anchor="middle" font-size="25" font-weight="800" fill="#0f172a">riêng</text>
+			<text x="98.4" y="290" text-anchor="middle" font-size="19" fill="#64748b">Nhận định, so sánh,</text><text x="98.4" y="320" text-anchor="middle" font-size="19" fill="#64748b">phản biện</text>
+		</g><path d="M702.4000000000001 390 l16 0" stroke="#cbd5e1" stroke-width="4" marker-end="url(#a)"/><g transform="translate(722.4000000000001 190)">
+			<rect width="196.8" height="400" rx="22" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+			<circle cx="98.4" cy="90" r="48" fill="#7c3aed"/>
+			<text x="98.4" y="108" text-anchor="middle" font-size="46" font-weight="800" fill="#fff">4</text>
+			<text x="98.4" y="200" text-anchor="middle" font-size="25" font-weight="800" fill="#0f172a">Đổi nhịp câu</text>
+			<text x="98.4" y="290" text-anchor="middle" font-size="19" fill="#64748b">Câu dài ngắn đan</text><text x="98.4" y="320" text-anchor="middle" font-size="19" fill="#64748b">xen, bớt sáo rỗng</text>
+		</g><path d="M923.2 390 l16 0" stroke="#cbd5e1" stroke-width="4" marker-end="url(#a)"/><g transform="translate(943.2 190)">
+			<rect width="196.8" height="400" rx="22" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+			<circle cx="98.4" cy="90" r="48" fill="#7c3aed"/>
+			<text x="98.4" y="108" text-anchor="middle" font-size="46" font-weight="800" fill="#fff">5</text>
+			<text x="98.4" y="200" text-anchor="middle" font-size="25" font-weight="800" fill="#0f172a">Lưu bản nháp</text>
+			<text x="98.4" y="290" text-anchor="middle" font-size="19" fill="#64748b">Bằng chứng quá</text><text x="98.4" y="320" text-anchor="middle" font-size="19" fill="#64748b">trình viết</text>
+		</g>
+</svg>
