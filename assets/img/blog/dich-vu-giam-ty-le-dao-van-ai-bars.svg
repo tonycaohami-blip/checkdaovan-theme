@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" font-family="'Segoe UI', 'Be Vietnam Pro', Roboto, 'Helvetica Neue', Arial, sans-serif">
+	<rect width="1200" height="675" rx="28" fill="#f8fafc"/>
+	<rect x="1" y="1" width="1198" height="673" rx="27" fill="none" stroke="#e2e8f0" stroke-width="2"/>
+	<text x="60" y="78" font-size="34" font-weight="800" fill="#0f172a">Kết quả trước và sau chỉnh sửa (minh họa)</text>
+	<text x="60" y="118" font-size="21" fill="#64748b">Mục tiêu dưới 20% trên Turnitin</text>
+	<g transform="translate(60 170)">
+			<text x="0" y="36" font-size="22" font-weight="700" fill="#0f172a">Trước - đạo văn</text>
+			<rect x="270" y="14" width="680" height="30" rx="15" fill="#eef2f7"/>
+			<rect x="270" y="14" width="680" height="30" rx="15" fill="#f87171"/>
+			<text x="970" y="37" font-size="22" font-weight="800" fill="#334155">42%</text>
+		</g><g transform="translate(60 228)">
+			<text x="0" y="36" font-size="22" font-weight="700" fill="#0f172a">Sau - đạo văn</text>
+			<rect x="270" y="14" width="680" height="30" rx="15" fill="#eef2f7"/>
+			<rect x="270" y="14" width="226.66666666666666" height="30" rx="15" fill="#22c55e"/>
+			<text x="970" y="37" font-size="22" font-weight="800" fill="#334155">14%</text>
+		</g><g transform="translate(60 286)">
+			<text x="0" y="36" font-size="22" font-weight="700" fill="#0f172a">Trước - AI</text>
+			<rect x="270" y="14" width="680" height="30" rx="15" fill="#eef2f7"/>
+			<rect x="270" y="14" width="566.6666666666666" height="30" rx="15" fill="#fb923c"/>
+			<text x="970" y="37" font-size="22" font-weight="800" fill="#334155">35%</text>
+		</g><g transform="translate(60 344)">
+			<text x="0" y="36" font-size="22" font-weight="700" fill="#0f172a">Sau - AI</text>
+			<rect x="270" y="14" width="680" height="30" rx="15" fill="#eef2f7"/>
+			<rect x="270" y="14" width="129.52380952380952" height="30" rx="15" fill="#22c55e"/>
+			<text x="970" y="37" font-size="22" font-weight="800" fill="#334155">8%</text>
+		</g>
+</svg>

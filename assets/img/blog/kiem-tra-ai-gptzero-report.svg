@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" font-family="'Segoe UI', 'Be Vietnam Pro', Roboto, 'Helvetica Neue', Arial, sans-serif">
+	<rect width="1200" height="675" rx="28" fill="#f8fafc"/>
+	<rect x="1" y="1" width="1198" height="673" rx="27" fill="none" stroke="#e2e8f0" stroke-width="2"/>
+	<text x="60" y="78" font-size="34" font-weight="800" fill="#0f172a">Báo cáo GPTZero mô phỏng</text>
+	<text x="60" y="118" font-size="21" fill="#64748b">Đánh giá từng câu và kết luận chung cho toàn bài</text>
+	<g transform="translate(60 160)">
+		<rect width="640" height="450" rx="20" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+		<rect x="32" y="30" width="220" height="16" rx="8" fill="#cbd5e1"/>
+		<rect x="32" y="78" width="547.1999999999999" height="22" rx="6" fill="#e2e8f0"/><rect x="32" y="122" width="506.88" height="22" rx="6" fill="#fecaca"/><rect x="32" y="166" width="403.2" height="22" rx="6" fill="#fecaca"/><rect x="32" y="210" width="529.9200000000001" height="22" rx="6" fill="#e2e8f0"/><rect x="32" y="254" width="460.8" height="22" rx="6" fill="#fde68a"/><rect x="32" y="298" width="345.59999999999997" height="22" rx="6" fill="#e2e8f0"/><rect x="32" y="342" width="518.4" height="22" rx="6" fill="#fecaca"/><rect x="32" y="386" width="432" height="22" rx="6" fill="#e2e8f0"/>
+	</g><g transform="translate(760 160)">
+		<rect width="380" height="450" rx="20" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+		<text x="190" y="56" text-anchor="middle" font-size="22" font-weight="700" fill="#334155">Khả năng do AI</text>
+		<g transform="translate(190 210)">
+			<circle r="110" fill="none" stroke="#f1f5f9" stroke-width="26"/>
+			<circle r="110" fill="none" stroke="#ea580c" stroke-width="26" stroke-linecap="round" stroke-dasharray="429 800" transform="rotate(-90)"/>
+			<text y="16" text-anchor="middle" font-size="58" font-weight="800" fill="#ea580c">62%</text>
+		</g>
+		<g transform="translate(40 370)"><rect width="22" height="22" rx="6" fill="#fecaca"/><text x="34" y="18" font-size="19" fill="#475569">Rất có thể do AI</text></g><g transform="translate(40 404)"><rect width="22" height="22" rx="6" fill="#fde68a"/><text x="34" y="18" font-size="19" fill="#475569">Nghi ngờ AI</text></g>
+	</g>
+</svg>

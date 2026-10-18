@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" font-family="'Segoe UI', 'Be Vietnam Pro', Roboto, 'Helvetica Neue', Arial, sans-serif">
+	<rect width="1200" height="675" rx="28" fill="#f8fafc"/>
+	<rect x="1" y="1" width="1198" height="673" rx="27" fill="none" stroke="#e2e8f0" stroke-width="2"/>
+	<text x="60" y="78" font-size="34" font-weight="800" fill="#0f172a">Copyleaks phân loại đoạn trùng</text>
+	<text x="60" y="118" font-size="21" fill="#64748b">Ví dụ một báo cáo 18,4% (minh họa)</text>
+	<g transform="translate(60 170)">
+			<text x="0" y="36" font-size="22" font-weight="700" fill="#0f172a">Trùng y hệt</text>
+			<rect x="270" y="14" width="680" height="30" rx="15" fill="#eef2f7"/>
+			<rect x="270" y="14" width="680" height="30" rx="15" fill="#7c3aed"/>
+			<text x="970" y="37" font-size="22" font-weight="800" fill="#334155">9%</text>
+		</g><g transform="translate(60 228)">
+			<text x="0" y="36" font-size="22" font-weight="700" fill="#0f172a">Thay đổi nhỏ</text>
+			<rect x="270" y="14" width="680" height="30" rx="15" fill="#eef2f7"/>
+			<rect x="270" y="14" width="453.3333333333333" height="30" rx="15" fill="#a78bfa"/>
+			<text x="970" y="37" font-size="22" font-weight="800" fill="#334155">6%</text>
+		</g><g transform="translate(60 286)">
+			<text x="0" y="36" font-size="22" font-weight="700" fill="#0f172a">Diễn đạt lại</text>
+			<rect x="270" y="14" width="680" height="30" rx="15" fill="#eef2f7"/>
+			<rect x="270" y="14" width="256.8888888888889" height="30" rx="15" fill="#c4b5fd"/>
+			<text x="970" y="37" font-size="22" font-weight="800" fill="#334155">3,4%</text>
+		</g>
+</svg>
