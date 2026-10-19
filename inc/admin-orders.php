@@ -208,6 +208,7 @@ function vs_adm_order_data( $id ) {
 		'auto'     => vs_auto_view_pending( $id ),
 		'log'      => $log,
 		'note'     => (string) vs_meta( $id, 'admin_note' ),
+		'drive'    => vs_drive_text( $id ),
 		'edit'     => get_edit_post_link( $id, 'raw' ),
 	);
 }
@@ -261,6 +262,13 @@ add_action( 'wp_ajax_vs_adm_action', function () {
 			update_post_meta( $id, '_vs_status', 'dang_xu_ly' );
 			do_action( 'vs_order_status', $id, 'dang_xu_ly', $old );
 			$msg = 'Đã mở lại đơn (Đang xử lý).';
+			break;
+		case 'drive':
+			list( $n, $bad ) = vs_drive_save( $id, sanitize_textarea_field( wp_unslash( isset( $_POST['drive'] ) ? $_POST['drive'] : '' ) ) );
+			if ( $bad ) {
+				wp_send_json_error( array( 'message' => 'Đã lưu ' . $n . ' link. Không nhận (không phải link Google Drive): ' . implode( ' ; ', $bad ) ) );
+			}
+			$msg = $n ? 'Đã lưu ' . $n . ' link Google Drive. Khách xem và tải được khi đơn Đang xử lý/Hoàn thành.' : 'Đã xóa link Google Drive.';
 			break;
 		case 'note':
 			update_post_meta( $id, '_vs_admin_note', sanitize_textarea_field( wp_unslash( isset( $_POST['note'] ) ? $_POST['note'] : '' ) ) );

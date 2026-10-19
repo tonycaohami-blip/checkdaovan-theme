@@ -472,6 +472,7 @@ function vs_box_result( $post ) {
 			<li data-id="<?php echo (int) $fid; ?>">📎 <?php echo esc_html( get_the_title( $fid ) ?: basename( (string) get_attached_file( $fid ) ) ); ?> <a href="#" class="vs-rm">Gỡ</a></li>
 		<?php endforeach; ?>
 	</ul>
+	<?php vs_drive_admin_field( $id ); ?>
 	<input type="hidden" name="vs_report_ids" id="vs-report-ids" value="<?php echo esc_attr( implode( ',', $files ) ); ?>">
 	<p><label><input type="checkbox" name="vs_auto_complete" value="1" checked> Khi đủ kết quả: tự chuyển <b>Hoàn thành</b> và gửi email kèm báo cáo cho khách</label></p>
 	<?php

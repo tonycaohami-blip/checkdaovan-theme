@@ -1686,3 +1686,15 @@ body.adm-lock { overflow: hidden; }
 .pick__box .mode-badge{margin-top:2px;align-self:center;font-size:10.5px;padding:1px 8px}
 .mode-note{margin:12px 0 0;font-size:13px;line-height:1.7;color:var(--muted,#64748b)}
 .mode-note .mode-badge{margin-right:2px}
+
+/* ===== 6.11: File kết quả trên Google Drive ===== */
+.fcard--drive { border-color: rgba(26,115,232,.28); background: #eef4fe; }
+.fcard--drive .fcard__icon { color: #1a73e8; border-color: rgba(26,115,232,.35); }
+.fcard--drive .fcard__name small { display: block; font-weight: 500; font-size: 11.5px; color: #5f6b7a; }
+.fcard__acts { display: inline-flex; gap: 6px; }
+.fcard--drive .fcard__btn { background: #1a73e8; }
+.fcard--drive .fcard__btn--ghost { background: #fff; color: #1a73e8; border: 1px solid rgba(26,115,232,.35); }
+@media (max-width: 640px) {
+	.fcard--drive .fcard__acts { grid-column: 1 / -1; }
+	.fcard--drive .fcard__acts .fcard__btn { flex: 1; justify-content: center; }
+}

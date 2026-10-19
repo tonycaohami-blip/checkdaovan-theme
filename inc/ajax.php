@@ -467,6 +467,10 @@ function vs_order_view( $id ) {
 		foreach ( vs_auto_files( $id ) as $i => $f ) {
 			$files[] = array( 'url' => vs_file_url( $id, $i ), 'name' => $f['name'], 'short' => vs_short_filename( $f['name'], 34 ) );
 		}
+		// Báo cáo nặng trả qua Google Drive: xem và tải trực tiếp từ Drive.
+		foreach ( vs_drive_links( $id ) as $d ) {
+			$files[] = array( 'url' => $d['download'], 'view' => $d['view'], 'name' => $d['name'], 'short' => $d['short'], 'drive' => $d['kind'] );
+		}
 	}
 
 	return array(

@@ -130,6 +130,7 @@
 				}).join('') + '</div>' : '<p class="muted">Chưa có kết quả.</p>') +
 				(o.reports.length ? '<ul class="files">' + o.reports.map(function (f) { return '<li><a href="' + esc(f.url) + '" target="_blank" rel="noopener">📄 ' + esc(f.name) + '</a></li>'; }).join('') + '</ul>' : '') +
 			'</section>' +
+			'<section><h3>Link Google Drive trả khách</h3><textarea rows="3" data-drive placeholder="https://drive.google.com/file/d/…/view | Báo cáo Turnitin">' + esc(o.drive || '') + '</textarea><p class="muted adm-hint">Mỗi dòng 1 link file hoặc thư mục, tên hiển thị ghi sau dấu |. Trên Drive chọn Chia sẻ → Bất kỳ ai có đường liên kết → Người xem.</p><button class="btn btn--outline btn--sm" data-act="drive">Lưu link Drive</button></section>' +
 			'<section><h3>Ghi chú nội bộ</h3><textarea rows="3" data-note placeholder="Chỉ quản trị viên xem được">' + esc(o.note) + '</textarea><button class="btn btn--outline btn--sm" data-act="note">Lưu ghi chú</button></section>' +
 			(o.log.length ? '<section><h3>Nhật ký</h3><ul class="adm-log">' + o.log.map(function (l) { return '<li><small>' + esc(l.ago) + '</small>' + esc(l.msg) + '</li>'; }).join('') + '</ul></section>' : '');
 	}
@@ -154,6 +155,7 @@
 		if (act === 'cancel' && !confirm('Hủy đơn này? Khách sẽ nhận được thông báo.')) return;
 		if (act === 'paid' && !confirm('Xác nhận đã nhận đủ tiền cho đơn này?')) return;
 		if (act === 'note') extra.note = $('[data-note]', detail).value;
+		if (act === 'drive') extra.drive = $('[data-drive]', detail).value;
 		b.disabled = true;
 		call('vs_adm_action', Object.assign({ id: current, act: act }, extra))
 			.then(function (d) { toast(d.message, 'ok'); renderDetail(d.order); loadList(true); })

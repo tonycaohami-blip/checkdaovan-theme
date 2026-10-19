@@ -492,10 +492,13 @@ function vs_auto_mail_done( $id, $partial = false ) {
 		}
 		$links[] = $f['name'] . ': ' . vs_file_url( $id, $i );
 	}
+	foreach ( function_exists( 'vs_drive_links' ) ? vs_drive_links( $id ) : array() as $d ) {
+		$links[] = $d['name'] . ' (Google Drive): ' . $d['view'];
+	}
 	$body  = 'Chào ' . vs_meta( $id, 'name' ) . ",\n\n";
 	$body .= 'Đơn ' . vs_meta( $id, 'code' ) . ( $partial ? ' đã có kết quả một phần (phần còn lại đang được chuyên viên xử lý, bạn sẽ nhận email khi xong)' : ' đã có kết quả' ) . ":\n" . implode( "\n", $lines ) . "\n\n";
 	if ( $links ) {
-		$body .= "Báo cáo PDF được đính kèm email này. Bạn cũng có thể tải lại tại:\n" . implode( "\n", $links ) . "\n\n";
+		$body .= "Báo cáo PDF (file nhỏ được đính kèm email này). Xem hoặc tải tại:\n" . implode( "\n", $links ) . "\n\n";
 	}
 	$body .= 'Xem trong tài khoản: ' . vs_account_url( 'don-hang' ) . "\n";
 	$body .= 'Hoặc tra cứu: ' . vs_page_url( 'tra-cuu-don-hang', array( 'ma' => vs_meta( $id, 'code' ) ) ) . "\n\n";

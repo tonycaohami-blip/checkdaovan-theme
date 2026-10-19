@@ -267,6 +267,7 @@
 	function fcardsHtml(files, partial) {
 		if (!files || !files.length) return '';
 		return '<div class="dl-head">📄 Báo cáo đã sẵn sàng' + (partial ? '<small>Phần còn lại đang xử lý</small>' : '') + '</div><div class="fcards">' + files.map(function (f) {
+			if (f.drive) return '<div class="fcard fcard--drive"><span class="fcard__icon">' + (f.drive === 'folder' ? 'DIR' : 'PDF') + '</span><span class="fcard__name" title="' + esc(f.name) + '">' + esc(f.short || f.name) + '<small>Google Drive</small></span><span class="fcard__acts">' + (f.drive === 'folder' ? '' : '<a class="fcard__btn fcard__btn--ghost" href="' + esc(f.view) + '" target="_blank" rel="noopener">Xem</a>') + '<a class="fcard__btn" href="' + esc(f.url) + '" target="_blank" rel="noopener">' + (f.drive === 'folder' ? 'Mở thư mục' : 'Tải xuống') + '</a></span></div>';
 			return '<a class="fcard" href="' + esc(f.url) + '" target="_blank" rel="noopener" download title="' + esc(f.name) + '"><span class="fcard__icon">PDF</span><span class="fcard__name">' + esc(f.short || f.name) + '</span><span class="fcard__btn">Tải xuống</span></a>';
 		}).join('') + '</div>';
 	}
