@@ -58,7 +58,7 @@ add_action( 'admin_init', function () {
 } );
 /* Có bài mẫu / nội dung mới sau khi theme tự cập nhật: nhập ở nền (WP-Cron), không cần mở trang quản trị. */
 add_action( 'init', function () {
-	if ( (int) get_option( 'vs_content_imported' ) < 17 && ! wp_next_scheduled( 'vs_run_import' ) ) {
+	if ( (int) get_option( 'vs_content_imported' ) < 18 && ! wp_next_scheduled( 'vs_run_import' ) ) {
 		wp_schedule_single_event( time() + 5, 'vs_run_import' );
 	}
 } );
@@ -74,7 +74,7 @@ function vs_maybe_import() {
 	if ( get_transient( 'vs_su_lock' ) ) {
 		return;
 	}
-	if ( (int) get_option( 'vs_content_imported' ) < 17 ) {
+	if ( (int) get_option( 'vs_content_imported' ) < 18 ) {
 		$old_mail = vs_opt( 'email', get_option( 'admin_email' ) );
 		vs_contact_migrate( $old_mail );
 		$n = vs_import_content();
@@ -84,7 +84,7 @@ function vs_maybe_import() {
 			vs_brand_migrate( $old_mail, VS_EMAIL );
 		}
 		vs_brand_migrate( 'CheckĐạoVăn', VS_BRAND );
-		update_option( 'vs_content_imported', 17 );
+		update_option( 'vs_content_imported', 18 );
 		update_option( 'vs_import_log', array( 'time' => time(), 'v' => VS_VERSION, 'n' => $n ), false );
 	}
 }
@@ -192,8 +192,9 @@ function vs_sample_untouched( $post ) {
  * trùng với mẫu của bản 6.8 - chỉ khác do đổi tên thương hiệu/email.
  */
 function vs_page_untouched( $post, $slug ) {
-	if ( get_post_meta( $post->ID, '_vs_import_hash', true ) ) {
-		return vs_sample_untouched( $post );
+	// Mã khớp: chắc chắn chưa sửa. Mã lệch có thể do bộ lọc HTML khi đổi thương hiệu: đối chiếu thêm nội dung.
+	if ( get_post_meta( $post->ID, '_vs_import_hash', true ) && vs_sample_untouched( $post ) ) {
+		return true;
 	}
 	static $legacy = null;
 	if ( null === $legacy ) {
