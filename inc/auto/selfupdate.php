@@ -281,6 +281,8 @@ add_action( 'rest_api_init', function () {
 			nocache_headers();
 			return array(
 				'version' => VS_VERSION,
+				'tz'      => wp_timezone_string(),
+				'now'     => wp_date( 'H:i d/m/Y' ),
 				'content' => (int) get_option( 'vs_content_imported' ),
 				'import'  => get_option( 'vs_import_log' ),
 				'ran'     => $ran,

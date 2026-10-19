@@ -488,7 +488,7 @@ function vs_box_status( $post ) {
 	echo '<p><label><input type="checkbox" name="vs_notify" value="1" checked> Gửi email cho khách khi chuyển sang “Hoàn thành”</label></p>';
 	echo '<p><label>Ghi chú nội bộ<br><textarea name="vs_admin_note" rows="3" style="width:100%">' . esc_textarea( vs_meta( $post->ID, 'admin_note' ) ) . '</textarea></label></p>';
 	echo '<p><button type="submit" class="button button-primary button-large" style="width:100%">Cập nhật đơn</button></p>';
-	echo '<p style="color:#666">Đặt lúc ' . esc_html( get_the_date( 'H:i d/m/Y', $post ) ) . '</p>';
+	echo '<p style="color:#666">Đặt lúc ' . esc_html( vs_post_date( 'H:i d/m/Y', $post ) ) . '</p>';
 }
 
 add_action( 'save_post_vs_order', function ( $id ) {

@@ -305,7 +305,7 @@ function vs_order_details( $id ) {
 	if ( vs_meta( $id, 'coupon' ) ) {
 		$d['Ưu đãi'] = vs_meta( $id, 'coupon' );
 	}
-	$d['Ngày đặt'] = get_the_date( 'H:i d/m/Y', $id );
+	$d['Ngày đặt'] = vs_post_date( 'H:i d/m/Y', $id );
 	return array_filter( $d );
 }
 
@@ -477,7 +477,7 @@ function vs_order_view( $id ) {
 		'label'   => isset( $labels[ $status ] ) ? $labels[ $status ] : $status,
 		'summary' => vs_order_summary( $id ),
 		'total'   => (int) vs_meta( $id, 'price' ),
-		'date'    => get_the_date( 'H:i d/m/Y', $id ),
+		'date'    => vs_post_date( 'H:i d/m/Y', $id ),
 		'results' => $visible ? $results : array(),
 		'partial' => 'dang_xu_ly' === $status && ( $results || $files ),
 		'waiting' => 'dang_xu_ly' === $status ? vs_order_waiting( $id ) : array(),

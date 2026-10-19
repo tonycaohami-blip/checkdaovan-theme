@@ -61,7 +61,7 @@
 		pagerEl.innerHTML = d.pages > 1 ? Array.apply(null, { length: d.pages }).map(function (_, i) {
 			return '<button type="button" class="' + (i + 1 === d.page ? 'is-active' : '') + '" data-page="' + (i + 1) + '">' + (i + 1) + '</button>';
 		}).join('') : '';
-		$('[data-adm-updated]').textContent = 'cập nhật lúc ' + new Date().toLocaleTimeString('vi-VN');
+		$('[data-adm-updated]').textContent = 'cập nhật lúc ' + new Date().toLocaleTimeString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
 	}
 
 	function loadList(quiet) {

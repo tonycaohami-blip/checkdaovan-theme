@@ -335,7 +335,7 @@ foreach ( $orders as $o ) {
 							<tbody>
 							<?php foreach ( $ref_orders as $oid ) : $nm = vs_meta( $oid, 'name' ); ?>
 								<tr>
-									<td><?php echo esc_html( get_the_date( 'd/m/Y', $oid ) ); ?></td>
+									<td><?php echo esc_html( vs_post_date( 'd/m/Y', $oid ) ); ?></td>
 									<td><?php echo esc_html( mb_substr( $nm, 0, 1 ) . '***' . mb_substr( $nm, -2 ) ); ?></td>
 									<td><?php echo esc_html( vs_money( vs_meta( $oid, 'price' ) ) ); ?></td>
 									<td><b><?php echo esc_html( vs_money( vs_meta( $oid, 'commission' ) ) ); ?></b></td>
@@ -354,7 +354,7 @@ foreach ( $orders as $o ) {
 						<div class="panel__head"><h2>Lịch sử rút tiền</h2></div>
 						<div class="table-wrap"><table class="ptable"><thead><tr><th>Ngày</th><th>Số tiền</th><th>Trạng thái</th></tr></thead><tbody>
 							<?php foreach ( $payouts as $pid ) : ?>
-								<tr><td><?php echo esc_html( get_the_date( 'd/m/Y', $pid ) ); ?></td><td><?php echo esc_html( vs_money( vs_meta( $pid, 'amount' ) ) ); ?></td><td><?php echo esc_html( vs_payout_labels()[ vs_meta( $pid, 'status', 'pending' ) ] ); ?></td></tr>
+								<tr><td><?php echo esc_html( vs_post_date( 'd/m/Y', $pid ) ); ?></td><td><?php echo esc_html( vs_money( vs_meta( $pid, 'amount' ) ) ); ?></td><td><?php echo esc_html( vs_payout_labels()[ vs_meta( $pid, 'status', 'pending' ) ] ); ?></td></tr>
 							<?php endforeach; ?>
 						</tbody></table></div>
 					</div>

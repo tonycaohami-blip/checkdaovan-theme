@@ -108,7 +108,7 @@ function vs_order_stats() {
 		}
 		if ( in_array( $st, array( 'dang_xu_ly', 'hoan_thanh' ), true ) ) {
 			$price = (int) vs_meta( $id, 'price' );
-			$date  = get_the_date( 'Y-m-d', $id );
+			$date  = vs_post_date( 'Y-m-d', $id );
 			$s['total'] += $price;
 			if ( 0 === strpos( $date, $month ) ) {
 				$s['month'] += $price;
@@ -172,7 +172,7 @@ add_action( 'admin_post_vs_export', function () {
 		$st = vs_meta( $id, 'status', 'cho_thanh_toan' );
 		fputcsv( $out, array(
 			vs_meta( $id, 'code' ),
-			get_the_date( 'd/m/Y H:i', $id ),
+			vs_post_date( 'd/m/Y H:i', $id ),
 			vs_order_summary( $id ),
 			vs_meta( $id, 'name' ),
 			"'" . vs_meta( $id, 'phone' ),
@@ -246,7 +246,7 @@ add_action( 'wp_head', function () {
 		$graph[] = array(
 			'@type'         => 'Article',
 			'headline'      => get_the_title( $post ),
-			'datePublished' => get_the_date( 'c', $post ),
+			'datePublished' => vs_post_date( 'c', $post ),
 			'dateModified'  => get_the_modified_date( 'c', $post ),
 			'author'        => array( '@type' => 'Organization', 'name' => get_bloginfo( 'name' ) ),
 			'publisher'     => array( '@type' => 'Organization', 'name' => get_bloginfo( 'name' ), 'logo' => array( '@type' => 'ImageObject', 'url' => VS_URI . '/assets/img/logo.svg' ) ),

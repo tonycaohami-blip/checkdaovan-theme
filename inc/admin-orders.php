@@ -60,7 +60,7 @@ function vs_adm_stats() {
 		if ( isset( $s[ $st ] ) ) {
 			$s[ $st ]++;
 		}
-		if ( get_the_date( 'Y-m-d', $id ) === $today ) {
+		if ( vs_post_date( 'Y-m-d', $id ) === $today ) {
 			$s['today']++;
 		}
 		$paid = (int) get_post_meta( $id, '_vs_paid_at', true );
@@ -136,7 +136,7 @@ add_action( 'wp_ajax_vs_adm_orders', function () {
 			'total'   => vs_money( vs_meta( $id, 'price' ) ),
 			'status'  => $st,
 			'label'   => isset( $labels[ $st ] ) ? $labels[ $st ] : $st,
-			'date'    => get_the_date( 'H:i d/m', $id ),
+			'date'    => vs_post_date( 'H:i d/m', $id ),
 			'ago'     => vs_time_ago( get_post_time( 'U', true, $id ) ),
 			'auto'    => vs_auto_view_pending( $id ),
 		);

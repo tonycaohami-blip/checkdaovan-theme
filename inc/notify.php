@@ -84,6 +84,30 @@ function vs_can_manage_orders() {
 }
 
 /** Thời gian dạng "5 phút trước". */
+/**
+ * Múi giờ Việt Nam (UTC+7, Hà Nội): đặt 1 lần cho cả website. Quản trị viên vẫn có thể đổi lại trong Cài đặt > Tổng quan.
+ */
+add_action( 'init', function () {
+	if ( get_option( 'vs_tz_set' ) ) {
+		return;
+	}
+	update_option( 'timezone_string', 'Asia/Ho_Chi_Minh' );
+	update_option( 'gmt_offset', '' );
+	update_option( 'date_format', 'd/m/Y' );
+	update_option( 'time_format', 'H:i' );
+	update_option( 'start_of_week', 1 );
+	update_option( 'vs_tz_set', 1 );
+} );
+
+/**
+ * Ngày giờ của bài/đơn theo múi giờ website, tính từ giờ chuẩn (GMT) đã lưu.
+ * Đúng cả với đơn tạo trước khi đổi múi giờ (post_date cũ có thể đang là giờ UTC).
+ */
+function vs_post_date( $format, $post = null ) {
+	$ts = get_post_time( 'U', true, $post );
+	return $ts ? wp_date( $format, $ts ) : '';
+}
+
 function vs_time_ago( $t ) {
 	$d = time() - (int) $t;
 	if ( $d < 60 ) {
