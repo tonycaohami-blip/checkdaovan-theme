@@ -172,7 +172,7 @@ function vs_auto_admin_page() {
 
 			<h2>Hình thức kiểm tra hiển thị cho khách</h2>
 			<table class="widefat striped" style="max-width:820px">
-				<thead><tr><th>Phần mềm</th><th>Hình thức</th><th>Phạm vi tự động</th></tr></thead>
+				<thead><tr><th>Phần mềm</th><th>Hình thức</th><th>Chạy qua API</th></tr></thead>
 				<tbody>
 				<?php foreach ( vs_pricing()['tools'] as $t => $tool ) : ?>
 					<?php
@@ -186,7 +186,7 @@ function vs_auto_admin_page() {
 						$scope[] = 'Tỷ lệ AI';
 					}
 					?>
-					<tr><td><?php echo esc_html( $tool['name'] ); ?></td><td><strong<?php echo 'auto' === vs_tool_check_mode( $t ) ? ' class="vs-ok"' : ''; ?>><?php echo esc_html( $lab[0] ); ?></strong> · <?php echo esc_html( $lab[1] ); ?></td><td><?php echo $scope ? esc_html( implode( ', ', $scope ) ) . ' (khi đã nhập API)' : 'Không có API'; ?></td></tr>
+					<tr><td><?php echo esc_html( $tool['name'] ); ?></td><td><strong<?php echo 'auto' === vs_tool_check_mode( $t ) ? ' class="vs-ok"' : ''; ?>><?php echo esc_html( $lab[0] ); ?></strong> · <?php echo esc_html( $lab[1] ); ?></td><td><?php echo $scope ? esc_html( implode( ', ', $scope ) ) . ( vs_auto_tool_ready( $t ) ? ' · <b class="vs-ok">API đã kết nối</b>' : ' · chưa nhập API (đơn vào hàng chờ xử lý tay)' ) : 'Không có API'; ?></td></tr>
 				<?php endforeach; ?>
 				</tbody>
 			</table>

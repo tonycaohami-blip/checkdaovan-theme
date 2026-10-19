@@ -78,25 +78,22 @@ function vs_auto_tool_ready( $tool ) {
 
 /** Phần mềm không có API công khai cho dịch vụ đang bán: luôn kiểm tra thủ công. */
 function vs_manual_only_tools() {
-	return apply_filters( 'vs_manual_only_tools', array( 'quillbot', 'doit', 'grammarly' ) );
+	return apply_filters( 'vs_manual_only_tools', array( 'quillbot', 'doit', 'winston' ) );
 }
 
 /**
- * Hình thức kiểm tra hiển thị cho khách:
- * auto = đã kết nối API, chạy tự động 24/7; dev = thủ công, đang phát triển kết nối API; manual = chỉ kiểm tra thủ công.
+ * Hình thức kiểm tra hiển thị cho khách (theo yêu cầu vận hành): QuillBot, DoIT, Winston AI là kiểm tra thủ công,
+ * các phần mềm còn lại hiển thị Tự động 24/7. Việc chạy tự động thật qua API vẫn do vs_auto_tool_ready() quyết định;
+ * đơn của phần mềm chưa nhập API sẽ vào hàng chờ xử lý tay và báo quản trị.
  */
 function vs_tool_check_mode( $tool ) {
-	if ( in_array( $tool, vs_manual_only_tools(), true ) ) {
-		return 'manual';
-	}
-	return isset( vs_auto_capabilities()[ $tool ] ) && vs_auto_tool_ready( $tool ) ? 'auto' : 'dev';
+	return in_array( $tool, vs_manual_only_tools(), true ) ? 'manual' : 'auto';
 }
 
 function vs_tool_check_mode_label( $tool ) {
 	$map = array(
-		'auto'   => array( 'Tự động 24/7', 'Kết nối API, trả kết quả tự động mọi lúc' ),
-		'dev'    => array( 'Kiểm tra thủ công', 'Đang phát triển kết nối API tự động' ),
-		'manual' => array( 'Kiểm tra thủ công', 'Chưa hỗ trợ kiểm tra tự động' ),
+		'auto'   => array( 'Tự động 24/7', 'Nhận đơn và trả kết quả mọi lúc' ),
+		'manual' => array( 'Kiểm tra thủ công', 'Chuyên viên xử lý trong giờ làm việc' ),
 	);
 	return $map[ vs_tool_check_mode( $tool ) ];
 }

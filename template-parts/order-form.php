@@ -40,7 +40,7 @@ $min_check = vs_min_check_price();
 					</label>
 				<?php endforeach; ?>
 			</div>
-			<p class="mode-note"><span class="mode-badge mode-badge--auto">Tự động 24/7</span> trả kết quả tự động mọi lúc qua API chính thức. <span class="mode-badge mode-badge--dev">Kiểm tra thủ công</span> chuyên viên xử lý trong giờ làm việc (<?php echo esc_html( vs_opt( 'hours' ) ); ?>); một số phần mềm đang phát triển kết nối API tự động.</p>
+			<p class="mode-note"><span class="mode-badge mode-badge--auto">Tự động 24/7</span> nhận đơn và trả kết quả mọi lúc, kể cả ban đêm. <span class="mode-badge mode-badge--manual">Kiểm tra thủ công</span> chuyên viên xử lý trong giờ làm việc (<?php echo esc_html( vs_opt( 'hours' ) ); ?>).</p>
 		</fieldset>
 
 		<fieldset class="field">
