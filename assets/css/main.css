@@ -1698,3 +1698,10 @@ body.adm-lock { overflow: hidden; }
 	.fcard--drive .fcard__acts { grid-column: 1 / -1; }
 	.fcard--drive .fcard__acts .fcard__btn { flex: 1; justify-content: center; }
 }
+
+/* ===== 6.11.1: Báo cáo trong mục "Kết quả" (trang quản trị) - tên dài không tràn ===== */
+.adm-reports { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; min-width: 0; }
+.sent-file__body { min-width: 0; flex: 1; display: flex; flex-direction: column; }
+.sent-file__name { display: block; max-width: 100%; }
+.sent-file--drive .sent-file__ext { background: #1a73e8; color: #fff; border-color: #1a73e8; }
+.adm-results b { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

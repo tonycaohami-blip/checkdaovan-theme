@@ -128,7 +128,10 @@
 				(o.results.length ? '<div class="adm-results">' + o.results.map(function (r) {
 					return '<div><b>' + esc(r.tool) + '</b><span>Đạo văn <i>' + pct(r.plag) + '</i></span><span>AI <i>' + pct(r.ai) + '</i></span></div>';
 				}).join('') + '</div>' : '<p class="muted">Chưa có kết quả.</p>') +
-				(o.reports.length ? '<ul class="files">' + o.reports.map(function (f) { return '<li><a href="' + esc(f.url) + '" target="_blank" rel="noopener">📄 ' + esc(f.name) + '</a></li>'; }).join('') + '</ul>' : '') +
+				(o.reports.length ? '<div class="sent-files adm-reports">' + o.reports.map(function (f) {
+					var ext = f.drive ? (f.drive === 'folder' ? 'DIR' : 'PDF') : ((f.name.split('.').pop() || 'PDF').toUpperCase().slice(0, 4));
+					return '<a class="sent-file' + (f.drive ? ' sent-file--drive' : '') + '" href="' + esc(f.view || f.url) + '" target="_blank" rel="noopener" title="' + esc(f.name) + '"><span class="sent-file__ext sent-file__ext--' + esc(ext.toLowerCase()) + '">' + esc(ext) + '</span><span class="sent-file__body"><span class="sent-file__name">' + esc(f.short || f.name) + '</span><span class="sent-file__meta">' + (f.drive ? 'Google Drive' : 'Báo cáo trả khách') + '</span></span><span class="sent-file__dl">' + (f.drive ? '↗' : '⬇') + '</span></a>';
+				}).join('') + '</div>' : '') +
 			'</section>' +
 			'<section><h3>Link Google Drive trả khách</h3><textarea rows="3" data-drive placeholder="https://drive.google.com/file/d/…/view | Báo cáo Turnitin">' + esc(o.drive || '') + '</textarea><p class="muted adm-hint">Mỗi dòng 1 link file hoặc thư mục, tên hiển thị ghi sau dấu |. Trên Drive chọn Chia sẻ → Bất kỳ ai có đường liên kết → Người xem.</p><button class="btn btn--outline btn--sm" data-act="drive">Lưu link Drive</button></section>' +
 			'<section><h3>Ghi chú nội bộ</h3><textarea rows="3" data-note placeholder="Chỉ quản trị viên xem được">' + esc(o.note) + '</textarea><button class="btn btn--outline btn--sm" data-act="note">Lưu ghi chú</button></section>' +
