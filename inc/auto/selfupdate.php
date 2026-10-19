@@ -42,18 +42,38 @@ function vs_su_allowed() {
 	return (bool) vs_su_state()['enabled'];
 }
 
+/**
+ * Token GitHub (chỉ đọc) để truy cập kho riêng tư. Ưu tiên hằng số VS_GITHUB_TOKEN trong wp-config.php,
+ * sau đó là token lưu trong trang Cập nhật theme. Token chỉ lưu trong cơ sở dữ liệu website, không nằm trong code.
+ */
+function vs_su_token() {
+	if ( defined( 'VS_GITHUB_TOKEN' ) && VS_GITHUB_TOKEN ) {
+		return (string) VS_GITHUB_TOKEN;
+	}
+	return (string) get_option( 'vs_su_token', '' );
+}
+
+function vs_su_headers( $accept ) {
+	$h = array( 'Accept' => $accept, 'User-Agent' => 'CheckDaoVan-Theme', 'X-GitHub-Api-Version' => '2022-11-28' );
+	if ( vs_su_token() ) {
+		$h['Authorization'] = 'Bearer ' . vs_su_token();
+	}
+	return $h;
+}
+
 /** Mã phiên bản (commit) mới nhất trên GitHub. */
 function vs_su_remote_sha() {
 	$r = wp_remote_get( 'https://api.github.com/repos/' . VS_REPO . '/commits/' . VS_REPO_BRANCH, array(
 		'timeout' => 15,
-		'headers' => array( 'Accept' => 'application/vnd.github.sha', 'User-Agent' => 'CheckDaoVan-Theme' ),
+		'headers' => vs_su_headers( 'application/vnd.github.sha' ),
 	) );
 	if ( is_wp_error( $r ) ) {
 		return $r;
 	}
 	$sha = trim( wp_remote_retrieve_body( $r ) );
 	if ( 200 !== (int) wp_remote_retrieve_response_code( $r ) || ! preg_match( '/^[0-9a-f]{40}$/', $sha ) ) {
-		return new WP_Error( 'sha', 'GitHub trả về HTTP ' . wp_remote_retrieve_response_code( $r ) );
+		$code = (int) wp_remote_retrieve_response_code( $r );
+		return new WP_Error( 'sha', 'GitHub trả về HTTP ' . $code . ( 404 === $code ? ( vs_su_token() ? ' (token không có quyền đọc kho)' : ' (kho riêng tư: cần nhập token GitHub)' ) : ( 401 === $code ? ' (token sai hoặc đã hết hạn)' : '' ) ) );
 	}
 	return $sha;
 }
@@ -115,9 +135,24 @@ function vs_su_install( $sha ) {
 	}
 	global $wp_filesystem;
 
-	$zip = download_url( 'https://codeload.github.com/' . VS_REPO . '/zip/' . $sha, 120 );
-	if ( is_wp_error( $zip ) ) {
-		return $zip;
+	if ( vs_su_token() ) {
+		// Kho riêng tư: tải qua API kèm token.
+		$zip = wp_tempnam( 'vs-theme.zip' );
+		$r   = wp_remote_get( 'https://api.github.com/repos/' . VS_REPO . '/zipball/' . $sha, array(
+			'timeout'  => 120,
+			'stream'   => true,
+			'filename' => $zip,
+			'headers'  => vs_su_headers( 'application/vnd.github+json' ),
+		) );
+		if ( is_wp_error( $r ) || 200 !== (int) wp_remote_retrieve_response_code( $r ) ) {
+			@unlink( $zip ); // phpcs:ignore
+			return is_wp_error( $r ) ? $r : new WP_Error( 'zip', 'Tải gói từ GitHub lỗi HTTP ' . wp_remote_retrieve_response_code( $r ) );
+		}
+	} else {
+		$zip = download_url( 'https://codeload.github.com/' . VS_REPO . '/zip/' . $sha, 120 );
+		if ( is_wp_error( $zip ) ) {
+			return $zip;
+		}
 	}
 	wp_mkdir_p( trailingslashit( WP_CONTENT_DIR ) . 'upgrade' );
 	$work = trailingslashit( WP_CONTENT_DIR ) . 'upgrade/vs-theme-' . substr( $sha, 0, 12 );
@@ -287,7 +322,14 @@ add_action( 'admin_post_vs_su', function () {
 		wp_die( 'Không có quyền.' );
 	}
 	$s = vs_su_state();
-	if ( isset( $_POST['toggle'] ) ) {
+	if ( isset( $_POST['save_token'] ) || isset( $_POST['clear_token'] ) ) {
+		$tok = isset( $_POST['clear_token'] ) ? '' : preg_replace( '/[^A-Za-z0-9_]/', '', wp_unslash( isset( $_POST['token'] ) ? $_POST['token'] : '' ) );
+		if ( isset( $_POST['clear_token'] ) || '' !== $tok ) {
+			update_option( 'vs_su_token', $tok, false );
+		}
+		$test = vs_su_remote_sha();
+		$msg  = is_wp_error( $test ) ? 'Đã lưu. Kết nối GitHub lỗi: ' . $test->get_error_message() : 'Đã lưu. Kết nối GitHub thành công (bản mới nhất ' . substr( $test, 0, 7 ) . ').';
+	} elseif ( isset( $_POST['toggle'] ) ) {
 		$s['enabled'] = $s['enabled'] ? 0 : 1;
 		vs_su_save( $s );
 		$msg = $s['enabled'] ? 'Đã bật tự cập nhật.' : 'Đã tắt tự cập nhật.';
@@ -318,6 +360,7 @@ function vs_su_page() {
 				<tr><th>Kiểm tra gần nhất</th><td><?php echo esc_html( $fmt( $s['checked'] ) ); ?></td></tr>
 				<tr><th>Cập nhật gần nhất</th><td><?php echo esc_html( $fmt( $s['updated'] ) ); ?></td></tr>
 				<?php if ( $s['error'] ) : ?><tr><th>Lỗi</th><td style="color:#b32d2e"><?php echo esc_html( $s['error'] ); ?></td></tr><?php endif; ?>
+				<tr><th>Token GitHub</th><td><?php echo defined( 'VS_GITHUB_TOKEN' ) && VS_GITHUB_TOKEN ? '✅ Đặt trong wp-config.php' : ( get_option( 'vs_su_token' ) ? '✅ Đã lưu (…' . esc_html( substr( get_option( 'vs_su_token' ), -4 ) ) . ')' : 'Chưa có - chỉ cần khi kho GitHub để chế độ riêng tư' ); ?></td></tr>
 				<tr><th>Webhook (tùy chọn)</th><td><code><?php echo esc_html( rest_url( 'vansach/v1/deploy' ) ); ?></code><br><small>Thêm vào GitHub → Settings → Webhooks để cập nhật ngay khi có thay đổi thay vì chờ tối đa 5 phút.</small></td></tr>
 			</tbody>
 		</table>
@@ -326,6 +369,16 @@ function vs_su_page() {
 			<input type="hidden" name="action" value="vs_su">
 			<button class="button button-primary" <?php disabled( ! vs_su_allowed() ); ?>>🔄 Kiểm tra &amp; cập nhật ngay</button>
 			<button class="button" name="toggle" value="1"><?php echo $s['enabled'] ? 'Tắt tự cập nhật' : 'Bật tự cập nhật'; ?></button>
+		</form>
+
+		<h2>Kho GitHub riêng tư</h2>
+		<p>Để kho ở chế độ riêng tư, tạo một <strong>Fine-grained personal access token</strong> tại GitHub → Settings → Developer settings, chỉ chọn kho <code><?php echo esc_html( VS_REPO ); ?></code>, quyền <strong>Contents: Read-only</strong>, rồi dán vào đây. Lưu token và thấy “Kết nối GitHub thành công” <em>trước</em> khi chuyển kho sang riêng tư.</p>
+		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+			<?php wp_nonce_field( 'vs_su' ); ?>
+			<input type="hidden" name="action" value="vs_su">
+			<input type="password" class="regular-text" name="token" autocomplete="off" placeholder="github_pat_…">
+			<button class="button button-primary" name="save_token" value="1">Lưu &amp; kiểm tra</button>
+			<?php if ( get_option( 'vs_su_token' ) ) : ?><button class="button" name="clear_token" value="1">Xóa token</button><?php endif; ?>
 		</form>
 	</div>
 	<?php
