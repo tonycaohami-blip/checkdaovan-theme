@@ -336,8 +336,13 @@ add_action( 'admin_post_vs_su', function () {
 		if ( isset( $_POST['clear_token'] ) || '' !== $tok ) {
 			update_option( 'vs_su_token', $tok, false );
 		}
-		$test = vs_su_remote_sha();
-		$msg  = is_wp_error( $test ) ? 'Đã lưu. Kết nối GitHub lỗi: ' . $test->get_error_message() : 'Đã lưu. Kết nối GitHub thành công (bản mới nhất ' . substr( $test, 0, 7 ) . ').';
+		if ( isset( $_POST['save_token'] ) && '' === $tok ) {
+			$msg = 'Chưa lưu: ô token đang trống. Hãy dán token (bắt đầu bằng github_pat_) rồi bấm Lưu & kiểm tra.';
+		} else {
+			$test = vs_su_remote_sha();
+			$what = vs_su_token() ? 'Đã lưu token (…' . substr( vs_su_token(), -4 ) . '). ' : 'Đã xóa token. ';
+			$msg  = $what . ( is_wp_error( $test ) ? 'Kết nối GitHub lỗi: ' . $test->get_error_message() : 'Kết nối GitHub thành công (bản mới nhất ' . substr( $test, 0, 7 ) . ').' );
+		}
 	} elseif ( isset( $_POST['toggle'] ) ) {
 		$s['enabled'] = $s['enabled'] ? 0 : 1;
 		vs_su_save( $s );
