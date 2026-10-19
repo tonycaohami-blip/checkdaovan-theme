@@ -136,17 +136,23 @@ function vs_su_install( $sha ) {
 	global $wp_filesystem;
 
 	if ( vs_su_token() ) {
-		// Kho riêng tư: tải qua API kèm token.
-		$zip = wp_tempnam( 'vs-theme.zip' );
-		$r   = wp_remote_get( 'https://api.github.com/repos/' . VS_REPO . '/zipball/' . $sha, array(
-			'timeout'  => 120,
-			'stream'   => true,
-			'filename' => $zip,
-			'headers'  => vs_su_headers( 'application/vnd.github+json' ),
+		// Kho riêng tư: API trả về địa chỉ tải tạm thời (đã kèm quyền, hết hạn sau vài phút).
+		// Tự xử lý chuyển hướng để không gửi token sang máy chủ tải file.
+		$r = wp_remote_get( 'https://api.github.com/repos/' . VS_REPO . '/zipball/' . $sha, array(
+			'timeout'     => 30,
+			'redirection' => 0,
+			'headers'     => vs_su_headers( 'application/vnd.github+json' ),
 		) );
-		if ( is_wp_error( $r ) || 200 !== (int) wp_remote_retrieve_response_code( $r ) ) {
-			@unlink( $zip ); // phpcs:ignore
-			return is_wp_error( $r ) ? $r : new WP_Error( 'zip', 'Tải gói từ GitHub lỗi HTTP ' . wp_remote_retrieve_response_code( $r ) );
+		if ( is_wp_error( $r ) ) {
+			return $r;
+		}
+		$loc = wp_remote_retrieve_header( $r, 'location' );
+		if ( ! $loc || 0 !== strpos( $loc, 'https://' ) ) {
+			return new WP_Error( 'zip', 'GitHub không trả địa chỉ tải gói (HTTP ' . wp_remote_retrieve_response_code( $r ) . ')' );
+		}
+		$zip = download_url( $loc, 120 );
+		if ( is_wp_error( $zip ) ) {
+			return $zip;
 		}
 	} else {
 		$zip = download_url( 'https://codeload.github.com/' . VS_REPO . '/zip/' . $sha, 120 );
@@ -279,6 +285,9 @@ add_action( 'rest_api_init', function () {
 				'import'  => get_option( 'vs_import_log' ),
 				'ran'     => $ran,
 				'su_lock' => (bool) get_transient( 'vs_su_lock' ),
+				'su_error' => vs_su_state()['error'],
+				'su_checked' => vs_su_state()['checked'],
+				'su_token' => (bool) vs_su_token(),
 				'next'    => wp_next_scheduled( 'vs_run_import' ),
 			);
 		},
