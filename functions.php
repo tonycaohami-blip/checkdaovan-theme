@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'VS_VERSION', '6.11.1' );
+define( 'VS_VERSION', '6.12.0' );
 define( 'VS_BRAND', 'Check Đạo Văn' );       // Tên thương hiệu mặc định (đổi trong Cài đặt > Chung > Tên website).
 define( 'VS_DOMAIN', 'checkdaovan247.com' );          // Tên miền chính thức.
 define( 'VS_EMAIL', 'hotro@checkdaovan247.com' );     // Email hỗ trợ mặc định.
@@ -31,6 +31,8 @@ require VS_DIR . '/inc/auto/selfupdate.php';
 require VS_DIR . '/inc/notify.php';
 require VS_DIR . '/inc/admin-orders.php';
 require VS_DIR . '/inc/drive.php';
+require VS_DIR . '/inc/security.php';
+require VS_DIR . '/inc/perf.php';
 require VS_DIR . '/inc/content.php';
 
 add_action( 'after_setup_theme', function () {
@@ -54,7 +56,7 @@ add_action( 'wp_enqueue_scripts', function () {
 		wp_enqueue_script( 'jszip', 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js', array(), '3.10.1', true );
 		$deps[] = 'jszip';
 	}
-	wp_enqueue_script( 'vs-main', VS_URI . '/assets/js/main.js', $deps, VS_VERSION, true );
+	wp_enqueue_script( 'vs-main', VS_URI . '/assets/js/main.js', $deps, VS_VERSION, array( 'in_footer' => true, 'strategy' => 'defer' ) );
 	wp_localize_script( 'vs-main', 'VS', array(
 		'ajax'    => admin_url( 'admin-ajax.php' ),
 		'nonce'   => wp_create_nonce( 'vs_order' ),

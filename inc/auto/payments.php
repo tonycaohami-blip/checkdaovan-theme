@@ -161,6 +161,7 @@ add_action( 'vs_auto_tick', function () {
 add_action( 'wp_ajax_vs_pay_verify', 'vs_ajax_pay_verify' );
 add_action( 'wp_ajax_nopriv_vs_pay_verify', 'vs_ajax_pay_verify' );
 function vs_ajax_pay_verify() {
+	vs_rate_limit( 'payv', 30 );
 	$id    = vs_find_order( sanitize_text_field( wp_unslash( isset( $_POST['code'] ) ? $_POST['code'] : '' ) ) );
 	$phone = vs_norm_phone( wp_unslash( isset( $_POST['phone'] ) ? $_POST['phone'] : '' ) );
 	if ( ! $id || ( vs_meta( $id, 'phone' ) !== $phone && ! vs_user_owns_order( $id ) ) ) {
@@ -196,6 +197,7 @@ function vs_ajax_pay_verify() {
 add_action( 'wp_ajax_vs_pay_status', 'vs_ajax_pay_status' );
 add_action( 'wp_ajax_nopriv_vs_pay_status', 'vs_ajax_pay_status' );
 function vs_ajax_pay_status() {
+	vs_rate_limit( 'pays', 1500 ); // Trang thanh toán hỏi trạng thái định kỳ.
 	$id    = vs_find_order( sanitize_text_field( wp_unslash( isset( $_POST['code'] ) ? $_POST['code'] : '' ) ) );
 	$phone = vs_norm_phone( wp_unslash( isset( $_POST['phone'] ) ? $_POST['phone'] : '' ) );
 	if ( ! $id || ( vs_meta( $id, 'phone' ) !== $phone && ! vs_user_owns_order( $id ) ) ) {

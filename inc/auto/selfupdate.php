@@ -300,9 +300,9 @@ add_action( 'rest_api_init', function () {
 		'permission_callback' => '__return_true', // Chỉ kích hoạt việc kiểm tra kho cố định; không nhận dữ liệu.
 		'callback'            => function () {
 			if ( get_transient( 'vs_su_hook' ) ) {
-				return array( 'ok' => true, 'skipped' => 'Vừa kiểm tra, thử lại sau 20 giây.' );
+				return array( 'ok' => true, 'skipped' => 'Đang kiểm tra cập nhật, thử lại sau ít phút.' );
 			}
-			set_transient( 'vs_su_hook', 1, 20 );
+			set_transient( 'vs_su_hook', 1, 150 ); // Chỉ 1 lượt chạy cùng lúc (mỗi lượt tối đa ~100 giây): chống gọi dồn làm nghẽn máy chủ.
 			// Chạy trực tiếp (không phụ thuộc WP-Cron); vẫn chạy tiếp nếu GitHub ngắt kết nối sớm.
 			ignore_user_abort( true );
 			if ( function_exists( 'set_time_limit' ) ) {
