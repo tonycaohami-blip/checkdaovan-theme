@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" font-family="'Segoe UI', 'Be Vietnam Pro', Roboto, 'Helvetica Neue', Arial, sans-serif">
+	<rect width="1200" height="675" rx="28" fill="#f8fafc"/>
+	<rect x="1" y="1" width="1198" height="673" rx="27" fill="none" stroke="#e2e8f0" stroke-width="2"/>
+	<text x="60" y="78" font-size="34" font-weight="800" fill="#0f172a">Miễn phí và trả phí khác nhau ở đâu?</text>
+	<text x="60" y="118" font-size="21" fill="#64748b">Chọn công cụ theo từng giai đoạn viết bài</text>
+	<g transform="translate(60 160)">
+			<rect width="530" height="140" rx="20" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+			<rect x="24" y="30" width="60" height="60" rx="16" fill="#15803d" opacity=".12"/>
+			<path d="M40 60l10 10 20-22" fill="none" stroke="#15803d" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+			<text x="106" y="58" font-size="24" font-weight="800" fill="#0f172a">Cơ sở dữ liệu</text>
+			<text x="106" y="92" font-size="19" fill="#64748b">Web công khai và kho luận văn, ấn phẩm</text>
+		</g><g transform="translate(610 160)">
+			<rect width="530" height="140" rx="20" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+			<rect x="24" y="30" width="60" height="60" rx="16" fill="#15803d" opacity=".12"/>
+			<path d="M40 60l10 10 20-22" fill="none" stroke="#15803d" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+			<text x="106" y="58" font-size="24" font-weight="800" fill="#0f172a">Độ chính xác</text>
+			<text x="106" y="92" font-size="19" fill="#64748b">Chuỗi giống hệt và cả diễn đạt lại</text>
+		</g><g transform="translate(60 320)">
+			<rect width="530" height="140" rx="20" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+			<rect x="24" y="30" width="60" height="60" rx="16" fill="#15803d" opacity=".12"/>
+			<path d="M40 60l10 10 20-22" fill="none" stroke="#15803d" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+			<text x="106" y="58" font-size="24" font-weight="800" fill="#0f172a">Bảo mật</text>
+			<text x="106" y="92" font-size="19" fill="#64748b">Có thể lưu văn bản và không lưu bài</text>
+		</g><g transform="translate(610 320)">
+			<rect width="530" height="140" rx="20" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+			<rect x="24" y="30" width="60" height="60" rx="16" fill="#15803d" opacity=".12"/>
+			<path d="M40 60l10 10 20-22" fill="none" stroke="#15803d" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+			<text x="106" y="58" font-size="24" font-weight="800" fill="#0f172a">Báo cáo</text>
+			<text x="106" y="92" font-size="19" fill="#64748b">Kết quả nhanh và báo cáo PDF đầy đủ</text>
+		</g>
+</svg>
