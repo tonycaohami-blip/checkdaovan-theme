@@ -466,3 +466,183 @@ function vs_oai_test() {
 	$sub     = isset( $r['body']['subscriptionCredits'] ) ? (int) $r['body']['subscriptionCredits'] : 0;
 	return 'kết nối thành công - còn ' . number_format( $credits + $sub, 0, ',', '.' ) . ' credit';
 }
+
+/* =====================================================================
+ * Các bộ kết nối phát hiện AI qua API chính thức (dùng chung khung xử lý).
+ * Mỗi bộ: lấy văn bản từ file, gọi API, quy về dạng chung
+ *   array( 'ai' => 0-100, 'blocks' => array( array( 'text' => câu, 'p' => 0-1 ) ) )
+ * rồi tạo báo cáo PDF bằng vs_oai_report_pdf() với tên phần mềm tương ứng.
+ * ===================================================================== */
+
+/** Văn bản của đơn ('' khi file không đọc được hoặc quá ngắn). */
+function vs_job_text( $id ) {
+	$file = vs_order_file( $id );
+	$text = $file ? trim( vs_extract_text( $file ) ) : '';
+	return mb_strlen( $text ) < 100 ? '' : $text;
+}
+
+/** Lưu kết quả AI dạng chung + PDF, đánh dấu job hoàn tất. */
+function vs_ai_job_finish( $id, $job, $tool, $brand, $out, $model = '' ) {
+	$job['result'] = round( max( 0, min( 100, (float) $out['ai'] ) ), 1 );
+	vs_auto_set_result( $id, $tool, 'ai', $job['result'] );
+	vs_auto_log( $tool . ': tỷ lệ AI ' . $job['result'] . '%', $id );
+	$blocks = array();
+	foreach ( (array) $out['blocks'] as $b ) {
+		$blocks[] = array( 'text' => $b['text'], 'result' => array( 'fake' => (float) $b['p'] ) );
+	}
+	$res = array( 'ai' => array( 'confidence' => array( 'AI' => $job['result'] / 100, 'Original' => 1 - $job['result'] / 100 ), 'blocks' => $blocks ) );
+	try {
+		$job['file'] = vs_save_report( $id, $tool, vs_oai_report_pdf( $id, $res, array( 'brand' => $brand, 'model' => $model ) ) );
+	} catch ( \Throwable $e ) {
+		vs_auto_log( $tool . ': không tạo được PDF (' . $e->getMessage() . '), gửi kết quả không kèm file', $id );
+	}
+	$job['state'] = 'done';
+	return $job;
+}
+
+/** Job không có văn bản đọc được: chuyển xử lý tay. */
+function vs_job_no_text( $job ) {
+	$job['state'] = 'failed';
+	$job['error'] = 'Chỉ hỗ trợ tự động file .docx/.txt có nội dung';
+	return $job;
+}
+
+/* ---------- GPTZero (api.gptzero.me) ----------
+ * POST /v2/predict/text  header x-api-key  body {document, multilingual}
+ * -> documents[0].class_probabilities.ai (0-1), sentences[].sentence / generated_prob
+ * Tạo key tại app.gptzero.me > API.
+ */
+function vs_gptzero_call( $text ) {
+	return vs_http_json( wp_remote_post( 'https://api.gptzero.me/v2/predict/text', array(
+		'timeout' => 120,
+		'headers' => array(
+			'x-api-key'    => (string) vs_auto_cfg( 'gptzero' )['key'],
+			'Content-Type' => 'application/json',
+			'Accept'       => 'application/json',
+		),
+		'body'    => wp_json_encode( array( 'document' => $text, 'multilingual' => true ) ),
+	) ) );
+}
+
+function vs_prov_gptzero_step( $id, $job ) {
+	if ( 'queued' !== $job['state'] ) {
+		return $job;
+	}
+	$text = vs_job_text( $id );
+	if ( '' === $text ) {
+		return vs_job_no_text( $job );
+	}
+	$r   = vs_gptzero_call( $text );
+	$doc = is_array( $r ) && isset( $r['body']['documents'][0] ) ? $r['body']['documents'][0] : null;
+	if ( is_wp_error( $r ) || 200 !== $r['code'] || ! isset( $doc['class_probabilities']['ai'] ) ) {
+		return vs_http_fail( $r, 'GPTZero' );
+	}
+	$blocks = array();
+	foreach ( (array) ( isset( $doc['sentences'] ) ? $doc['sentences'] : array() ) as $s ) {
+		$blocks[] = array( 'text' => isset( $s['sentence'] ) ? $s['sentence'] : '', 'p' => isset( $s['generated_prob'] ) ? $s['generated_prob'] : 0 );
+	}
+	return vs_ai_job_finish( $id, $job, 'gptzero', 'GPTZero', array( 'ai' => (float) $doc['class_probabilities']['ai'] * 100, 'blocks' => $blocks ), 'multilingual' );
+}
+
+function vs_gptzero_test() {
+	$r = vs_gptzero_call( 'This short paragraph is only used to verify that the API key works correctly for the connection test of the website.' );
+	if ( is_wp_error( $r ) || 200 !== $r['code'] || ! isset( $r['body']['documents'][0] ) ) {
+		return vs_http_fail( $r, 'Kết nối' );
+	}
+	return 'kết nối thành công';
+}
+
+/* ---------- Winston AI (api.gowinston.ai) ----------
+ * POST /v2/ai-content-detection  Bearer token  body {text, version, sentences, language}
+ * -> score (0-100, điểm "do người viết"), sentences[].text / score
+ * Tạo token tại app.gowinston.ai > API.
+ */
+function vs_winston_call( $text ) {
+	return vs_http_json( wp_remote_post( 'https://api.gowinston.ai/v2/ai-content-detection', array(
+		'timeout' => 120,
+		'headers' => array(
+			'Authorization' => 'Bearer ' . (string) vs_auto_cfg( 'winston' )['key'],
+			'Content-Type'  => 'application/json',
+			'Accept'        => 'application/json',
+		),
+		'body'    => wp_json_encode( array( 'text' => $text, 'version' => 'latest', 'sentences' => true, 'language' => 'auto' ) ),
+	) ) );
+}
+
+function vs_prov_winston_step( $id, $job ) {
+	if ( 'queued' !== $job['state'] ) {
+		return $job;
+	}
+	$text = vs_job_text( $id );
+	if ( '' === $text ) {
+		return vs_job_no_text( $job );
+	}
+	$r = vs_winston_call( $text );
+	if ( is_wp_error( $r ) || 200 !== $r['code'] || ! isset( $r['body']['score'] ) ) {
+		return vs_http_fail( $r, 'Winston AI' );
+	}
+	$blocks = array();
+	$sents  = isset( $r['body']['sentences'] ) ? $r['body']['sentences'] : array();
+	foreach ( (array) $sents as $s ) {
+		$blocks[] = array( 'text' => isset( $s['text'] ) ? $s['text'] : '', 'p' => isset( $s['score'] ) ? 1 - (float) $s['score'] / 100 : 0 );
+	}
+	return vs_ai_job_finish( $id, $job, 'winston', 'Winston AI', array( 'ai' => 100 - (float) $r['body']['score'], 'blocks' => $blocks ), 'latest' );
+}
+
+function vs_winston_test() {
+	$r = vs_winston_call( str_repeat( 'This paragraph is only used to verify that the API key works for the website connection test. ', 4 ) );
+	if ( is_wp_error( $r ) || 200 !== $r['code'] || ! isset( $r['body']['score'] ) ) {
+		return vs_http_fail( $r, 'Kết nối' );
+	}
+	return 'kết nối thành công' . ( isset( $r['body']['credits_remaining'] ) ? ' - còn ' . (int) $r['body']['credits_remaining'] . ' credit' : '' );
+}
+
+/* ---------- Undetectable.AI - chỉ dùng phần PHÁT HIỆN AI (detector) ----------
+ * POST https://ai-detect.undetectable.ai/detect {text, key, model} -> id
+ * POST https://ai-detect.undetectable.ai/query  {id} -> status "done", result (0-100, khả năng AI)
+ * Không dùng tính năng "humanizer" (viết lại để né phát hiện).
+ */
+function vs_prov_undetectable_step( $id, $job ) {
+	$base = 'https://ai-detect.undetectable.ai';
+	$key  = (string) vs_auto_cfg( 'undetectable' )['key'];
+	if ( 'queued' === $job['state'] ) {
+		$text = vs_job_text( $id );
+		if ( '' === $text ) {
+			return vs_job_no_text( $job );
+		}
+		$r = vs_http_json( wp_remote_post( $base . '/detect', array(
+			'timeout' => 60,
+			'headers' => array( 'Content-Type' => 'application/json', 'Accept' => 'application/json' ),
+			'body'    => wp_json_encode( array( 'text' => $text, 'key' => $key, 'model' => 'xlm_ud_detector', 'retry_count' => 0 ) ),
+		) ) );
+		if ( is_wp_error( $r ) || 200 !== $r['code'] || empty( $r['body']['id'] ) ) {
+			return vs_http_fail( $r, 'Undetectable.AI' );
+		}
+		$job['ext']['uid'] = $r['body']['id'];
+		$job['state']      = 'processing';
+		return $job;
+	}
+	$r = vs_http_json( wp_remote_post( $base . '/query', array(
+		'timeout' => 30,
+		'headers' => array( 'Content-Type' => 'application/json', 'Accept' => 'application/json' ),
+		'body'    => wp_json_encode( array( 'id' => $job['ext']['uid'] ) ),
+	) ) );
+	if ( is_wp_error( $r ) || 200 !== $r['code'] ) {
+		return vs_http_fail( $r, 'Undetectable.AI' );
+	}
+	if ( 'done' !== ( isset( $r['body']['status'] ) ? $r['body']['status'] : '' ) || ! isset( $r['body']['result'] ) ) {
+		return $job; // Chưa xong, lượt cron sau hỏi lại.
+	}
+	return vs_ai_job_finish( $id, $job, 'undetectable', 'Undetectable.AI', array( 'ai' => (float) $r['body']['result'], 'blocks' => array() ) );
+}
+
+function vs_undetectable_test() {
+	$r = vs_http_json( wp_remote_get( 'https://ai-detect.undetectable.ai/check-user-credits', array(
+		'timeout' => 20,
+		'headers' => array( 'Accept' => 'application/json', 'apikey' => (string) vs_auto_cfg( 'undetectable' )['key'] ),
+	) ) );
+	if ( is_wp_error( $r ) || 200 !== $r['code'] ) {
+		return vs_http_fail( $r, 'Kết nối' );
+	}
+	return 'kết nối thành công' . ( isset( $r['body']['credits'] ) ? ' - còn ' . (int) $r['body']['credits'] . ' credit' : '' );
+}

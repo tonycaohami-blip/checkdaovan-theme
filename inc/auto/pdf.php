@@ -318,6 +318,7 @@ function vs_oai_report_pdf( $id, $res, $extra = array() ) {
 		'B' => $dir . 'BeVietnamPro-Bold.ttf',
 	) );
 	$code   = (string) vs_meta( $id, 'code' );
+	$brand  = isset( $extra['brand'] ) ? (string) $extra['brand'] : 'Originality.ai';
 	$ai     = isset( $res['ai']['confidence']['AI'] ) ? (float) $res['ai']['confidence']['AI'] * 100 : 0;
 	$human  = isset( $res['ai']['confidence']['Original'] ) ? (float) $res['ai']['confidence']['Original'] * 100 : 100 - $ai;
 	$blocks = isset( $res['ai']['blocks'] ) && is_array( $res['ai']['blocks'] ) ? $res['ai']['blocks'] : array();
@@ -339,7 +340,7 @@ function vs_oai_report_pdf( $id, $res, $extra = array() ) {
 	$pdf->rect( 0, 92, VS_PDF::W, 4, $brand );
 	$pdf->text( $M, 44, vs_opt( 'company', get_bloginfo( 'name' ) ), 'B', 22, '#ffffff' );
 	$pdf->text( $M, 68, 'Báo cáo phát hiện nội dung AI', 'R', 12, '#c7d2fe' );
-	$pdf->text( VS_PDF::W - $M, 44, 'Originality.ai', 'B', 13, '#ffffff', 'R' );
+	$pdf->text( VS_PDF::W - $M, 44, $brand, 'B', 13, '#ffffff', 'R' );
 	$pdf->text( VS_PDF::W - $M, 68, 'Mã đơn ' . $code, 'R', 10.5, '#c7d2fe', 'R' );
 
 	/* ---------- Thông tin đơn ---------- */
@@ -350,7 +351,7 @@ function vs_oai_report_pdf( $id, $res, $extra = array() ) {
 		array( 'Mã đơn hàng', $code ),
 		array( 'Tệp đã kiểm tra', '' !== $file ? $file : '-' ),
 		array( 'Thời gian kiểm tra', wp_date( 'H:i - d/m/Y' ) ),
-		array( 'Mô hình phát hiện', 'Originality.ai ' . ( isset( $extra['model'] ) ? ucfirst( $extra['model'] ) : '' ) ),
+		array( 'Mô hình phát hiện', $brand . ' ' . ( isset( $extra['model'] ) ? ucfirst( $extra['model'] ) : '' ) ),
 		array( 'Số từ / số câu đánh giá', number_format( $words, 0, ',', '.' ) . ' từ / ' . count( $blocks ) . ' câu' ),
 	);
 	$y = 124;
@@ -385,7 +386,7 @@ function vs_oai_report_pdf( $id, $res, $extra = array() ) {
 	$pdf->rect( $M, $y, max( 0, min( 100, $ai ) ) / 100 * $CW, 8, $lvl_c );
 	$y += 30;
 
-	$note = 'Chỉ số trên là mức độ tin cậy (confidence) mà mô hình của Originality.ai đánh giá văn bản do AI tạo ra, không phải tỷ lệ phần trăm số câu được viết bằng AI. Kết quả phát hiện AI là ước lượng xác suất và có thể sai lệch; vui lòng sử dụng như một tham khảo cùng với các bằng chứng khác.';
+	$note = 'Chỉ số trên là mức độ tin cậy (confidence) mà mô hình của ' . $brand . ' đánh giá văn bản do AI tạo ra, không phải tỷ lệ phần trăm số câu được viết bằng AI. Kết quả phát hiện AI là ước lượng xác suất và có thể sai lệch; vui lòng sử dụng như một tham khảo cùng với các bằng chứng khác.';
 	foreach ( $pdf->wrap( $note, 'R', 9.5, $CW ) as $l ) {
 		$pdf->text( $M, $y, $l, 'R', 9.5, $muted );
 		$y += 14;
@@ -460,7 +461,7 @@ function vs_oai_report_pdf( $id, $res, $extra = array() ) {
 	$new_page = function () use ( $pdf, $M, $CW, $code ) {
 		$pdf->add_page();
 		$pdf->rect( 0, 0, VS_PDF::W, 4, '#4f46e5' );
-		$pdf->text( $M, 34, 'Báo cáo phát hiện nội dung AI - Originality.ai', 'B', 10, '#4f46e5' );
+		$pdf->text( $M, 34, 'Báo cáo phát hiện nội dung AI - ' . $brand, 'B', 10, '#4f46e5' );
 		$pdf->text( $M + $CW, 34, 'Mã đơn ' . $code, 'R', 10, '#6b7280', 'R' );
 		$pdf->line( $M, 44, $M + $CW, 44, '#e5e7eb' );
 		return 70;
@@ -500,9 +501,9 @@ function vs_oai_report_pdf( $id, $res, $extra = array() ) {
 		$pdf->set_page( $i );
 		$fy = VS_PDF::H - 34;
 		$pdf->line( $M, $fy - 14, $M + $CW, $fy - 14, '#e5e7eb' );
-		$pdf->text( $M, $fy, 'Báo cáo được tạo tự động từ kết quả API Originality.ai - ' . wp_parse_url( home_url(), PHP_URL_HOST ), 'R', 8.5, $muted );
+		$pdf->text( $M, $fy, 'Báo cáo được tạo tự động từ kết quả API ' . $brand . ' - ' . wp_parse_url( home_url(), PHP_URL_HOST ), 'R', 8.5, $muted );
 		$pdf->text( $M + $CW, $fy, 'Trang ' . ( $i + 1 ) . '/' . $total, 'R', 8.5, $muted, 'R' );
 	}
 
-	return $pdf->output( 'Báo cáo AI Originality.ai - ' . $code );
+	return $pdf->output( 'Báo cáo AI ' . $brand . ' - ' . $code );
 }

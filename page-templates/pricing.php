@@ -26,7 +26,7 @@ get_template_part( 'template-parts/page-hero', null, array(
 					<?php if ( 'turnitin' === $k ) : ?><span class="badge">Nhiều người chọn</span><?php endif; ?>
 					<div class="plan__head">
 						<div class="tool__logo tool__logo--sm<?php echo esc_attr( vs_tool_mark_class( $k ) ); ?>" style="--c:<?php echo esc_attr( $meta[ $k ][1] ); ?>"><?php echo vs_tool_mark( $k ); // phpcs:ignore ?></div>
-						<div><h3><?php echo esc_html( $t['name'] ); ?></h3><small><?php echo esc_html( $meta[ $k ][2] ); ?></small></div>
+						<div><h3><?php echo esc_html( $t['name'] ); ?></h3><small><?php echo esc_html( $meta[ $k ][2] ); ?></small> <?php echo vs_tool_mode_badge( $k ); // phpcs:ignore ?></div>
 					</div>
 					<?php
 					if ( $t['combo'] > 0 ) {

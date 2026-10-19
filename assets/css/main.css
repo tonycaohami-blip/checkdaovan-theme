@@ -1677,3 +1677,12 @@ body.adm-lock { overflow: hidden; }
 .biz-info{list-style:none;padding:14px 18px;margin:0 0 20px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc}
 .biz-info li{margin:3px 0}
 .site-footer__bct{display:inline-block;margin-top:6px;font-size:13px;color:inherit;opacity:.85;text-decoration:underline}
+
+/* ===== 6.10: Nhãn hình thức kiểm tra (tự động / thủ công) ===== */
+.mode-badge{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:99px;font-size:11.5px;font-weight:600;line-height:1.6;white-space:nowrap;vertical-align:middle}
+.mode-badge::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.mode-badge--auto{background:#dcfce7;color:#15803d}
+.mode-badge--dev,.mode-badge--manual{background:#fef3c7;color:#b45309}
+.pick__box .mode-badge{margin-top:2px;align-self:center;font-size:10.5px;padding:1px 8px}
+.mode-note{margin:12px 0 0;font-size:13px;line-height:1.7;color:var(--muted,#64748b)}
+.mode-note .mode-badge{margin-right:2px}

@@ -14,7 +14,7 @@ add_action( 'admin_init', function () {
 			foreach ( array( 'sepay_key', 'sepay_token', 'casso_token' ) as $k ) {
 				$out[ $k ] = sanitize_text_field( isset( $in[ $k ] ) ? $in[ $k ] : '' );
 			}
-			foreach ( array( 'turnitin', 'ithenticate', 'copyleaks', 'originality' ) as $t ) {
+			foreach ( array( 'turnitin', 'ithenticate', 'copyleaks', 'originality', 'gptzero', 'winston', 'undetectable' ) as $t ) {
 				$out[ $t ] = array();
 				foreach ( (array) ( isset( $in[ $t ] ) ? $in[ $t ] : array() ) as $k => $v ) {
 					$out[ $t ][ sanitize_key( $k ) ] = 'base' === $k ? untrailingslashit( preg_replace( '#/api/v1/?$#', '', esc_url_raw( trim( $v ) ) ) ) : sanitize_text_field( trim( $v ) );
@@ -44,6 +44,8 @@ add_action( 'admin_post_vs_auto_test', function () {
 		$r = vs_cl_test();
 	} elseif ( 'originality' === $p ) {
 		$r = vs_oai_test();
+	} elseif ( in_array( $p, array( 'gptzero', 'winston', 'undetectable' ), true ) ) {
+		$r = call_user_func( 'vs_' . $p . '_test' );
 	}
 	$msg = is_wp_error( $r ) ? '❌ ' . $p . ': ' . $r->get_error_message() : '✅ ' . $p . ': ' . ( is_string( $r ) ? $r : 'kết nối thành công' );
 	vs_auto_log( 'Kiểm tra kết nối - ' . $msg );
@@ -151,12 +153,40 @@ function vs_auto_admin_page() {
 				</select></td></tr>
 			</table>
 
-			<h2>Phạm vi tự động</h2>
-			<table class="widefat striped" style="max-width:720px">
-				<thead><tr><th>Phần mềm</th><th>Đạo văn</th><th>Tỷ lệ AI</th></tr></thead>
+			<?php
+			$more = array(
+				'gptzero'      => array( '5. GPTZero (phát hiện AI)', 'Tạo API key tại <a href="https://app.gptzero.me/app/api" target="_blank" rel="noopener">app.gptzero.me › API</a>. Dùng chế độ đa ngôn ngữ.' ),
+				'winston'      => array( '6. Winston AI (phát hiện AI)', 'Tạo API token tại <a href="https://app.gowinston.ai" target="_blank" rel="noopener">app.gowinston.ai</a> › API.' ),
+				'undetectable' => array( '7. Undetectable.AI (chỉ phần phát hiện AI)', 'Lấy API key tại <a href="https://undetectable.ai/develop" target="_blank" rel="noopener">undetectable.ai › API</a>. Hệ thống chỉ gọi API phát hiện AI, không dùng tính năng viết lại (humanizer).' ),
+			);
+			foreach ( $more as $t => $m ) :
+				?>
+				<h2><?php echo esc_html( $m[0] ); ?></h2>
+				<table class="form-table">
+					<tr><th><?php echo esc_html( vs_pricing()['tools'][ $t ]['name'] ); ?></th><td><label><input type="checkbox" name="<?php echo esc_attr( $name( $t, 'on' ) ); ?>" value="1" <?php checked( $val( $t, 'on' ), '1' ); ?>> Bật tự động <?php echo vs_auto_tool_ready( $t ) ? '<span class="vs-ok">● Sẵn sàng</span>' : ''; ?></label> &nbsp; <?php echo $test( $t ); // phpcs:ignore ?></td></tr>
+					<tr><th>API key</th><td><input class="regular-text" type="password" autocomplete="off" name="<?php echo esc_attr( $name( $t, 'key' ) ); ?>" value="<?php echo esc_attr( $val( $t, 'key' ) ); ?>"><p class="description">Hỗ trợ tự động file .docx và .txt. <?php echo wp_kses_post( $m[1] ); ?></p></td></tr>
+				</table>
+			<?php endforeach; ?>
+
+			<div class="notice notice-warning inline"><p><strong>Chỉ dùng API chính thức (API key/token).</strong> Hệ thống không lưu mật khẩu và không tự đăng nhập vào tài khoản web của các phần mềm: việc này vi phạm điều khoản sử dụng, dễ bị khóa tài khoản và lộ mật khẩu. QuillBot, DoIT, Grammarly chưa có API công khai cho dịch vụ này nên luôn kiểm tra thủ công.</p></div>
+
+			<h2>Hình thức kiểm tra hiển thị cho khách</h2>
+			<table class="widefat striped" style="max-width:820px">
+				<thead><tr><th>Phần mềm</th><th>Hình thức</th><th>Phạm vi tự động</th></tr></thead>
 				<tbody>
-				<?php foreach ( vs_auto_capabilities() as $t => $cap ) : ?>
-					<tr><td><?php echo esc_html( vs_pricing()['tools'][ $t ]['name'] ); ?></td><td><?php echo isset( $cap['plag'] ) ? 'Tự động' : 'Xử lý tay'; ?></td><td><?php echo isset( $cap['ai'] ) ? 'Tự động' : 'Xử lý tay'; ?></td></tr>
+				<?php foreach ( vs_pricing()['tools'] as $t => $tool ) : ?>
+					<?php
+					$cap = isset( vs_auto_capabilities()[ $t ] ) ? vs_auto_capabilities()[ $t ] : array();
+					$lab = vs_tool_check_mode_label( $t );
+					$scope = array();
+					if ( isset( $cap['plag'] ) ) {
+						$scope[] = 'Đạo văn';
+					}
+					if ( isset( $cap['ai'] ) ) {
+						$scope[] = 'Tỷ lệ AI';
+					}
+					?>
+					<tr><td><?php echo esc_html( $tool['name'] ); ?></td><td><strong<?php echo 'auto' === vs_tool_check_mode( $t ) ? ' class="vs-ok"' : ''; ?>><?php echo esc_html( $lab[0] ); ?></strong> · <?php echo esc_html( $lab[1] ); ?></td><td><?php echo $scope ? esc_html( implode( ', ', $scope ) ) . ' (khi đã nhập API)' : 'Không có API'; ?></td></tr>
 				<?php endforeach; ?>
 				</tbody>
 			</table>

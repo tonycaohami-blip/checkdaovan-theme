@@ -28,7 +28,7 @@ get_template_part( 'template-parts/page-hero', null, array(
 				<article class="tool-row reveal">
 					<div class="tool__logo<?php echo esc_attr( vs_tool_mark_class( $k ) ); ?>" style="--c:<?php echo esc_attr( $meta[ $k ][1] ); ?>"><?php echo vs_tool_mark( $k ); // phpcs:ignore ?></div>
 					<div class="tool-row__body">
-						<h3><?php echo esc_html( $t['name'] ); ?> <span class="tool__tag"><?php echo esc_html( $meta[ $k ][2] ); ?></span></h3>
+						<h3><?php echo esc_html( $t['name'] ); ?> <span class="tool__tag"><?php echo esc_html( $meta[ $k ][2] ); ?></span> <?php echo vs_tool_mode_badge( $k ); // phpcs:ignore ?></h3>
 						<p><?php echo esc_html( $t['desc'] ); ?></p>
 					</div>
 					<div class="tool-row__prices">

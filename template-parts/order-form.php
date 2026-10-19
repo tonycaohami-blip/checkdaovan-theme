@@ -34,11 +34,13 @@ $min_check = vs_min_check_price();
 							<span class="tool__logo tool__logo--sm<?php echo esc_attr( vs_tool_mark_class( $k ) ); ?>" style="--c:<?php echo esc_attr( $tool_meta[ $k ][1] ); ?>"><?php echo vs_tool_mark( $k ); // phpcs:ignore -- đã escape. ?></span>
 							<span class="pick__name"><?php echo esc_html( $t['name'] ); ?></span>
 							<span class="pick__sub"><?php echo esc_html( $tool_meta[ $k ][2] ); ?></span>
+							<?php echo vs_tool_mode_badge( $k ); // phpcs:ignore -- đã escape. ?>
 							<span class="pick__check" aria-hidden="true"></span>
 						</span>
 					</label>
 				<?php endforeach; ?>
 			</div>
+			<p class="mode-note"><span class="mode-badge mode-badge--auto">Tự động 24/7</span> trả kết quả tự động mọi lúc qua API chính thức. <span class="mode-badge mode-badge--dev">Kiểm tra thủ công</span> chuyên viên xử lý trong giờ làm việc (<?php echo esc_html( vs_opt( 'hours' ) ); ?>); một số phần mềm đang phát triển kết nối API tự động.</p>
 		</fieldset>
 
 		<fieldset class="field">

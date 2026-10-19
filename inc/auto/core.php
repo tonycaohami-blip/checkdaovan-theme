@@ -22,6 +22,9 @@ function vs_auto_cfg( $key = null ) {
 		'ithenticate' => array(),
 		'copyleaks'   => array(),
 		'originality' => array(),
+		'gptzero'     => array(),
+		'winston'     => array(),
+		'undetectable' => array(),
 		'sepay_key'   => '',
 		'sepay_token' => '',
 		'casso_token' => '',
@@ -39,6 +42,9 @@ function vs_auto_capabilities() {
 		'ithenticate' => array( 'plag' => 'tca' ),
 		'copyleaks'   => array( 'plag' => 'copyleaks' ),
 		'originality' => array( 'ai' => 'originality' ),
+		'gptzero'     => array( 'ai' => 'gptzero' ),
+		'winston'     => array( 'ai' => 'winston' ),
+		'undetectable' => array( 'ai' => 'undetectable' ),
 	) );
 }
 
@@ -62,9 +68,43 @@ function vs_auto_tool_ready( $tool ) {
 		case 'copyleaks':
 			return ! empty( $c['email'] ) && ! empty( $c['key'] );
 		case 'originality':
+		case 'gptzero':
+		case 'winston':
+		case 'undetectable':
 			return ! empty( $c['key'] );
 	}
 	return false;
+}
+
+/** Phần mềm không có API công khai cho dịch vụ đang bán: luôn kiểm tra thủ công. */
+function vs_manual_only_tools() {
+	return apply_filters( 'vs_manual_only_tools', array( 'quillbot', 'doit', 'grammarly' ) );
+}
+
+/**
+ * Hình thức kiểm tra hiển thị cho khách:
+ * auto = đã kết nối API, chạy tự động 24/7; dev = thủ công, đang phát triển kết nối API; manual = chỉ kiểm tra thủ công.
+ */
+function vs_tool_check_mode( $tool ) {
+	if ( in_array( $tool, vs_manual_only_tools(), true ) ) {
+		return 'manual';
+	}
+	return isset( vs_auto_capabilities()[ $tool ] ) && vs_auto_tool_ready( $tool ) ? 'auto' : 'dev';
+}
+
+function vs_tool_check_mode_label( $tool ) {
+	$map = array(
+		'auto'   => array( 'Tự động 24/7', 'Kết nối API, trả kết quả tự động mọi lúc' ),
+		'dev'    => array( 'Kiểm tra thủ công', 'Đang phát triển kết nối API tự động' ),
+		'manual' => array( 'Kiểm tra thủ công', 'Chưa hỗ trợ kiểm tra tự động' ),
+	);
+	return $map[ vs_tool_check_mode( $tool ) ];
+}
+
+/** Nhãn hình thức kiểm tra (HTML) cho thẻ phần mềm. */
+function vs_tool_mode_badge( $tool ) {
+	$l = vs_tool_check_mode_label( $tool );
+	return '<span class="mode-badge mode-badge--' . esc_attr( vs_tool_check_mode( $tool ) ) . '" title="' . esc_attr( $l[1] ) . '">' . esc_html( $l[0] ) . '</span>';
 }
 
 /** Có ít nhất một phần mềm chạy tự động (dùng để hiển thị nội dung "tự động 24/7"). */
