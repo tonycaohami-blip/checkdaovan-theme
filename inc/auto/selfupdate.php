@@ -238,20 +238,7 @@ add_action( 'rest_api_init', function () {
 				$ran = (int) get_option( 'vs_content_imported' ) !== $before;
 			}
 			nocache_headers();
-			$pages = array();
-			foreach ( array( 'chinh-sach-bao-mat', 'dieu-khoan-dich-vu', 'chinh-sach-hoan-tien' ) as $slug ) {
-				$pg = get_page_by_path( $slug );
-				if ( $pg ) {
-					$h = get_post_meta( $pg->ID, '_vs_import_hash', true );
-					$pages[ $slug ] = array(
-						'hash'  => $h ? ( md5( $pg->post_content ) === $h ? 'match' : 'diff' ) : 'none',
-						'fn'    => function_exists( 'vs_page_untouched' ) ? vs_page_untouched( $pg, $slug ) : null,
-						'len'   => strlen( $pg->post_content ),
-					);
-				}
-			}
 			return array(
-				'pages'   => $pages,
 				'version' => VS_VERSION,
 				'content' => (int) get_option( 'vs_content_imported' ),
 				'import'  => get_option( 'vs_import_log' ),
