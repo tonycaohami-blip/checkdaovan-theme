@@ -80,7 +80,7 @@ return array(
 <h3>Báo cáo AI có cho biết tôi dùng công cụ AI nào không?</h3>
 <p>Không. Báo cáo chỉ ước lượng khả năng văn bản do AI tạo ra, không xác định công cụ cụ thể.</p>
 <h3>Tài liệu ngắn có được đánh giá AI không?</h3>
-<p>Tài liệu quá ngắn có thể không đủ điều kiện đánh giá. Tại {company}, tài liệu gửi kiểm tra cần tối thiểu 300 từ.</p>
+<p>Tài liệu quá ngắn có thể không đủ điều kiện đánh giá. Tại {company}, tài liệu kiểm tra bằng Turnitin hoặc iThenticate cần tối thiểu 300 từ.</p>
 <h3>Có thể kiểm tra AI trước khi nộp cho trường không?</h3>
 <p>Có. Kiểm tra trước ở chế độ không lưu bài giúp bạn chủ động chỉnh sửa và chuẩn bị giải trình nếu cần.</p>
 
@@ -175,12 +175,12 @@ HTML
 		'cover'   => 'chuan-bi-file-truoc-khi-kiem-tra-dao-van-check-dao-van.jpg',
 		'tags'    => array( 'chuẩn bị file kiểm tra đạo văn', 'định dạng file', 'số từ tối thiểu', 'Turnitin' ),
 		'title'   => 'Chuẩn bị file trước khi kiểm tra đạo văn: Định dạng, dung lượng, số từ và lỗi thường gặp',
-		'excerpt' => 'File sai định dạng, quá ít từ hay PDF scan có thể khiến kết quả kiểm tra sai lệch hoặc không chạy được. Checklist chuẩn bị file: .docx, .pdf, .txt, .rtf, dưới 80 MB, 300-30.000 từ, và lưu ý ngôn ngữ khi kiểm tra AI.',
+		'excerpt' => 'File sai định dạng, quá ít từ hay PDF scan có thể khiến kết quả kiểm tra sai lệch hoặc không chạy được. Checklist chuẩn bị file: .docx, .pdf, .txt, .rtf, dưới 80 MB, 300-30.000 từ khi dùng Turnitin/iThenticate, và lưu ý ngôn ngữ khi kiểm tra AI.',
 		'content' => <<<'HTML'
 <div class="tldr"><b>Tóm tắt nhanh</b><ul>
 	<li>Định dạng nhận: <strong>.docx, .pdf, .txt, .rtf</strong>. PDF nên xuất trực tiếp từ Word, không dùng bản scan.</li>
 	<li>Dung lượng: <strong>mỗi file dưới 80 MB</strong>.</li>
-	<li>Số từ: <strong>tối thiểu 300 từ</strong>, tối đa 30.000 từ mỗi đơn.</li>
+	<li>Số từ (Turnitin, iThenticate): <strong>tối thiểu 300 từ</strong>, tối đa 30.000 từ mỗi đơn. Các phần mềm khác không giới hạn.</li>
 	<li>Kiểm tra AI trên Turnitin/iThenticate chỉ áp dụng cho tiếng Anh, tiếng Tây Ban Nha, tiếng Nhật.</li>
 </ul></div>
 
@@ -210,10 +210,11 @@ HTML
 	<li>Với PDF: xuất lại từ Word với tùy chọn “Minimum size”.</li>
 </ul>
 
-<h2>3. Số từ: tối thiểu 300, tối đa 30.000</h2>
+<h2>3. Số từ với Turnitin và iThenticate: tối thiểu 300, tối đa 30.000</h2>
+<p>Giới hạn số từ dưới đây chỉ áp dụng khi bạn chọn <strong>Turnitin</strong> hoặc <strong>iThenticate</strong>. Các phần mềm khác (Copyleaks, Originality.ai, GPTZero, DoIT…) không giới hạn số từ.</p>
 <p><strong>Tối thiểu 300 từ:</strong> tài liệu quá ngắn không cho kết quả đáng tin cậy, đặc biệt với phát hiện AI - mô hình cần đủ văn bản để đánh giá. Nếu bạn chỉ cần kiểm tra một đoạn ngắn, hãy gộp nhiều phần vào cùng một file.</p>
 <p><strong>Tối đa 30.000 từ mỗi đơn:</strong> tương đương khoảng 80-100 trang A4. Luận văn, luận án dài hơn nên tách thành nhiều file theo chương và đặt thành các đơn riêng. Cách này còn giúp bạn đọc báo cáo dễ hơn vì mỗi báo cáo tập trung vào một phần.</p>
-<p>Khi bạn tải file .docx, .txt hoặc .rtf lên trang đặt hàng, hệ thống tự đếm số từ và báo ngay nếu file chưa đạt yêu cầu. Với PDF, số từ được đọc trực tiếp trên trình duyệt.</p>
+<p>Khi bạn tải file .docx, .txt hoặc .rtf lên trang đặt hàng, hệ thống tự đếm số từ và báo ngay nếu file chưa đạt yêu cầu của Turnitin/iThenticate. Với PDF, số từ được đọc trực tiếp trên trình duyệt.</p>
 
 <div class="callout callout--tip"><b>Mẹo đếm số từ trong Word</b>Nhìn ở góc dưới bên trái cửa sổ Word, hoặc vào <em>Review → Word Count</em>. Với tiếng Việt, mỗi âm tiết được tính là một từ.</div>
 
@@ -231,7 +232,7 @@ HTML
 <ul class="checklist">
 	<li>File là .docx, .pdf (có chữ), .txt hoặc .rtf.</li>
 	<li>Dung lượng dưới 80 MB.</li>
-	<li>Từ 300 đến 30.000 từ.</li>
+	<li>Từ 300 đến 30.000 từ (nếu dùng Turnitin/iThenticate).</li>
 	<li>Đúng phiên bản cuối cùng; tên file dễ nhận biết (ví dụ <em>LuanVan_Chuong2_v5.docx</em>).</li>
 	<li>Chọn phần mềm và hình thức phù hợp với ngôn ngữ bài viết.</li>
 	<li>Ghi chú thiết lập bộ lọc trường yêu cầu (loại trừ trích dẫn, tài liệu tham khảo…).</li>
@@ -247,7 +248,7 @@ HTML
 <h3>Tôi chỉ có bản PDF scan thì làm sao?</h3>
 <p>Hãy tìm lại file Word gốc. Nếu không có, cần chuyển PDF sang văn bản bằng công cụ nhận dạng chữ (OCR) và kiểm tra kỹ lỗi trước khi gửi.</p>
 <h3>Bài hơn 30.000 từ có kiểm tra được không?</h3>
-<p>Được, bằng cách tách thành nhiều file theo chương và đặt nhiều đơn.</p>
+<p>Với Turnitin và iThenticate, hãy tách thành nhiều file theo chương và đặt nhiều đơn. Các phần mềm khác không giới hạn số từ.</p>
 
 <blockquote>File đã sẵn sàng? <a href="{home}dat-hang/">Đặt kiểm tra ngay</a> - hệ thống tự đếm số trang, số từ và báo giá tức thì.</blockquote>
 HTML

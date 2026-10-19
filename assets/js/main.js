@@ -447,6 +447,9 @@
 		syncModes(f, tools[0], 'mode');
 		var langNote = $('[data-ai-lang]', f), md = (f.querySelector('input[name=mode]:checked') || {}).value;
 		if (langNote) langNote.hidden = !(['turnitin', 'ithenticate'].indexOf(tools[0]) >= 0 && (md === 'ai' || md === 'combo'));
+		var lim = wordLimited(f), wr = $('[data-word-rule]', f);
+		if (wr) wr.classList.toggle('is-active', lim);
+		paintWords(f, $('[data-words]', f));
 		var mode = (f.querySelector('input[name=mode]:checked') || {}).value || 'combo';
 		var pages = Math.max(1, Math.min(2000, parseInt(f.pages.value, 10) || 1));
 		var express = f.express.checked;
@@ -660,6 +663,20 @@
 		return Promise.resolve(null);
 	}
 
+	/** Giới hạn số từ chỉ áp dụng cho đơn kiểm tra bằng Turnitin / iThenticate. */
+	function wordLimited(f) {
+		if (f !== formCheck) return false;
+		var t = f.querySelector('input[name="tools[]"]:checked');
+		return !!t && (VS.wordTools || []).indexOf(t.value) >= 0;
+	}
+	function paintWords(f, box) {
+		var n = f._words;
+		if (!box || n == null) return;
+		var lim = wordLimited(f), bad = lim && (n < VS.minWords || n > VS.maxWords);
+		box.className = 'drop__words ' + (bad ? 'is-bad' : 'is-ok');
+		box.textContent = (bad ? '✗ ' : '✓ ') + n.toLocaleString('vi-VN') + ' từ' + (!bad ? '' : (n < VS.minWords ? ' - Turnitin/iThenticate cần tối thiểu ' + VS.minWords + ' từ' : ' - vượt quá ' + VS.maxWords.toLocaleString('vi-VN') + ' từ của Turnitin/iThenticate'));
+	}
+
 	/** Hiển thị số từ dưới ô tải file, tô đỏ khi ngoài giới hạn. */
 	function showWords(f, drop, file) {
 		var box = $('[data-words]', drop);
@@ -670,9 +687,7 @@
 		countWords(file).then(function (n) {
 			if (n == null) { box.textContent = ''; return; }
 			f._words = n;
-			var bad = n < VS.minWords || n > VS.maxWords;
-			box.className = 'drop__words ' + (bad ? 'is-bad' : 'is-ok');
-			box.textContent = (bad ? '✗ ' : '✓ ') + n.toLocaleString('vi-VN') + ' từ' + (n < VS.minWords ? ' - cần tối thiểu ' + VS.minWords + ' từ' : (n > VS.maxWords ? ' - vượt quá ' + VS.maxWords.toLocaleString('vi-VN') + ' từ' : ''));
+			paintWords(f, box);
 		}).catch(function () { box.textContent = ''; });
 	}
 
@@ -766,8 +781,8 @@
 		} else if (!file && !linked) msg = 'Vui lòng tải lên file tài liệu.';
 		else if (f === formCheck && file && ['docx', 'pdf', 'txt', 'rtf'].indexOf(ext(file)) < 0) msg = 'Chỉ nhận file .docx, .pdf, .txt, .rtf.';
 		if (!msg && file && file.size > VS.maxMB * 1048576) msg = 'File phải nhỏ hơn ' + VS.maxMB + ' MB.';
-		else if (!msg && file && f._words != null && f._words < VS.minWords) msg = 'Tài liệu chỉ có ' + f._words.toLocaleString('vi-VN') + ' từ - cần tối thiểu ' + VS.minWords + ' từ.';
-		else if (!msg && file && f._words != null && f._words > VS.maxWords) msg = 'Tài liệu có ' + f._words.toLocaleString('vi-VN') + ' từ - vượt quá ' + VS.maxWords.toLocaleString('vi-VN') + ' từ. Vui lòng tách thành nhiều đơn.';
+		else if (!msg && file && wordLimited(f) && f._words != null && f._words < VS.minWords) msg = 'Tài liệu chỉ có ' + f._words.toLocaleString('vi-VN') + ' từ - Turnitin/iThenticate cần tối thiểu ' + VS.minWords + ' từ (các phần mềm khác không giới hạn).';
+		else if (!msg && file && wordLimited(f) && f._words != null && f._words > VS.maxWords) msg = 'Tài liệu có ' + f._words.toLocaleString('vi-VN') + ' từ - vượt quá ' + VS.maxWords.toLocaleString('vi-VN') + ' từ. Vui lòng tách thành nhiều đơn.';
 		else if (name.length < 2) msg = 'Vui lòng nhập họ tên.';
 		else if (!/^(0\d{9,10}|84\d{9,10})$/.test(phone)) msg = 'Số điện thoại không hợp lệ.';
 		if (!msg) { var unc = $$('input[type=checkbox][required]', f).filter(function (c) { return !c.checked && !c.closest('[hidden]'); })[0]; if (unc) { msg = unc.dataset.msg || 'Vui lòng đánh dấu xác nhận.'; unc.focus(); } }

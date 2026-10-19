@@ -106,7 +106,12 @@ function vs_private_dir() {
 /**
  * @return array|WP_Error ['path'=>, 'name'=>]
  */
-function vs_store_upload( $file, $code, $exts = null ) {
+/** Phần mềm giới hạn số từ (tối thiểu VS_MIN_WORDS, tối đa VS_MAX_WORDS). Các phần mềm khác không giới hạn. */
+function vs_word_limited_tools() {
+	return apply_filters( 'vs_word_limited_tools', array( 'turnitin', 'ithenticate' ) );
+}
+
+function vs_store_upload( $file, $code, $exts = null, $limit_words = false ) {
 	if ( empty( $file['tmp_name'] ) || UPLOAD_ERR_OK !== $file['error'] ) {
 		return new WP_Error( 'file', 'Vui lòng tải lên file tài liệu.' );
 	}
@@ -127,10 +132,10 @@ function vs_store_upload( $file, $code, $exts = null ) {
 		return new WP_Error( 'file', 'Chỉ nhận file ' . implode( ', ', array_map( function ( $e ) { return '.' . $e; }, array_keys( $allowed ) ) ) . '.' );
 	}
 	// Số từ (đọc được với .docx, .txt, .rtf; .pdf được kiểm tra trên trình duyệt).
-	if ( 'pdf' !== $check['ext'] ) {
+	if ( $limit_words && 'pdf' !== $check['ext'] ) {
 		$words = vs_count_words( $file['tmp_name'], $check['ext'] );
 		if ( null !== $words && $words < VS_MIN_WORDS ) {
-			return new WP_Error( 'file', 'Tài liệu chỉ có ' . number_format( $words, 0, ',', '.' ) . ' từ - cần tối thiểu ' . VS_MIN_WORDS . ' từ.' );
+			return new WP_Error( 'file', 'Tài liệu chỉ có ' . number_format( $words, 0, ',', '.' ) . ' từ - Turnitin/iThenticate cần tối thiểu ' . VS_MIN_WORDS . ' từ (các phần mềm khác không giới hạn).' );
 		}
 		if ( null !== $words && $words > VS_MAX_WORDS ) {
 			return new WP_Error( 'file', 'Tài liệu có ' . number_format( $words, 0, ',', '.' ) . ' từ - vượt quá ' . number_format( VS_MAX_WORDS, 0, ',', '.' ) . ' từ. Vui lòng tách thành nhiều đơn.' );

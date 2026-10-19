@@ -173,7 +173,7 @@ function vs_ajax_submit() {
 			wp_send_json_error( array( 'message' => 'Báo cáo: ' . $report->get_error_message() ) );
 		}
 	} elseif ( ! empty( $_FILES['file']['name'] ) ) {
-		$stored = vs_store_upload( $_FILES['file'], $code, array( 'docx', 'pdf', 'txt', 'rtf' ) );
+		$stored = vs_store_upload( $_FILES['file'], $code, array( 'docx', 'pdf', 'txt', 'rtf' ), (bool) array_intersect( (array) $data['tools'], vs_word_limited_tools() ) );
 		if ( is_wp_error( $stored ) ) {
 			wp_send_json_error( array( 'message' => $stored->get_error_message() ) );
 		}

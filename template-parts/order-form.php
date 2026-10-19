@@ -148,7 +148,7 @@ $min_check = vs_min_check_price();
 					'name'   => 'file',
 					'accept' => '.docx',
 					'title'  => '1. File Word bản gốc',
-					'sub'    => '.docx · tối thiểu 300 từ, tối đa 30.000 từ',
+					'sub'    => '.docx · bản Word bài cần chỉnh sửa',
 					'icon'   => 'word',
 				) );
 				get_template_part( 'template-parts/order', 'file', array(

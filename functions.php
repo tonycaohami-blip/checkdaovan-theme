@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'VS_VERSION', '6.10.4' );
+define( 'VS_VERSION', '6.10.5' );
 define( 'VS_BRAND', 'Check Đạo Văn' );       // Tên thương hiệu mặc định (đổi trong Cài đặt > Chung > Tên website).
 define( 'VS_DOMAIN', 'checkdaovan247.com' );          // Tên miền chính thức.
 define( 'VS_EMAIL', 'hotro@checkdaovan247.com' );     // Email hỗ trợ mặc định.
@@ -61,6 +61,7 @@ add_action( 'wp_enqueue_scripts', function () {
 		'maxMB'   => vs_max_upload_mb(),
 		'minWords' => VS_MIN_WORDS,
 		'maxWords' => VS_MAX_WORDS,
+		'wordTools' => vs_word_limited_tools(),
 		'refPct'  => vs_ref_discount_active() ? (float) vs_opt( 'ref_discount' ) : 0,
 	) );
 } );

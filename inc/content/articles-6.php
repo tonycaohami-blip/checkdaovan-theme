@@ -373,7 +373,7 @@ HTML
 <h3>Bài tiếng Việt có cần kiểm tra AI không?</h3>
 <p>Nếu trường hoặc giảng viên có quy định về AI, hoặc bạn có dùng công cụ AI hỗ trợ, bạn nên kiểm tra để chủ động chỉnh sửa và giải trình.</p>
 <h3>Vì sao Turnitin không hiện tỷ lệ AI cho bài của tôi?</h3>
-<p>Thường do bài viết bằng ngôn ngữ chưa được hỗ trợ (ngoài tiếng Anh, Tây Ban Nha, Nhật), hoặc tài liệu quá ngắn. Tài liệu gửi kiểm tra cần tối thiểu 300 từ.</p>
+<p>Thường do bài viết bằng ngôn ngữ chưa được hỗ trợ (ngoài tiếng Anh, Tây Ban Nha, Nhật), hoặc tài liệu quá ngắn. Với Turnitin và iThenticate, tài liệu gửi kiểm tra cần tối thiểu 300 từ.</p>
 <h3>Kiểm tra AI bài tiếng Việt ở đâu nhanh nhất?</h3>
 <p>Originality.ai tại {company} được xử lý tự động 24/7, thường có kết quả trong vài phút với file Word.</p>
 
