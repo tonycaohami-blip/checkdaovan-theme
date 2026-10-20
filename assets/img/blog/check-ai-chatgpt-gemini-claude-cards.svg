@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" font-family="'Segoe UI', 'Be Vietnam Pro', Roboto, 'Helvetica Neue', Arial, sans-serif">
+	<rect width="1200" height="675" rx="28" fill="#f8fafc"/>
+	<rect x="1" y="1" width="1198" height="673" rx="27" fill="none" stroke="#e2e8f0" stroke-width="2"/>
+	<text x="60" y="78" font-size="34" font-weight="800" fill="#0f172a">Công cụ kiểm tra AI với các trợ lý AI</text>
+	<text x="60" y="118" font-size="21" fill="#64748b">Làm được gì và chưa làm được gì</text>
+	<g transform="translate(60 160)">
+			<rect width="530" height="140" rx="20" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+			<rect x="24" y="30" width="60" height="60" rx="16" fill="#4f46e5" opacity=".12"/>
+			<path d="M40 60l10 10 20-22" fill="none" stroke="#4f46e5" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+			<text x="106" y="58" font-size="24" font-weight="800" fill="#0f172a">Học từ nhiều mô hình</text>
+			<text x="106" y="92" font-size="19" fill="#64748b">GPT, Gemini, Claude, Llama...</text>
+		</g><g transform="translate(610 160)">
+			<rect width="530" height="140" rx="20" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+			<rect x="24" y="30" width="60" height="60" rx="16" fill="#4f46e5" opacity=".12"/>
+			<path d="M40 60l10 10 20-22" fill="none" stroke="#4f46e5" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+			<text x="106" y="58" font-size="24" font-weight="800" fill="#0f172a">Không chắc mô hình nào</text>
+			<text x="106" y="92" font-size="19" fill="#64748b">Chủ yếu đánh giá khả năng do AI</text>
+		</g><g transform="translate(60 320)">
+			<rect width="530" height="140" rx="20" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+			<rect x="24" y="30" width="60" height="60" rx="16" fill="#4f46e5" opacity=".12"/>
+			<path d="M40 60l10 10 20-22" fill="none" stroke="#4f46e5" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+			<text x="106" y="58" font-size="24" font-weight="800" fill="#0f172a">Văn bản đã sửa</text>
+			<text x="106" y="92" font-size="19" fill="#64748b">Khó hơn, công cụ vẫn cập nhật</text>
+		</g><g transform="translate(610 320)">
+			<rect width="530" height="140" rx="20" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+			<rect x="24" y="30" width="60" height="60" rx="16" fill="#4f46e5" opacity=".12"/>
+			<path d="M40 60l10 10 20-22" fill="none" stroke="#4f46e5" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+			<text x="106" y="58" font-size="24" font-weight="800" fill="#0f172a">Trích dẫn bịa</text>
+			<text x="106" y="92" font-size="19" fill="#64748b">Dấu hiệu rõ hơn mọi tỷ lệ AI</text>
+		</g>
+</svg>
