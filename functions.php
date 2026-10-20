@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'VS_VERSION', '6.15.0' );
+define( 'VS_VERSION', '6.15.1' );
 define( 'VS_BRAND', 'Check Đạo Văn' );       // Tên thương hiệu mặc định (đổi trong Cài đặt > Chung > Tên website).
 define( 'VS_DOMAIN', 'checkdaovan247.com' );          // Tên miền chính thức.
 define( 'VS_EMAIL', 'hotro@checkdaovan247.com' );     // Email hỗ trợ mặc định.
@@ -86,9 +86,9 @@ function vs_opt_defaults() {
 		'bank_name'    => 'NCB Bank (Quốc Dân)',
 		'bank_account' => '106936837029',
 		'bank_holder'  => 'PHAM VAN KHANH',
-		'aff_pct'      => 10,
+		'aff_pct'      => 20,
 		'ref_discount' => 5,
-		'payout_min'   => 200000,
+		'payout_min'   => 100000,
 		'ref_days'     => 30,
 	);
 }

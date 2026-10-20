@@ -10,6 +10,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/* Chính sách cộng tác viên từ 20/10/2026: hoa hồng 20%, rút tối thiểu 100.000đ (áp dụng 1 lần cho dữ liệu đã lưu). */
+add_action( 'init', function () {
+	if ( get_option( 'vs_aff_policy_202610' ) ) {
+		return;
+	}
+	$s = get_option( 'vs_settings', array() );
+	if ( is_array( $s ) && $s ) {
+		$s['aff_pct']    = '20';
+		$s['payout_min'] = '100000';
+		update_option( 'vs_settings', $s );
+	}
+	update_option( 'vs_aff_policy_202610', 1 );
+} );
+
 /* ---------- Mã & link giới thiệu ---------- */
 
 function vs_aff_code( $uid ) {

@@ -35,9 +35,9 @@ function vs_settings_fields() {
 			'coupons' => array( 'Danh sách mã (mỗi dòng 1 mã)', "SINHVIEN10|10\nTET2027|15|28/02/2027\nGIAM20|20||reduce", 'textarea', 'Cú pháp: MÃ|phần trăm giảm|hạn dùng dd/mm/yyyy (tùy chọn)|check hoặc reduce (tùy chọn - chỉ áp dụng cho 1 dịch vụ)' ),
 		),
 		'Cộng tác viên (Affiliate)' => array(
-			'aff_pct'      => array( 'Hoa hồng cho cộng tác viên (%)', '10', 'text', 'Tính trên giá trị đơn hàng hoàn thành của khách được giới thiệu.' ),
+			'aff_pct'      => array( 'Hoa hồng cho cộng tác viên (%)', '20', 'text', 'Tính trên giá trị đơn hàng hoàn thành của khách được giới thiệu.' ),
 			'ref_discount' => array( 'Ưu đãi cho khách được giới thiệu (%)', '5', 'text', 'Tự áp dụng khi khách vào web qua link giới thiệu (nếu không dùng mã giảm giá khác).' ),
-			'payout_min'   => array( 'Số dư tối thiểu để rút (đ)', '200000' ),
+			'payout_min'   => array( 'Số dư tối thiểu để rút (đ)', '100000' ),
 			'ref_days'     => array( 'Thời hạn ghi nhận giới thiệu (ngày)', '30' ),
 		),
 		'Thông báo Telegram'    => array(

@@ -341,6 +341,8 @@ add_shortcode( 'vs_ctv', function ( $a ) {
 			return esc_html( (int) vs_opt( 'ref_days' ) . ' ngày' );
 		case 'min':
 			return esc_html( vs_money( (int) vs_opt( 'payout_min' ) ) );
+		case 'example': // 20 đơn x 500.000đ x tỷ lệ hoa hồng.
+			return esc_html( vs_money( (int) round( 20 * 500000 * (float) vs_opt( 'aff_pct' ) / 100 ) ) );
 		default:
 			return esc_html( (float) vs_opt( 'aff_pct' ) . '%' );
 	}
