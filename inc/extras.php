@@ -258,7 +258,7 @@ add_action( 'wp_head', function () {
 			$graph[] = array(
 				'@type'      => 'FAQPage',
 				'mainEntity' => array_map( function ( $x ) {
-					return array( '@type' => 'Question', 'name' => wp_strip_all_tags( $x[1] ), 'acceptedAnswer' => array( '@type' => 'Answer', 'text' => wp_strip_all_tags( $x[2] ) ) );
+					return array( '@type' => 'Question', 'name' => wp_strip_all_tags( $x[1] ), 'acceptedAnswer' => array( '@type' => 'Answer', 'text' => wp_strip_all_tags( do_shortcode( $x[2] ) ) ) );
 				}, $qa ),
 			);
 		}
@@ -331,6 +331,21 @@ add_action( 'pre_get_posts', function ( $q ) {
  *   [vs_bang_gia]                     -> bảng giá kiểm tra của mọi phần mềm
  *   [vs_bang_gia_giam]                -> đơn giá giảm tỷ lệ
  * ======================================================= */
+/** [vs_ctv k="pct|discount|days|min"]: thông số chương trình cộng tác viên theo Cài đặt hiện tại. */
+add_shortcode( 'vs_ctv', function ( $a ) {
+	$a = shortcode_atts( array( 'k' => 'pct' ), $a );
+	switch ( $a['k'] ) {
+		case 'discount':
+			return esc_html( (float) vs_opt( 'ref_discount' ) . '%' );
+		case 'days':
+			return esc_html( (int) vs_opt( 'ref_days' ) . ' ngày' );
+		case 'min':
+			return esc_html( vs_money( (int) vs_opt( 'payout_min' ) ) );
+		default:
+			return esc_html( (float) vs_opt( 'aff_pct' ) . '%' );
+	}
+} );
+
 /** [vs_thong_tin_dn]: thông tin đơn vị cung cấp dịch vụ (lấy từ Cài đặt, luôn cập nhật). */
 add_shortcode( 'vs_thong_tin_dn', function () {
 	$rows = array(

@@ -58,7 +58,7 @@ $post_url = admin_url( 'admin-post.php' );
 				<?php if ( vs_ref_user_from_cookie() ) : ?>
 					<div class="notice notice--ok">🎁 Bạn được giới thiệu bởi cộng tác viên - nhận ưu đãi <?php echo esc_html( vs_opt( 'ref_discount' ) ); ?>% cho các đơn hàng.</div>
 				<?php endif; ?>
-				<label class="check"><input type="checkbox" name="terms" value="1" required> Tôi đồng ý với <a href="<?php echo esc_url( vs_page_url( 'dieu-khoan-dich-vu' ) ); ?>" target="_blank">Điều khoản dịch vụ</a> và đồng ý cho xử lý dữ liệu cá nhân theo <a href="<?php echo esc_url( vs_page_url( 'chinh-sach-bao-mat' ) ); ?>" target="_blank">Chính sách bảo mật</a></label>
+				<label class="check check--req"><input type="checkbox" name="terms" value="1" required> Tôi đồng ý với <a href="<?php echo esc_url( vs_page_url( 'dieu-khoan-dich-vu' ) ); ?>" target="_blank">Điều khoản dịch vụ</a> và đồng ý cho xử lý dữ liệu cá nhân theo <a href="<?php echo esc_url( vs_page_url( 'chinh-sach-bao-mat' ) ); ?>" target="_blank">Chính sách bảo mật</a></label>
 				<label class="hp" aria-hidden="true">Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
 				<button class="btn btn--accent btn--lg btn--block" type="submit">Tạo tài khoản</button>
 				<p class="auth__switch">Đã có tài khoản? <a href="#" data-auth-tab="login">Đăng nhập</a></p>

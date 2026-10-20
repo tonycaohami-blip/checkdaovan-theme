@@ -1705,3 +1705,13 @@ body.adm-lock { overflow: hidden; }
 .sent-file__name { display: block; max-width: 100%; }
 .sent-file--drive .sent-file__ext { background: #1a73e8; color: #fff; border-color: #1a73e8; }
 .adm-results b { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ===== 6.14.1: Trang tài khoản không tràn ngang trên điện thoại ===== */
+.account__main, .account__main > *, .ref-box__item, .stat-grid > * { min-width: 0; }
+.account__main .copyfield input { width: 100%; }
+@media (max-width: 640px) {
+	.stat-grid--3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+	.copyfield { flex-wrap: wrap; }
+	.copyfield input { flex: 1 1 100%; }
+	.copyfield .btn { flex: 1; justify-content: center; }
+}

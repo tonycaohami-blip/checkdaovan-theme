@@ -14,7 +14,7 @@ get_template_part( 'template-parts/page-hero', null, array(
 	'title'   => 'Giới thiệu bạn bè,<br><span class="hl">nhận ' . esc_html( rtrim( rtrim( number_format( $pct, 1, ',', '' ), '0' ), ',' ) ) . '% hoa hồng</span>',
 	'eyebrow' => 'Chương trình cộng tác viên',
 	'lead'    => 'Miễn phí tham gia. Chia sẻ link cho bạn bè, nhóm lớp, hội nhóm học thuật - nhận hoa hồng trên mọi đơn hàng hoàn thành. Bạn bè của bạn cũng được giảm ' . esc_html( $disc ) . '%.',
-	'actions' => $cta . '<a class="btn btn--glass btn--lg" href="#tinh-thu-nhap">Tính thu nhập</a>',
+	'actions' => $cta . '<a class="btn btn--glass btn--lg" href="#tinh-thu-nhap">Tính thu nhập</a><a class="btn btn--glass btn--lg" href="' . esc_url( home_url( '/huong-dan-chuong-trinh-cong-tac-vien/' ) ) . '">Hướng dẫn chi tiết</a>',
 	'aside'   => '<div class="aff-hero"><div class="aff-hero__row"><span>Link của bạn</span><code>' . esc_html( home_url( '/?ref=MA-CUA-BAN' ) ) . '</code></div><div class="aff-hero__grid"><div><b>' . esc_html( $pct ) . '%</b><span>Hoa hồng</span></div><div><b>' . esc_html( $days ) . '</b><span>ngày ghi nhận</span></div><div><b>' . esc_html( vs_money( $min ) ) . '</b><span>rút tối thiểu</span></div></div></div>',
 ) );
 ?>
@@ -70,6 +70,7 @@ get_template_part( 'template-parts/page-hero', null, array(
 				<details class="faq__item reveal"><summary><?php echo esc_html( $q ); ?></summary><p><?php echo esc_html( $a ); ?></p></details>
 			<?php endforeach; ?>
 		</div>
+		<p class="center-note">Xem <a href="<?php echo esc_url( home_url( '/huong-dan-chuong-trinh-cong-tac-vien/' ) ); ?>">hướng dẫn chi tiết từng bước kèm hình ảnh</a>: đăng ký, chia sẻ link, theo dõi hoa hồng và rút tiền.</p>
 	</div>
 </section>
 <?php
