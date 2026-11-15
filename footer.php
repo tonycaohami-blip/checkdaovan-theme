@@ -7,24 +7,24 @@ $socials = array_filter( array(
 ) );
 $cols = array(
 	'Dịch vụ'   => array(
-		'Kiểm tra đạo văn & AI' => vs_page_url( 'kiem-tra-dao-van' ),
-		'Giảm tỷ lệ đạo văn'    => vs_page_url( 'giam-ty-le-dao-van' ),
-		'Bảng giá'              => vs_page_url( 'bang-gia' ),
-		'Kết quả thực tế'       => vs_page_url( 'ket-qua-thuc-te' ),
-		'Đặt hàng'              => vs_page_url( 'dat-hang' ),
+		'Kiểm tra đạo văn & AI' => array( vs_page_url( 'kiem-tra-dao-van' ), 'target' ),
+		'Giảm tỷ lệ đạo văn'    => array( vs_page_url( 'giam-ty-le-dao-van' ), 'pen' ),
+		'Bảng giá'              => array( vs_page_url( 'bang-gia' ), 'tag' ),
+		'Kết quả thực tế'       => array( vs_page_url( 'ket-qua-thuc-te' ), 'chart' ),
+		'Đặt hàng'              => array( vs_page_url( 'dat-hang' ), 'cart' ),
 	),
 	'Khách hàng' => array(
-		'Tài khoản của tôi'     => vs_account_url(),
-		'Tra cứu đơn hàng'      => vs_page_url( 'tra-cuu-don-hang' ),
-		'Chương trình CTV'      => vs_page_url( 'cong-tac-vien' ),
-		'Blog kiến thức'        => get_option( 'page_for_posts' ) ? get_permalink( get_option( 'page_for_posts' ) ) : home_url( '/blog/' ),
-		'Liên hệ'               => vs_page_url( 'lien-he' ),
+		'Tài khoản của tôi'     => array( vs_account_url(), 'user' ),
+		'Tra cứu đơn hàng'      => array( vs_page_url( 'tra-cuu-don-hang' ), 'search' ),
+		'Chương trình CTV'      => array( vs_page_url( 'cong-tac-vien' ), 'gift' ),
+		'Blog kiến thức'        => array( get_option( 'page_for_posts' ) ? get_permalink( get_option( 'page_for_posts' ) ) : home_url( '/blog/' ), 'book' ),
+		'Liên hệ'               => array( vs_page_url( 'lien-he' ), 'chat' ),
 	),
 	'Chính sách' => array(
-		'Chính sách bảo mật'    => vs_page_url( 'chinh-sach-bao-mat' ),
-		'Điều khoản dịch vụ'    => vs_page_url( 'dieu-khoan-dich-vu' ),
-		'Chính sách hoàn tiền'  => vs_page_url( 'chinh-sach-hoan-tien' ),
-		'Liêm chính học thuật'  => vs_page_url( 'liem-chinh-hoc-thuat' ),
+		'Chính sách bảo mật'    => array( vs_page_url( 'chinh-sach-bao-mat' ), 'lock' ),
+		'Điều khoản dịch vụ'    => array( vs_page_url( 'dieu-khoan-dich-vu' ), 'file' ),
+		'Chính sách hoàn tiền'  => array( vs_page_url( 'chinh-sach-hoan-tien' ), 'refund' ),
+		'Liêm chính học thuật'  => array( vs_page_url( 'liem-chinh-hoc-thuat' ), 'scale' ),
 	),
 );
 ?>
@@ -52,8 +52,8 @@ $cols = array(
 			<div>
 				<h4><?php echo esc_html( $title ); ?></h4>
 				<ul>
-					<?php foreach ( $links as $label => $url ) : ?>
-						<li><a href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( $label ); ?></a></li>
+					<?php foreach ( $links as $label => $link ) : ?>
+						<li><a class="fl" href="<?php echo esc_url( $link[0] ); ?>"><span class="fl__ic"><?php echo vs_icon( $link[1], 15 ); // phpcs:ignore ?></span><span><?php echo esc_html( $label ); ?></span></a></li>
 					<?php endforeach; ?>
 				</ul>
 			</div>

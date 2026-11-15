@@ -1715,3 +1715,10 @@ body.adm-lock { overflow: hidden; }
 	.copyfield input { flex: 1 1 100%; }
 	.copyfield .btn { flex: 1; justify-content: center; }
 }
+
+/* ===== 6.15.2: Biểu tượng cho liên kết chân trang ===== */
+.site-footer ul { gap: 8px; }
+.site-footer .fl { display: inline-flex; align-items: center; gap: 11px; padding: 2px 0; transition: color .2s, transform .2s; }
+.site-footer .fl__ic { flex: 0 0 auto; width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: rgba(129, 150, 255, .1); border: 1px solid rgba(129, 150, 255, .16); color: #8fa3ff; transition: background .2s, color .2s, border-color .2s; }
+.site-footer .fl:hover { color: #fff; transform: translateX(3px); }
+.site-footer .fl:hover .fl__ic { background: var(--primary, #3d5cff); border-color: var(--primary, #3d5cff); color: #fff; }
