@@ -50,6 +50,8 @@ $url       = get_permalink();
 				</div>
 			<?php endif; ?>
 
+			<?php vs_author_box(); ?>
+
 			<div class="share">
 				<span>Chia sẻ bài viết</span>
 				<a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo rawurlencode( $url ); ?>" target="_blank" rel="noopener">Facebook</a>

@@ -152,7 +152,7 @@
 	// Mục lục bài viết
 	var prose = $('[data-prose]'), tocBox = $('[data-toc]');
 	if (prose && tocBox) {
-		var heads = $$('h2', prose);
+		var heads = $$('h2', prose).filter(function (h) { return !h.closest('.toc-box'); });
 		if (heads.length >= 3) {
 			var list = $('[data-toc-list]', tocBox);
 			heads.forEach(function (h, i) {

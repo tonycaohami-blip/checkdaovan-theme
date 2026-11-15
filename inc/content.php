@@ -58,7 +58,7 @@ add_action( 'admin_init', function () {
 } );
 /* Có bài mẫu / nội dung mới sau khi theme tự cập nhật: nhập ở nền (WP-Cron), không cần mở trang quản trị. */
 add_action( 'init', function () {
-	if ( (int) get_option( 'vs_content_imported' ) < 23 && ! wp_next_scheduled( 'vs_run_import' ) ) {
+	if ( (int) get_option( 'vs_content_imported' ) < 25 && ! wp_next_scheduled( 'vs_run_import' ) ) {
 		wp_schedule_single_event( time() + 5, 'vs_run_import' );
 	}
 } );
@@ -74,7 +74,7 @@ function vs_maybe_import() {
 	if ( get_transient( 'vs_su_lock' ) ) {
 		return;
 	}
-	if ( (int) get_option( 'vs_content_imported' ) < 23 ) {
+	if ( (int) get_option( 'vs_content_imported' ) < 25 ) {
 		$old_mail = vs_opt( 'email', get_option( 'admin_email' ) );
 		vs_contact_migrate( $old_mail );
 		$n = vs_import_content();
@@ -84,7 +84,7 @@ function vs_maybe_import() {
 			vs_brand_migrate( $old_mail, VS_EMAIL );
 		}
 		vs_brand_migrate( 'CheckĐạoVăn', VS_BRAND );
-		update_option( 'vs_content_imported', 23 );
+		update_option( 'vs_content_imported', 25 );
 		update_option( 'vs_import_log', array( 'time' => time(), 'v' => VS_VERSION, 'n' => $n ), false );
 	}
 }
@@ -164,6 +164,7 @@ function vs_fill_placeholders( $html ) {
 /** Danh sách bài viết mẫu, mới nhất trước. */
 function vs_sample_articles() {
 	return array_merge(
+		require VS_DIR . '/inc/content/articles-13.php',
 		require VS_DIR . '/inc/content/articles-12.php',
 		require VS_DIR . '/inc/content/articles-10.php',
 		require VS_DIR . '/inc/content/articles-11.php',
@@ -215,6 +216,28 @@ function vs_page_untouched( $post, $slug ) {
 	$b = $norm( vs_fill_placeholders( $legacy[ $slug ]['content'] ) );
 	similar_text( $a, $b, $pct );
 	return $pct >= 92;
+}
+
+/**
+ * Từ khóa chính và mô tả SEO cho Rank Math (nếu bài có khai báo 'seo').
+ * Chỉ ghi khi quản trị viên chưa tự sửa (giá trị hiện tại trống hoặc trùng lần nhập trước).
+ */
+function vs_sample_seo( $post_id, $a ) {
+	if ( empty( $a['seo'] ) ) {
+		return;
+	}
+	$prev = (array) get_post_meta( $post_id, '_vs_seo_import', true );
+	$map  = array(
+		'rank_math_focus_keyword' => implode( ',', (array) $a['seo']['keywords'] ),
+		'rank_math_description'   => $a['seo']['desc'],
+	);
+	foreach ( $map as $key => $val ) {
+		$cur = (string) get_post_meta( $post_id, $key, true );
+		if ( '' === $cur || ( isset( $prev[ $key ] ) && $prev[ $key ] === $cur ) ) {
+			update_post_meta( $post_id, $key, $val );
+		}
+	}
+	update_post_meta( $post_id, '_vs_seo_import', $map );
 }
 
 /** Gắn ảnh đại diện từ assets/img/blog của theme (nhập vào Thư viện ảnh 1 lần). */
@@ -290,6 +313,7 @@ function vs_import_content( $force = false ) {
 		$old = get_page_by_path( $a['slug'], OBJECT, 'post' );
 		if ( $old ) {
 			vs_sample_cover( $old->ID, isset( $a['cover'] ) ? $a['cover'] : '', $a['title'] );
+			vs_sample_seo( $old->ID, $a );
 			if ( $force || vs_sample_untouched( $old ) ) {
 				$res = wp_update_post( array(
 					'ID'            => $old->ID,
@@ -321,6 +345,7 @@ function vs_import_content( $force = false ) {
 		if ( $id && ! is_wp_error( $id ) ) {
 			update_post_meta( $id, '_vs_import_hash', md5( get_post_field( 'post_content', $id, 'raw' ) ) );
 			vs_sample_cover( $id, isset( $a['cover'] ) ? $a['cover'] : '', $a['title'] );
+			vs_sample_seo( $id, $a );
 			$created++;
 		}
 	}

@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'VS_VERSION', '6.15.2' );
+define( 'VS_VERSION', '6.16.0' );
 define( 'VS_BRAND', 'Check Đạo Văn' );       // Tên thương hiệu mặc định (đổi trong Cài đặt > Chung > Tên website).
 define( 'VS_DOMAIN', 'checkdaovan247.com' );          // Tên miền chính thức.
 define( 'VS_EMAIL', 'hotro@checkdaovan247.com' );     // Email hỗ trợ mặc định.
@@ -33,6 +33,7 @@ require VS_DIR . '/inc/admin-orders.php';
 require VS_DIR . '/inc/drive.php';
 require VS_DIR . '/inc/security.php';
 require VS_DIR . '/inc/perf.php';
+require VS_DIR . '/inc/article.php';
 require VS_DIR . '/inc/content.php';
 
 add_action( 'after_setup_theme', function () {
