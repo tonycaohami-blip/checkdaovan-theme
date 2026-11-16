@@ -79,9 +79,22 @@
 		refresh: '<path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5M3 21v-5h5"/>',
 		bank: '<path d="M3 10 12 4l9 6"/><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 21h18"/>',
 		inbox: '<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5h13L22 12v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6z"/>',
+		user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+		camera: '<path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/>',
+		trash: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
+		tag: '<path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
+		left: '<path d="m15 6-6 6 6 6"/>',
+		palette: '<circle cx="12" cy="12" r="9"/><circle cx="8" cy="10" r="1.2"/><circle cx="12" cy="7.5" r="1.2"/><circle cx="16" cy="10" r="1.2"/><path d="M12 21a3 3 0 0 1 0-6h2a3 3 0 0 0 3-3"/>',
 		wp: '<circle cx="12" cy="12" r="9"/><path d="M4 9.5 8.2 20M9 7h3M7.5 7l4.3 12.4L14.5 12M14 7h3M15.6 7l3 8.6"/>',
 	};
 	function ic(n, s) { return '<svg width="' + (s || 18) + '" height="' + (s || 18) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (I[n] || '') + '</svg>'; }
+	function avHTML(url, name, cls, initial) {
+		var w = String(name || '').trim().split(/\s+/);
+		var ini = initial || (w[w.length - 1] || '?').charAt(0).toUpperCase();
+		return '<span class="av' + (cls ? ' ' + cls : '') + '">' + (url ? '<img src="' + esc(url) + '" alt="" loading="lazy">' : esc(ini)) + '</span>';
+	}
+	function meAv(cls) { return '<span data-me-av="' + (cls || '') + '" style="display:contents">' + avHTML(C.user.avatar, C.user.name, cls, C.user.initial) + '</span>'; }
+	function paintMe() { $$('[data-me-av]').forEach(function (e) { e.innerHTML = avHTML(C.user.avatar, C.user.name, e.dataset.meAv, C.user.initial); }); }
 	var LOGO = '<span class="brand__ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M6.5 3h7.5l4.5 4.5V20a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" fill="#fff"/><path d="M14 3v4a.5.5 0 0 0 .5.5h4" fill="#cfdaff"/><circle cx="16.5" cy="17.5" r="4" fill="#10b981" stroke="#fff" stroke-width="1.5"/><path d="m14.8 17.6 1.2 1.2 2.2-2.4" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span>';
 
 	/* ---------- Gọi máy chủ ---------- */
@@ -180,8 +193,8 @@
 				'<div class="brand" style="color:var(--ink);padding:0">' + LOGO + '<div><b>' + esc(C.name) + '</b><small style="color:var(--ink-3)">Trang quản trị</small></div></div>' +
 				'<h1>Chào mừng trở lại 👋</h1><p>Đăng nhập để quản lý đơn hàng, khách hàng và cộng tác viên.</p>' +
 				'<div class="err hide" id="le"></div>' +
-				'<label class="field"><span>Tên đăng nhập, email hoặc số điện thoại</span><input class="input" name="login" autocomplete="username" required autofocus></label>' +
-				'<label class="field"><span>Mật khẩu</span><div class="pw"><input class="input" type="password" name="password" autocomplete="current-password" required><button type="button" aria-label="Hiện mật khẩu" id="pwt">' + ic('eye', 18) + '</button></div></label>' +
+				'<label class="field field--ic"><span>Tên đăng nhập, email hoặc số điện thoại</span>' + ic('user', 17) + '<input class="input" name="login" autocomplete="username" required autofocus></label>' +
+				'<label class="field field--ic"><span>Mật khẩu</span>' + ic('lock', 17) + '<div class="pw"><input class="input" type="password" name="password" autocomplete="current-password" required><button type="button" aria-label="Hiện mật khẩu" id="pwt">' + ic('eye', 18) + '</button></div></label>' +
 				'<div style="display:flex;align-items:center;justify-content:space-between;margin:2px 0 18px"><label class="check"><input type="checkbox" name="remember" value="1" checked> Ghi nhớ đăng nhập</label><a href="' + esc(C.site) + 'wp-login.php?action=lostpassword" target="_blank" rel="noopener" style="font-size:13px">Quên mật khẩu?</a></div>' +
 				'<button class="btn btn--primary btn--block" id="lb">' + ic('lock', 17) + 'Đăng nhập</button>' +
 				'<div class="login__note">' + ic('shield', 16) + 'Chỉ dành cho quản trị viên. Kết nối được mã hóa và giới hạn số lần thử.</div>' +
@@ -237,7 +250,7 @@
 					'</nav>' +
 					'<div class="side__foot">' +
 						'<a class="side__site" href="' + esc(C.site) + '" target="_blank" rel="noopener">' + ic('globe', 17) + 'Xem website' + ic('ext', 14) + '</a>' +
-						'<div class="me"><img src="' + esc(C.user.avatar) + '" alt=""><div><b>' + esc(C.user.name) + '</b><small>' + esc(C.user.role) + '</small></div><button title="Đăng xuất" data-logout>' + ic('out', 18) + '</button></div>' +
+						'<div class="me">' + meAv() + '<div><b>' + esc(C.user.name) + '</b><small>' + esc(C.user.role) + '</small></div><button title="Đăng xuất" data-logout>' + ic('out', 18) + '</button></div>' +
 					'</div>' +
 				'</aside>' +
 				'<div class="main">' +
@@ -489,7 +502,7 @@
 		var tabs = [['all', 'Tất cả']].concat(Object.keys(C.statuses).map(function (k) { return [k, C.statuses[k]]; }));
 		el.innerHTML =
 			'<div class="bar">' +
-				'<div class="tabs" id="otabs">' + tabs.map(function (t) { return '<button data-st="' + t[0] + '" class="' + (t[0] === st ? 'on' : '') + '">' + esc(t[1]) + ' <span class="n" data-n="' + t[0] + '">·</span></button>'; }).join('') + '</div>' +
+				'<div class="tabs" id="otabs">' + tabs.map(function (t) { return '<button data-st="' + t[0] + '" class="' + (t[0] === st ? 'on' : '') + '">' + (t[0] === 'all' ? ic('list', 14) : '<i class="dot" style="background:' + ST_COLORS[t[0]] + '"></i>') + esc(t[1]) + ' <span class="n" data-n="' + t[0] + '">·</span></button>'; }).join('') + '</div>' +
 			'</div>' +
 			'<div class="bar">' +
 				'<label class="search" style="display:block;flex:1;min-width:200px;width:auto">' + ic('search', 17) + '<input id="oq" value="' + esc(search) + '" placeholder="Mã đơn, tên, SĐT, email..." aria-label="Tìm đơn"></label>' +
@@ -514,7 +527,7 @@
 				var box = $('#ores');
 				if (!d.items.length) { box.innerHTML = emptyHTML('Không có đơn hàng phù hợp', search || range || type !== 'all' ? 'Thử đổi bộ lọc hoặc từ khóa tìm kiếm.' : 'Đơn mới sẽ hiện ở đây.'); return; }
 				box.innerHTML =
-					'<div class="tbl-wrap tbl-o"><table class="tbl"><thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Dịch vụ</th><th class="r">Tổng tiền</th><th>Trạng thái</th><th>Thời gian</th></tr></thead><tbody>' + d.items.map(rowHTML).join('') + '</tbody></table></div>' +
+					'<div class="tbl-wrap tbl-o"><table class="tbl"><thead><tr><th>' + ic('tag', 14) + 'Mã đơn</th><th>' + ic('user', 14) + 'Khách hàng</th><th>' + ic('orders', 14) + 'Dịch vụ</th><th class="r">' + ic('money', 14) + 'Tổng tiền</th><th>' + ic('check', 14) + 'Trạng thái</th><th>' + ic('clock', 14) + 'Thời gian</th></tr></thead><tbody>' + d.items.map(rowHTML).join('') + '</tbody></table></div>' +
 					'<div class="olist">' + d.items.map(cardHTML).join('') + '</div>' +
 					pagerHTML(d.page, d.pages, d.total, 'đơn');
 				bindPager(box, function (p) { nav({ page: p }); });
@@ -525,8 +538,8 @@
 	};
 	function pagerHTML(page, pages, total, unit) {
 		return '<div class="pager"><span>' + num(total) + ' ' + unit + ' · Trang ' + page + '/' + Math.max(1, pages) + '</span><div>' +
-			'<button class="btn btn--sm" data-pg="' + (page - 1) + '"' + (page <= 1 ? ' disabled' : '') + '>‹ Trước</button>' +
-			'<button class="btn btn--sm" data-pg="' + (page + 1) + '"' + (page >= pages ? ' disabled' : '') + '>Sau ›</button></div></div>';
+			'<button class="btn btn--sm" data-pg="' + (page - 1) + '"' + (page <= 1 ? ' disabled' : '') + '>' + ic('left', 14) + 'Trước</button>' +
+			'<button class="btn btn--sm" data-pg="' + (page + 1) + '"' + (page >= pages ? ' disabled' : '') + '>Sau' + ic('chev', 14) + '</button></div></div>';
 	}
 	function bindPager(el, fn) { $$('[data-pg]', el).forEach(function (b) { b.onclick = function () { fn(+b.dataset.pg); }; }); }
 
@@ -561,8 +574,8 @@
 		var dr = $('.drawer'); if (!dr) return;
 		var c = o.customer, ph = phoneDigits(c.phone);
 		var acts = '';
-		if (o.status === 'cho_thanh_toan') acts = '<button class="btn btn--ok" data-act="paid">' + ic('check', 16) + 'Xác nhận đã thanh toán</button><button class="btn btn--danger" data-act="cancel">Hủy đơn</button>';
-		else if (o.status === 'dang_xu_ly') acts = '<button class="btn btn--primary" data-act="done" data-mail="1">' + ic('mail', 16) + 'Hoàn thành & gửi email</button><button class="btn" data-act="done">Hoàn thành (không gửi email)</button><button class="btn btn--danger" data-act="cancel">Hủy đơn</button>';
+		if (o.status === 'cho_thanh_toan') acts = '<button class="btn btn--ok" data-act="paid">' + ic('check', 16) + 'Xác nhận đã thanh toán</button><button class="btn btn--danger" data-act="cancel">' + ic('x', 16) + 'Hủy đơn</button>';
+		else if (o.status === 'dang_xu_ly') acts = '<button class="btn btn--primary" data-act="done" data-mail="1">' + ic('mail', 16) + 'Hoàn thành & gửi email</button><button class="btn" data-act="done">' + ic('check', 16) + 'Hoàn thành (không gửi email)</button><button class="btn btn--danger" data-act="cancel">' + ic('x', 16) + 'Hủy đơn</button>';
 		else acts = '<button class="btn" data-act="reopen">' + ic('refresh', 16) + 'Mở lại đơn (Đang xử lý)</button>';
 
 		var kinds = { plag: 'Đạo văn', ai: 'Tỷ lệ AI' };
@@ -586,10 +599,10 @@
 			'<div class="drawer__bd">' +
 				'<div class="sec"><h4>' + ic('bolt', 15) + 'Thao tác</h4><div class="acts">' + acts + '</div></div>' +
 				'<div class="sec"><h4>' + ic('users', 15) + 'Khách hàng</h4><dl class="kv">' +
-					'<dt>Họ tên</dt><dd><b>' + esc(c.name || '—') + '</b></dd>' +
-					'<dt>Điện thoại</dt><dd>' + esc(c.phone || '—') + (c.phone ? ' <button class="copy" data-copy="' + esc(c.phone) + '" data-l="số điện thoại">Sao chép</button>' : '') + '</dd>' +
-					'<dt>Email</dt><dd>' + esc(c.email || '—') + '</dd>' +
-					(c.note ? '<dt>Lời nhắn</dt><dd>' + esc(c.note) + '</dd>' : '') +
+					'<dt>' + ic('user', 14) + 'Họ tên</dt><dd><b>' + esc(c.name || '—') + '</b></dd>' +
+					'<dt>' + ic('phone', 14) + 'Điện thoại</dt><dd>' + esc(c.phone || '—') + (c.phone ? ' <button class="copy" data-copy="' + esc(c.phone) + '" data-l="số điện thoại">Sao chép</button>' : '') + '</dd>' +
+					'<dt>' + ic('mail', 14) + 'Email</dt><dd>' + esc(c.email || '—') + '</dd>' +
+					(c.note ? '<dt>' + ic('chat', 14) + 'Lời nhắn</dt><dd>' + esc(c.note) + '</dd>' : '') +
 				'</dl><div class="contact">' +
 					(ph ? '<a class="btn btn--sm" href="tel:' + ph + '">' + ic('phone', 15) + 'Gọi</a><a class="btn btn--sm" href="https://zalo.me/' + ph + '" target="_blank" rel="noopener">' + ic('chat', 15) + 'Zalo</a>' : '') +
 					(c.email ? '<a class="btn btn--sm" href="mailto:' + esc(c.email) + '?subject=' + encodeURIComponent('Đơn hàng ' + o.code) + '">' + ic('mail', 15) + 'Email</a>' : '') +
@@ -597,12 +610,12 @@
 					(c.account ? '<a class="btn btn--sm" href="' + esc(c.account) + '" target="_blank" rel="noopener">' + ic('ext', 14) + 'Tài khoản</a>' : '') +
 				'</div></div>' +
 				'<div class="sec"><h4>' + ic('orders', 15) + 'Đơn hàng</h4><dl class="kv">' +
-					'<dt>Dịch vụ</dt><dd>' + esc(o.summary) + '</dd>' +
-					Object.keys(o.details || {}).map(function (k) { return '<dt>' + esc(k) + '</dt><dd>' + esc(o.details[k]) + '</dd>'; }).join('') +
-					'<dt>Tổng tiền</dt><dd><b class="money">' + esc(o.total) + '</b></dd>' +
-					'<dt>Thanh toán</dt><dd>' + (o.paid_at ? esc(o.paid_at) + (o.paid_via ? ' · ' + esc(o.paid_via) : '') : '<span class="muted">Chưa thanh toán</span>') + '</dd>' +
-					(o.done_at ? '<dt>Hoàn thành</dt><dd>' + esc(o.done_at) + '</dd>' : '') +
-					(o.ref ? '<dt>Cộng tác viên</dt><dd>' + esc(o.ref.name) + ' · hoa hồng ' + esc(o.ref.amount) + '</dd>' : '') +
+					'<dt>' + ic('orders', 14) + 'Dịch vụ</dt><dd>' + esc(o.summary) + '</dd>' +
+					Object.keys(o.details || {}).map(function (k) { return '<dt>' + ic(detIcon(k), 14) + esc(k) + '</dt><dd>' + esc(o.details[k]) + '</dd>'; }).join('') +
+					'<dt>' + ic('money', 14) + 'Tổng tiền</dt><dd><b class="money">' + esc(o.total) + '</b></dd>' +
+					'<dt>' + ic('card', 14) + 'Thanh toán</dt><dd>' + (o.paid_at ? esc(o.paid_at) + (o.paid_via ? ' · ' + esc(o.paid_via) : '') : '<span class="muted">Chưa thanh toán</span>') + '</dd>' +
+					(o.done_at ? '<dt>' + ic('check', 14) + 'Hoàn thành</dt><dd>' + esc(o.done_at) + '</dd>' : '') +
+					(o.ref ? '<dt>' + ic('aff', 14) + 'Cộng tác viên</dt><dd>' + esc(o.ref.name) + ' · hoa hồng ' + esc(o.ref.amount) + '</dd>' : '') +
 				'</dl></div>' +
 				(o.files.length ? '<div class="sec"><h4>' + ic('file', 15) + 'File khách gửi</h4><div class="files">' + o.files.map(function (f) {
 					var ext = (f.name.split('.').pop() || '').toLowerCase();
@@ -634,6 +647,12 @@
 		};
 		$('#drvs', dr).onclick = function () { busy(this, api('vs_adm_action', { id: o.id, act: 'drive', drive: $('#drv', dr).value })).then(done); };
 		$('#nts', dr).onclick = function () { busy(this, api('vs_adm_action', { id: o.id, act: 'note', note: $('#nt', dr).value })).then(done); };
+	}
+	// Biểu tượng cho từng dòng chi tiết đơn (theo nhãn máy chủ trả về).
+	function detIcon(k) {
+		var m = [[/phần mềm|công cụ/i, 'shield'], [/hình thức|mục tiêu|loại/i, 'list'], [/trang|từ/i, 'file'], [/thời gian|hạn|ngày/i, 'clock'], [/giảm giá|mã/i, 'tag'], [/tỷ lệ|hiện tại/i, 'chart'], [/thanh toán/i, 'card']];
+		for (var i = 0; i < m.length; i++) if (m[i][0].test(k)) return m[i][1];
+		return 'tag';
 	}
 	function reportHTML(f) {
 		var ext = f.drive ? (f.drive === 'folder' ? 'dir' : 'pdf') : ((f.name || '').split('.').pop() || 'pdf').toLowerCase();
@@ -680,12 +699,12 @@
 			box.innerHTML = '<div class="tbl-wrap tbl-o"><table class="tbl"><thead><tr><th>Khách hàng</th><th>Điện thoại</th><th class="r">Đơn</th><th class="r">Đã chi</th><th>Khách từ</th><th>Gần nhất</th><th></th></tr></thead><tbody>' +
 				d.items.map(function (c) {
 					var ph = phoneDigits(c.phone);
-					return '<tr><td class="who"><b>' + esc(c.name || '—') + (c.account ? ' <span class="tag" title="Có tài khoản trên website">TK</span>' : '') + '</b><small>' + esc(c.email || '') + '</small></td><td class="mono">' + esc(c.phone || '—') + '</td><td class="r mono">' + c.paid + '<span class="muted">/' + c.orders + '</span></td><td class="r money">' + esc(c.spent_f) + '</td><td class="muted">' + esc(c.first_f) + '</td><td class="muted">' + esc(c.last_f) + '</td>' +
-						'<td class="r" style="white-space:nowrap"><a class="btn btn--sm" href="#/orders?q=' + encodeURIComponent(ph || c.email) + '">Xem đơn</a> ' + (ph ? '<a class="btn btn--sm btn--ghost" href="https://zalo.me/' + ph + '" target="_blank" rel="noopener" title="Zalo">' + ic('chat', 15) + '</a>' : '') + '</td></tr>';
+					return '<tr><td><div class="who who--av">' + avHTML(c.avatar, c.name) + '<span class="who"><b>' + esc(c.name || '—') + (c.account ? ' <span class="tag" title="Có tài khoản trên website">' + ic('user', 11) + 'TK</span>' : '') + '</b><small>' + esc(c.email || '') + '</small></span></div></td><td class="mono">' + esc(c.phone || '—') + '</td><td class="r mono">' + c.paid + '<span class="muted">/' + c.orders + '</span></td><td class="r money">' + esc(c.spent_f) + '</td><td class="muted">' + esc(c.first_f) + '</td><td class="muted">' + esc(c.last_f) + '</td>' +
+						'<td class="r" style="white-space:nowrap"><a class="btn btn--sm" href="#/orders?q=' + encodeURIComponent(ph || c.email) + '">' + ic('orders', 14) + 'Xem đơn</a> ' + (ph ? '<a class="btn btn--sm btn--ghost" href="https://zalo.me/' + ph + '" target="_blank" rel="noopener" title="Zalo">' + ic('chat', 15) + '</a>' : '') + '</td></tr>';
 				}).join('') + '</tbody></table></div>' +
 				'<div class="olist">' + d.items.map(function (c) {
 					var ph = phoneDigits(c.phone);
-					return '<a class="ocard" href="#/orders?q=' + encodeURIComponent(ph || c.email) + '" style="color:inherit"><div class="who"><b>' + esc(c.name || '—') + '</b><small>' + esc(c.phone || c.email) + '</small></div><div class="money" style="text-align:right">' + esc(c.spent_f) + '</div><div class="ocard__ft"><span>' + c.paid + '/' + c.orders + ' đơn đã thanh toán</span><span>' + esc(c.last_f) + '</span></div></a>';
+					return '<a class="ocard" href="#/orders?q=' + encodeURIComponent(ph || c.email) + '" style="color:inherit"><div class="who who--av">' + avHTML(c.avatar, c.name, 'av--sm') + '<span class="who"><b>' + esc(c.name || '—') + '</b><small>' + esc(c.phone || c.email) + '</small></span></div><div class="money" style="text-align:right">' + esc(c.spent_f) + '</div><div class="ocard__ft"><span>' + c.paid + '/' + c.orders + ' đơn đã thanh toán</span><span>' + esc(c.last_f) + '</span></div></a>';
 				}).join('') + '</div>' +
 				pagerHTML(d.page, d.pages, d.total, 'khách');
 			bindPager(box, function (p) { nav({ page: p }); });
@@ -716,12 +735,12 @@
 				if (tab === 'members') {
 					if (!d.items.length) { box.innerHTML = emptyHTML('Chưa có cộng tác viên hoạt động', 'Khi CTV chia sẻ link và có lượt nhấp, họ sẽ hiện ở đây.', 'aff'); return; }
 					box.innerHTML = '<div class="tbl-wrap tbl-o"><table class="tbl"><thead><tr><th>Cộng tác viên</th><th>Mã</th><th class="r">Click</th><th class="r">Đơn</th><th class="r">Khách</th><th class="r">Chờ duyệt</th><th class="r">Đã duyệt</th><th class="r">Đã trả</th><th class="r">Khả dụng</th></tr></thead><tbody>' +
-						d.items.map(function (a) { return '<tr><td class="who"><b>' + esc(a.name) + '</b><small>' + esc(a.phone || a.email) + '</small></td><td><span class="tag">' + esc(a.code) + '</span></td><td class="r mono">' + num(a.clicks) + '</td><td class="r mono">' + num(a.orders) + '</td><td class="r mono">' + num(a.customers) + '</td><td class="r mono">' + esc(a.pending) + '</td><td class="r mono">' + esc(a.approved) + '</td><td class="r mono">' + esc(a.paid) + '</td><td class="r money">' + esc(a.available) + '</td></tr>'; }).join('') +
+						d.items.map(function (a) { return '<tr><td><div class="who who--av">' + avHTML(a.avatar, a.name) + '<span class="who"><b>' + esc(a.name) + '</b><small>' + esc(a.phone || a.email) + '</small></span></div></td><td><span class="tag">' + esc(a.code) + '</span></td><td class="r mono">' + num(a.clicks) + '</td><td class="r mono">' + num(a.orders) + '</td><td class="r mono">' + num(a.customers) + '</td><td class="r mono">' + esc(a.pending) + '</td><td class="r mono">' + esc(a.approved) + '</td><td class="r mono">' + esc(a.paid) + '</td><td class="r money">' + esc(a.available) + '</td></tr>'; }).join('') +
 						'</tbody></table></div><div class="olist">' + d.items.map(function (a) { return '<div class="ocard" style="cursor:default"><div class="who"><b>' + esc(a.name) + '</b><small>' + esc(a.code) + ' · ' + num(a.clicks) + ' click · ' + num(a.orders) + ' đơn</small></div><div style="text-align:right"><div class="money">' + esc(a.available) + '</div><small class="muted">khả dụng</small></div><div class="ocard__ft"><span>Đã duyệt ' + esc(a.approved) + '</span><span>Đã trả ' + esc(a.paid) + '</span></div></div>'; }).join('') + '</div>';
 				} else {
 					if (!d.payouts.length) { box.innerHTML = emptyHTML('Chưa có yêu cầu rút tiền', '', 'bank'); return; }
 					box.innerHTML = '<div class="tbl-wrap tbl-o"><table class="tbl"><thead><tr><th>Cộng tác viên</th><th class="r">Số tiền</th><th>Tài khoản nhận</th><th>Ngày yêu cầu</th><th>Trạng thái</th><th></th></tr></thead><tbody>' +
-						d.payouts.map(function (p) { return '<tr><td class="who"><b>' + esc(p.name) + '</b><small>' + esc(p.phone) + '</small></td><td class="r money">' + esc(p.amount) + '</td><td>' + bankHTML(p.bank) + '</td><td class="muted">' + esc(p.date) + '</td><td>' + pill(p.status, p.label) + '</td><td class="r" style="white-space:nowrap">' + payActs(p) + '</td></tr>'; }).join('') +
+						d.payouts.map(function (p) { return '<tr><td><div class="who who--av">' + avHTML(p.avatar, p.name) + '<span class="who"><b>' + esc(p.name) + '</b><small>' + esc(p.phone) + '</small></span></div></td><td class="r money">' + esc(p.amount) + '</td><td>' + bankHTML(p.bank) + '</td><td class="muted">' + esc(p.date) + '</td><td>' + pill(p.status, p.label) + '</td><td class="r" style="white-space:nowrap">' + payActs(p) + '</td></tr>'; }).join('') +
 						'</tbody></table></div><div class="olist">' + d.payouts.map(function (p) { return '<div class="ocard" style="cursor:default"><div class="who"><b>' + esc(p.name) + '</b><small>' + esc(p.date) + '</small></div><div class="money" style="text-align:right">' + esc(p.amount) + '</div><div class="sum" style="white-space:normal">' + bankHTML(p.bank) + '</div><div class="ocard__ft">' + pill(p.status, p.label) + '<span>' + payActs(p) + '</span></div></div>'; }).join('') + '</div>';
 					$$('[data-pay]', box).forEach(function (b) {
 						b.onclick = function () {
@@ -740,8 +759,8 @@
 	};
 	function bankHTML(b) { return '<div style="font-size:13px;line-height:1.45"><b>' + esc(b.account) + '</b> <button class="copy" data-copy="' + esc(b.account) + '">Sao chép</button><br><span class="muted">' + esc(b.name) + ' · ' + esc(b.holder) + '</span></div>'; }
 	function payActs(p) {
-		if (p.status === 'pending') return '<button class="btn btn--sm btn--ok" data-pay="' + p.id + '" data-st="paid">' + ic('check', 14) + 'Đã chuyển</button> <button class="btn btn--sm btn--danger" data-pay="' + p.id + '" data-st="rejected">Từ chối</button>';
-		return '<button class="btn btn--sm btn--ghost" data-pay="' + p.id + '" data-st="pending">Đặt lại chờ</button>';
+		if (p.status === 'pending') return '<button class="btn btn--sm btn--ok" data-pay="' + p.id + '" data-st="paid">' + ic('check', 14) + 'Đã chuyển</button> <button class="btn btn--sm btn--danger" data-pay="' + p.id + '" data-st="rejected">' + ic('x', 14) + 'Từ chối</button>';
+		return '<button class="btn btn--sm btn--ghost" data-pay="' + p.id + '" data-st="pending">' + ic('refresh', 14) + 'Đặt lại chờ</button>';
 	}
 
 	/* =========================================================
@@ -772,15 +791,18 @@
 		el.innerHTML =
 			'<div class="grid g-2">' +
 				'<div class="card"><div class="card__hd"><h3>Tài khoản</h3></div><div class="card__bd">' +
-					'<div style="display:flex;align-items:center;gap:14px;margin-bottom:6px"><img src="' + esc(C.user.avatar) + '" alt="" style="width:56px;height:56px;border-radius:50%"><div><b style="font-size:16px">' + esc(C.user.name) + '</b><div class="muted" style="font-size:13px">' + esc(C.user.email) + ' · ' + esc(C.user.role) + '</div></div></div>' +
-					'<div class="set"><div class="set__t"><b>Đổi mật khẩu, thông tin cá nhân</b><small>Quản lý trong trang hồ sơ WordPress</small></div><a class="btn btn--sm" href="' + esc(C.wp.dash) + 'profile.php" target="_blank" rel="noopener">' + ic('ext', 14) + 'Mở</a></div>' +
-					'<div class="set"><div class="set__t"><b>Đăng xuất</b><small>Kết thúc phiên trên thiết bị này</small></div><button class="btn btn--sm btn--danger" data-logout>' + ic('out', 15) + 'Đăng xuất</button></div>' +
+					'<div class="av-edit">' + meAv('av--xl') +
+						'<div class="av-edit__b"><b>' + esc(C.user.name) + '</b><small>' + esc(C.user.email) + ' · ' + esc(C.user.role) + '</small><small>Ảnh JPG, PNG, WEBP tối đa 5 MB · hiển thị đồng bộ trên website, app và WordPress</small>' +
+							'<div class="av-edit__acts"><label class="btn btn--sm btn--primary">' + ic('camera', 15) + 'Đổi ảnh<input type="file" id="avf" accept="image/jpeg,image/png,image/webp,image/gif" hidden></label>' +
+							'<button class="btn btn--sm btn--danger" id="avr"' + (C.user.avatar ? '' : ' hidden') + '>' + ic('trash', 15) + 'Xóa ảnh</button></div></div></div>' +
+					'<div class="set"><span class="set__ic">' + ic('lock', 18) + '</span><div class="set__t"><b>Đổi mật khẩu, thông tin cá nhân</b><small>Quản lý trong trang hồ sơ WordPress</small></div><a class="btn btn--sm" href="' + esc(C.wp.dash) + 'profile.php" target="_blank" rel="noopener">' + ic('ext', 14) + 'Mở</a></div>' +
+					'<div class="set"><span class="set__ic set__ic--danger">' + ic('out', 18) + '</span><div class="set__t"><b>Đăng xuất</b><small>Kết thúc phiên trên thiết bị này</small></div><button class="btn btn--sm btn--danger" data-logout>' + ic('out', 15) + 'Đăng xuất</button></div>' +
 				'</div></div>' +
 				'<div class="card"><div class="card__hd"><h3>Giao diện & thông báo</h3></div><div class="card__bd">' +
-					'<div class="set"><div class="set__t"><b>Chế độ hiển thị</b><small>Sáng, tối hoặc theo thiết bị</small></div><div class="seg" id="thm">' + [['light', 'Sáng'], ['dark', 'Tối'], ['system', 'Tự động']].map(function (t) { return '<button data-v="' + t[0] + '" class="' + (theme === t[0] ? 'on' : '') + '">' + t[1] + '</button>'; }).join('') + '</div></div>' +
-					'<div class="set"><div class="set__t"><b>Âm báo đơn mới</b><small>Phát tiếng “ting” khi có đơn hoặc thanh toán mới</small></div><label class="check"><input type="checkbox" id="snd"' + (sound ? ' checked' : '') + '> Bật</label></div>' +
-					'<div class="set"><div class="set__t"><b>Thông báo trên máy</b><small>' + (perm === 'granted' ? 'Đã bật: hiện thông báo kể cả khi đang ở tab khác' : perm === 'denied' ? 'Đã bị chặn trong cài đặt trình duyệt' : perm === 'unsupported' ? 'Trình duyệt không hỗ trợ' : 'Hiện thông báo kể cả khi đang ở tab khác') + '</small></div>' + (perm === 'default' ? '<button class="btn btn--sm" id="ntf">' + ic('bell', 15) + 'Bật</button>' : '') + '</div>' +
-					'<div class="set"><div class="set__t"><b>Thử âm báo</b><small>Kiểm tra loa của thiết bị</small></div><button class="btn btn--sm" id="tst">' + ic('sound', 15) + 'Phát thử</button></div>' +
+					'<div class="set"><span class="set__ic">' + ic('palette', 18) + '</span><div class="set__t"><b>Chế độ hiển thị</b><small>Sáng, tối hoặc theo thiết bị</small></div><div class="seg" id="thm">' + [['light', 'Sáng'], ['dark', 'Tối'], ['system', 'Tự động']].map(function (t) { return '<button data-v="' + t[0] + '" class="' + (theme === t[0] ? 'on' : '') + '">' + t[1] + '</button>'; }).join('') + '</div></div>' +
+					'<div class="set"><span class="set__ic set__ic--ok">' + ic('sound', 18) + '</span><div class="set__t"><b>Âm báo đơn mới</b><small>Phát tiếng “ting” khi có đơn hoặc thanh toán mới</small></div><label class="check"><input type="checkbox" id="snd"' + (sound ? ' checked' : '') + '> Bật</label></div>' +
+					'<div class="set"><span class="set__ic set__ic--warn">' + ic('bell', 18) + '</span><div class="set__t"><b>Thông báo trên máy</b><small>' + (perm === 'granted' ? 'Đã bật: hiện thông báo kể cả khi đang ở tab khác' : perm === 'denied' ? 'Đã bị chặn trong cài đặt trình duyệt' : perm === 'unsupported' ? 'Trình duyệt không hỗ trợ' : 'Hiện thông báo kể cả khi đang ở tab khác') + '</small></div>' + (perm === 'default' ? '<button class="btn btn--sm" id="ntf">' + ic('bell', 15) + 'Bật</button>' : '') + '</div>' +
+					'<div class="set"><span class="set__ic">' + ic('bolt', 18) + '</span><div class="set__t"><b>Thử âm báo</b><small>Kiểm tra loa của thiết bị</small></div><button class="btn btn--sm" id="tst">' + ic('sound', 15) + 'Phát thử</button></div>' +
 				'</div></div>' +
 			'</div>' +
 			'<div class="card mt"><div class="card__hd"><h3>Liên kết nhanh</h3><span class="muted">Mở trang quản trị WordPress trên website chính</span></div><div class="card__bd"><div class="links">' +
@@ -797,6 +819,27 @@
 		$('#snd').onchange = function () { store('sound', this.checked ? '1' : '0'); };
 		$('#tst').onclick = function () { ding(true); };
 		var n = $('#ntf'); if (n) n.onclick = function () { Notification.requestPermission().then(function () { render(); }); };
+		// Đổi / xóa ảnh đại diện (đồng bộ toàn website).
+		function avSend(fd) {
+			var big = $('.av--xl', el); if (big) big.classList.add('is-busy');
+			fd.append('action', 'vs_avatar'); fd.append('nonce', C.anonce);
+			return fetch(C.ajax, { method: 'POST', body: fd, credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (j) {
+				if (!j || !j.success) throw new Error((j && j.data && j.data.message) || 'Không lưu được ảnh.');
+				C.user.avatar = j.data.url; C.user.initial = j.data.initial;
+				paintMe(); $('#avr').hidden = !j.data.url; toast(j.data.message);
+			}).catch(function (e) { toast(e.message || 'Lỗi kết nối, vui lòng thử lại.', 'err'); }).then(function () { var b = $('.av--xl', el); if (b) b.classList.remove('is-busy'); $('#avf').value = ''; });
+		}
+		$('#avf').onchange = function () {
+			var f = this.files && this.files[0]; if (!f) return;
+			if (!/^image\/(jpeg|png|webp|gif)$/.test(f.type)) { toast('Chỉ nhận ảnh JPG, PNG, WEBP hoặc GIF.', 'err'); this.value = ''; return; }
+			if (f.size > 5 * 1024 * 1024) { toast('Ảnh quá lớn (tối đa 5 MB).', 'err'); this.value = ''; return; }
+			var fd = new FormData(); fd.append('op', 'upload'); fd.append('file', f); avSend(fd);
+		};
+		$('#avr').onclick = function () {
+			modal({ title: 'Xóa ảnh đại diện?', text: 'Ảnh sẽ bị xóa khỏi website, app và WordPress.', ok: 'Xóa ảnh', danger: true }).then(function (ok) {
+				if (!ok) return; var fd = new FormData(); fd.append('op', 'remove'); avSend(fd);
+			});
+		};
 	};
 	function lnk(href, icon, t, s, same) { return '<a class="lnk" href="' + esc(href) + '"' + (same ? '' : ' target="_blank" rel="noopener"') + '>' + ic(icon, 20) + '<span><b>' + esc(t) + '</b><small>' + esc(s) + '</small></span></a>'; }
 

@@ -856,3 +856,48 @@
 		setTimeout(tick, 8000);
 	}
 })();
+
+/* 6.18: Đổi ảnh đại diện (trang Tài khoản). Cập nhật ngay mọi ảnh đại diện trên trang. */
+(function () {
+	var box = document.querySelector('[data-avatar-edit]');
+	if (!box) return;
+	var file = box.querySelector('[data-avatar-file]');
+	var rm = box.querySelector('[data-avatar-remove]');
+	var msg = box.querySelector('[data-avatar-msg]');
+	function say(t, ok) { msg.textContent = t; msg.className = 'avatar-edit__msg ' + (ok ? 'is-ok' : 'is-err'); }
+	function paint(url, initial) {
+		document.querySelectorAll('[data-avatar]').forEach(function (a) {
+			a.classList.toggle('has-img', !!url);
+			a.innerHTML = '';
+			if (url) { var i = new Image(); i.alt = ''; i.src = url; a.appendChild(i); } else { a.textContent = initial || a.getAttribute('data-initial') || '?'; }
+		});
+		if (rm) rm.hidden = !url;
+	}
+	function send(data) {
+		var big = box.querySelector('.avatar--xl');
+		if (big) big.classList.add('is-busy');
+		data.append('action', 'vs_avatar');
+		data.append('nonce', box.getAttribute('data-nonce'));
+		return fetch(box.getAttribute('data-ajax'), { method: 'POST', body: data, credentials: 'same-origin' })
+			.then(function (r) { return r.json(); })
+			.then(function (j) {
+				if (!j || !j.success) throw new Error((j && j.data && j.data.message) || 'Không lưu được ảnh.');
+				paint(j.data.url, j.data.initial); say(j.data.message, true);
+			})
+			.catch(function (e) { say(e.message || 'Lỗi kết nối, vui lòng thử lại.', false); })
+			.then(function () { if (big) big.classList.remove('is-busy'); file.value = ''; });
+	}
+	file.addEventListener('change', function () {
+		var f = file.files && file.files[0];
+		if (!f) return;
+		if (!/^image\/(jpeg|png|webp|gif)$/.test(f.type)) { say('Chỉ nhận ảnh JPG, PNG, WEBP hoặc GIF.', false); file.value = ''; return; }
+		if (f.size > 5 * 1024 * 1024) { say('Ảnh quá lớn (tối đa 5 MB).', false); file.value = ''; return; }
+		var fd = new FormData(); fd.append('op', 'upload'); fd.append('file', f);
+		say('Đang tải ảnh lên...', true);
+		send(fd);
+	});
+	if (rm) rm.addEventListener('click', function () {
+		if (!window.confirm('Xóa ảnh đại diện hiện tại?')) return;
+		var fd = new FormData(); fd.append('op', 'remove'); send(fd);
+	});
+})();

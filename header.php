@@ -64,7 +64,7 @@
 			<?php if ( $me->exists() ) : ?>
 				<?php echo vs_bell_html(); // phpcs:ignore -- đã escape. ?>
 				<a class="acct-btn acct-btn--in" href="<?php echo esc_url( vs_account_url() ); ?>" title="<?php echo esc_attr( 'Tài khoản: ' . $me->display_name ); ?>">
-					<span class="avatar avatar--sm"><?php $w = preg_split( '/\s+/u', trim( $me->display_name ) ); echo esc_html( mb_strtoupper( mb_substr( end( $w ), 0, 1 ) ) ); ?></span>
+					<?php echo vs_avatar_html( $me->ID, 'avatar avatar--sm' ); // phpcs:ignore ?>
 					<span class="acct-btn__name"><small>Xin chào</small><?php echo esc_html( $me->display_name ); ?></span>
 				</a>
 			<?php else : ?>

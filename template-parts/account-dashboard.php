@@ -206,7 +206,7 @@ foreach ( $orders as $o ) {
 	<div class="container account__layout">
 		<aside class="account__nav">
 			<div class="account__me">
-				<span class="avatar"><?php echo esc_html( $init ); ?></span>
+				<?php echo vs_avatar_html( $uid ); // phpcs:ignore ?>
 				<div><b><?php echo esc_html( $user->display_name ); ?></b><small><?php echo esc_html( vs_user_phone( $uid ) ? vs_user_phone( $uid ) : $user->user_email ); ?></small></div>
 			</div>
 			<nav>
@@ -376,6 +376,18 @@ foreach ( $orders as $o ) {
 				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="panel form-grid">
 					<input type="hidden" name="action" value="vs_profile"><?php wp_nonce_field( 'vs_profile', '_vsn' ); ?>
 					<div class="panel__head"><h2>Thông tin cá nhân</h2></div>
+					<div class="avatar-edit" data-avatar-edit data-nonce="<?php echo esc_attr( wp_create_nonce( 'vs_avatar' ) ); ?>" data-ajax="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>">
+						<?php echo vs_avatar_html( $uid, 'avatar avatar--xl' ); // phpcs:ignore ?>
+						<div class="avatar-edit__body">
+							<b>Ảnh đại diện</b>
+							<small>JPG, PNG hoặc WEBP, tối đa 5 MB. Ảnh được cắt vuông và hiển thị ở mọi nơi trên website.</small>
+							<div class="avatar-edit__acts">
+								<label class="btn btn--outline btn--sm"><?php echo vs_icon( 'camera', 16 ); // phpcs:ignore ?><span>Đổi ảnh</span><input type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden data-avatar-file></label>
+								<button type="button" class="btn btn--ghost btn--sm" data-avatar-remove<?php echo vs_avatar_url( $uid ) ? '' : ' hidden'; ?>><?php echo vs_icon( 'trash', 16 ); // phpcs:ignore ?><span>Xóa ảnh</span></button>
+							</div>
+							<small class="avatar-edit__msg" data-avatar-msg role="status"></small>
+						</div>
+					</div>
 					<label class="field"><span class="label">Họ và tên</span><input type="text" name="name" required value="<?php echo esc_attr( $user->display_name ); ?>"></label>
 					<div class="row">
 						<label class="field"><span class="label">Số điện thoại</span><input type="tel" name="phone" required value="<?php echo esc_attr( vs_user_phone( $uid ) ); ?>"></label>

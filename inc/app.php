@@ -107,11 +107,13 @@ function vs_app_render() {
 	if ( $can ) {
 		$cfg = array_merge( $cfg, array(
 			'nonce'    => wp_create_nonce( 'vs_adm' ),
+			'anonce'   => wp_create_nonce( 'vs_avatar' ),
 			'statuses' => vs_statuses(),
 			'user'     => array(
 				'name'   => $user->display_name,
 				'email'  => $user->user_email,
-				'avatar' => get_avatar_url( $user->ID, array( 'size' => 96 ) ),
+				'avatar'  => vs_avatar_url( $user->ID ),
+				'initial' => vs_avatar_initial( $user->ID ),
 				'role'   => current_user_can( 'manage_options' ) ? 'Quản trị viên' : 'Biên tập viên',
 			),
 			'wp'       => array(
@@ -138,7 +140,8 @@ function vs_app_render() {
 <title>Quản trị đơn hàng · <?php echo esc_html( get_bloginfo( 'name' ) ); ?></title>
 <link rel="icon" href="<?php echo esc_url( vs_app_asset( 'assets/img/favicon.svg' ) ); ?>" type="image/svg+xml">
 <link rel="manifest" href="/manifest.webmanifest">
-<link rel="preload" href="<?php echo esc_url( wp_parse_url( VS_URI, PHP_URL_PATH ) . '/assets/fonts/BeVietnamPro-Regular.ttf' ); ?>" as="font" type="font/ttf" crossorigin>
+<link rel="preload" href="<?php echo esc_url( wp_parse_url( VS_URI, PHP_URL_PATH ) . '/assets/app/fonts/inter-latin.woff2' ); ?>" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="<?php echo esc_url( wp_parse_url( VS_URI, PHP_URL_PATH ) . '/assets/app/fonts/inter-vietnamese.woff2' ); ?>" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="<?php echo esc_url( vs_app_asset( 'assets/app/app.css' ) ); ?>">
 <script>try{var t=localStorage.getItem('vsapp_theme');if(t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.dataset.theme='dark';}catch(e){}</script>
 </head>
@@ -374,6 +377,7 @@ add_action( 'wp_ajax_vs_app_customers', function () {
 		$r['last_f']  = vs_time_ago( $r['last'] );
 		$r['first_f'] = wp_date( 'd/m/Y', $r['first'] );
 		$r['account'] = $r['user'] ? true : false;
+		$r['avatar']  = $r['user'] ? vs_avatar_url( $r['user'] ) : '';
 		unset( $r['user'] );
 		$rows[] = $r;
 	}
@@ -402,6 +406,7 @@ function vs_app_payout_row( $pid ) {
 	return array(
 		'id'      => $pid,
 		'name'    => $u ? $u->display_name : '—',
+		'avatar'  => $u ? vs_avatar_url( $u->ID ) : '',
 		'phone'   => $u ? vs_user_phone( $u->ID ) : '',
 		'amount'  => vs_money( vs_meta( $pid, 'amount' ) ),
 		'status'  => $st,
@@ -430,6 +435,7 @@ add_action( 'wp_ajax_vs_app_affiliates', function () {
 		}
 		$rows[] = array(
 			'name'      => $u->display_name,
+			'avatar'    => vs_avatar_url( $u->ID ),
 			'phone'     => vs_user_phone( $u->ID ),
 			'email'     => $u->user_email,
 			'code'      => vs_aff_code( $u->ID ),
