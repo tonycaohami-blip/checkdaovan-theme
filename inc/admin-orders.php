@@ -90,6 +90,27 @@ function vs_auto_view_pending( $id ) {
 	return false;
 }
 
+/** 1 dòng đơn hàng cho danh sách (dùng chung /quan-tri/ và app.). */
+function vs_adm_item( $id ) {
+	$labels = vs_statuses();
+	$st     = vs_meta( $id, 'status', 'cho_thanh_toan' );
+	return array(
+		'id'      => $id,
+		'code'    => vs_meta( $id, 'code' ),
+		'type'    => vs_meta( $id, 'type' ),
+		'name'    => vs_meta( $id, 'name' ),
+		'phone'   => vs_meta( $id, 'phone' ),
+		'summary' => vs_order_summary( $id ),
+		'total'   => vs_money( vs_meta( $id, 'price' ) ),
+		'price'   => (int) vs_meta( $id, 'price' ),
+		'status'  => $st,
+		'label'   => isset( $labels[ $st ] ) ? $labels[ $st ] : $st,
+		'date'    => vs_post_date( 'H:i d/m', $id ),
+		'ago'     => vs_time_ago( get_post_time( 'U', true, $id ) ),
+		'auto'    => vs_auto_view_pending( $id ),
+	);
+}
+
 /* ---------- Danh sách đơn ---------- */
 add_action( 'wp_ajax_vs_adm_orders', function () {
 	vs_adm_guard();
@@ -97,6 +118,9 @@ add_action( 'wp_ajax_vs_adm_orders', function () {
 	$type   = isset( $_POST['type'] ) ? sanitize_key( $_POST['type'] ) : 'all';
 	$q      = isset( $_POST['q'] ) ? trim( sanitize_text_field( wp_unslash( $_POST['q'] ) ) ) : '';
 	$page   = max( 1, isset( $_POST['page'] ) ? (int) $_POST['page'] : 1 );
+	$range  = isset( $_POST['range'] ) ? sanitize_key( $_POST['range'] ) : '';
+	$per    = isset( $_POST['per'] ) ? max( 10, min( 100, (int) $_POST['per'] ) ) : 20;
+	$dates  = array( 'today' => 0, '7d' => 6, '30d' => 29, 'month' => -1 ); // Số ngày lùi lại (giờ Việt Nam); -1 = đầu tháng.
 
 	$meta = array( 'relation' => 'AND' );
 	if ( isset( vs_statuses()[ $status ] ) ) {
@@ -112,35 +136,22 @@ add_action( 'wp_ajax_vs_adm_orders', function () {
 		}
 		$meta[] = $or;
 	}
-	$query = new WP_Query( array(
+	$args = array(
 		'post_type'      => 'vs_order',
 		'post_status'    => 'publish',
-		'posts_per_page' => 20,
+		'posts_per_page' => $per,
 		'paged'          => $page,
 		'orderby'        => 'date',
 		'order'          => 'DESC',
 		'meta_query'     => $meta, // phpcs:ignore
 		'fields'         => 'ids',
-	) );
-	$labels = vs_statuses();
-	$items  = array();
-	foreach ( $query->posts as $id ) {
-		$st      = vs_meta( $id, 'status', 'cho_thanh_toan' );
-		$items[] = array(
-			'id'      => $id,
-			'code'    => vs_meta( $id, 'code' ),
-			'type'    => vs_meta( $id, 'type' ),
-			'name'    => vs_meta( $id, 'name' ),
-			'phone'   => vs_meta( $id, 'phone' ),
-			'summary' => vs_order_summary( $id ),
-			'total'   => vs_money( vs_meta( $id, 'price' ) ),
-			'status'  => $st,
-			'label'   => isset( $labels[ $st ] ) ? $labels[ $st ] : $st,
-			'date'    => vs_post_date( 'H:i d/m', $id ),
-			'ago'     => vs_time_ago( get_post_time( 'U', true, $id ) ),
-			'auto'    => vs_auto_view_pending( $id ),
-		);
+	);
+	if ( isset( $dates[ $range ] ) ) {
+		$from               = $dates[ $range ] < 0 ? wp_date( 'Y-m-01' ) : wp_date( 'Y-m-d', time() - $dates[ $range ] * DAY_IN_SECONDS );
+		$args['date_query'] = array( array( 'after' => $from . ' 00:00:00', 'inclusive' => true ) );
 	}
+	$query = new WP_Query( $args );
+	$items = array_map( 'vs_adm_item', $query->posts );
 	wp_send_json_success( array(
 		'items' => $items,
 		'total' => (int) $query->found_posts,
@@ -216,7 +227,36 @@ function vs_adm_order_data( $id ) {
 		'note'     => (string) vs_meta( $id, 'admin_note' ),
 		'drive'    => vs_drive_text( $id ),
 		'edit'     => get_edit_post_link( $id, 'raw' ),
+		'type'     => vs_meta( $id, 'type' ),
+		'rows'     => vs_adm_result_rows( $id ),
+		'ref'      => vs_meta( $id, 'ref_user' ) ? array(
+			'name'   => ( $ru = get_userdata( (int) vs_meta( $id, 'ref_user' ) ) ) ? $ru->display_name : '',
+			'amount' => vs_money( vs_meta( $id, 'commission' ) ),
+			'status' => (string) vs_meta( $id, 'comm_status' ),
+		) : null,
 	);
+}
+
+/** Các ô kết quả cần nhập (theo phần mềm khách chọn) kèm giá trị và nguồn hiện có. */
+function vs_adm_result_rows( $id ) {
+	$data = (array) vs_meta( $id, 'data', array() );
+	if ( 'check' === vs_meta( $id, 'type' ) && ( empty( $data['mode'] ) || empty( $data['tools'] ) ) ) {
+		return array();
+	}
+	$res  = (array) vs_meta( $id, 'results', array() );
+	$srcs = (array) get_post_meta( $id, '_vs_result_src', true );
+	$out  = array();
+	foreach ( vs_result_rows( $id ) as $key => $row ) {
+		$cells = array();
+		foreach ( $row[1] as $k ) {
+			$cells[ $k ] = array(
+				'v'   => isset( $res[ $key ][ $k ] ) ? $res[ $key ][ $k ] : null,
+				'src' => isset( $srcs[ $key ][ $k ]['src'] ) ? $srcs[ $key ][ $k ]['src'] : ( isset( $res[ $key ][ $k ] ) ? 'manual' : '' ),
+			);
+		}
+		$out[] = array( 'key' => $key, 'name' => $row[0], 'cells' => $cells );
+	}
+	return $out;
 }
 
 add_action( 'wp_ajax_vs_adm_order', function () {
