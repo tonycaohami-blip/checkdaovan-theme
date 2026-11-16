@@ -337,10 +337,10 @@ function vs_box_info( $post ) {
 		'Email'       => esc_html( vs_meta( $id, 'email', '—' ) ),
 		'Ghi chú'     => nl2br( esc_html( vs_meta( $id, 'note', '—' ) ) ),
 		'File gốc'    => $file
-			? '<a class="button" href="' . esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=vs_download&order=' . $id ), 'vs_dl_' . $id ) ) . '">⬇ Tải ' . esc_html( vs_meta( $id, 'file_name' ) ) . '</a>'
+			? '<a class="button" href="' . esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=vs_download&order=' . $id ), 'vs_dl_' . $id ) ) . '">⬇ Tải ' . esc_html( vs_meta( $id, 'file_name' ) ) . '</a> <span class="description">' . esc_html( vs_file_meta_text( vs_file_stats( $id, 'src:file', vs_meta( $id, 'file_name' ), vs_private_dir() . '/' . basename( vs_meta( $id, 'file' ) ) ) ) ) . '</span>'
 			: '—',
 		'Báo cáo khách gửi' => vs_meta( $id, 'src_report' )
-			? '<a class="button" href="' . esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=vs_download&which=report&order=' . $id ), 'vs_dl_' . $id ) ) . '">⬇ Tải ' . esc_html( vs_meta( $id, 'src_report_name' ) ) . '</a>'
+			? '<a class="button" href="' . esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=vs_download&which=report&order=' . $id ), 'vs_dl_' . $id ) ) . '">⬇ Tải ' . esc_html( vs_meta( $id, 'src_report_name' ) ) . '</a> <span class="description">' . esc_html( vs_file_meta_text( vs_file_stats( $id, 'src:src_report', vs_meta( $id, 'src_report_name' ), vs_private_dir() . '/' . basename( vs_meta( $id, 'src_report' ) ) ) ) ) . '</span>'
 			: ( 'reduce' === vs_meta( $id, 'type' ) ? 'Dùng báo cáo của đơn kiểm tra liên kết' : '—' ),
 	);
 	$linked = vs_meta( $id, 'linked' );
@@ -466,10 +466,10 @@ function vs_box_result( $post ) {
 	<p><strong>File trả khách</strong></p>
 	<ul class="vs-files" id="vs-files">
 		<?php foreach ( $auto_f as $i => $f ) : ?>
-			<li class="is-auto">🤖 <a href="<?php echo esc_url( vs_file_url( $id, $i ) ); ?>"><?php echo esc_html( $f['name'] ); ?></a> <em>tự động</em></li>
+			<li class="is-auto">🤖 <a href="<?php echo esc_url( vs_file_url( $id, $i ) ); ?>"><?php echo esc_html( $f['name'] ); ?></a> <em>tự động · <?php echo esc_html( vs_file_meta_text( vs_file_stats( $id, 'auto:' . basename( $f['path'] ), $f['name'], vs_report_dir() . '/' . basename( $f['path'] ), 'PDF' ) ) ); ?></em></li>
 		<?php endforeach; ?>
 		<?php foreach ( $files as $fid ) : ?>
-			<li data-id="<?php echo (int) $fid; ?>">📎 <?php echo esc_html( get_the_title( $fid ) ?: basename( (string) get_attached_file( $fid ) ) ); ?> <a href="#" class="vs-rm">Gỡ</a></li>
+			<li data-id="<?php echo (int) $fid; ?>">📎 <?php echo esc_html( get_the_title( $fid ) ?: basename( (string) get_attached_file( $fid ) ) ); ?> <em><?php echo esc_html( vs_file_meta_text( vs_file_stats( $id, 'att:' . $fid, basename( (string) get_attached_file( $fid ) ), (string) get_attached_file( $fid ), 'PDF' ) ) ); ?></em> <a href="#" class="vs-rm">Gỡ</a></li>
 		<?php endforeach; ?>
 	</ul>
 	<?php vs_drive_admin_field( $id ); ?>

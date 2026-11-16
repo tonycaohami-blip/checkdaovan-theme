@@ -333,14 +333,14 @@ function vs_order_sent_files( $id ) {
 		}
 		$name = (string) vs_meta( $id, $which . '_name', basename( $stored ) );
 		$path = vs_private_dir() . '/' . basename( $stored );
-		$out[] = array(
+		$st    = vs_file_stats( $id, 'src:' . $which, $name, $path );
+		$out[] = array_merge( $st, array(
 			'label' => $label,
 			'name'  => $name,
 			'short' => vs_short_filename( $name ),
-			'ext'   => strtoupper( pathinfo( $name, PATHINFO_EXTENSION ) ),
-			'size'  => is_file( $path ) ? size_format( filesize( $path ), filesize( $path ) < 10240 ? 1 : 0 ) : '',
 			'url'   => is_file( $path ) ? vs_src_url( $id, $which ) : '',
-		);
+			'meta'  => vs_file_meta_text( $st ),
+		) );
 	}
 	return $out;
 }
@@ -456,20 +456,23 @@ function vs_order_view( $id ) {
 	$files   = array();
 	if ( 'hoan_thanh' === $status ) {
 		foreach ( array_filter( array_map( 'intval', explode( ',', (string) vs_meta( $id, 'report_ids' ) ) ) ) as $fid ) {
-			$url = wp_get_attachment_url( $fid );
-			if ( $url ) {
-				$n       = basename( (string) get_attached_file( $fid ) );
-				$files[] = array( 'url' => $url, 'name' => $n, 'short' => vs_short_filename( $n, 34 ) );
+			$path = (string) get_attached_file( $fid );
+			if ( $path && is_file( $path ) ) {
+				$n       = basename( $path );
+				$st      = vs_file_stats( $id, 'att:' . $fid, $n, $path, 'PDF' );
+				$files[] = array_merge( $st, array( 'url' => vs_att_url( $id, $fid ), 'name' => $n, 'short' => vs_short_filename( $n, 34 ), 'meta' => vs_file_meta_text( $st ) ) );
 			}
 		}
 	}
 	if ( $visible ) {
 		foreach ( vs_auto_files( $id ) as $i => $f ) {
-			$files[] = array( 'url' => vs_file_url( $id, $i ), 'name' => $f['name'], 'short' => vs_short_filename( $f['name'], 34 ) );
+			$st      = vs_file_stats( $id, 'auto:' . basename( $f['path'] ), $f['name'], vs_report_dir() . '/' . basename( $f['path'] ), 'PDF' );
+			$files[] = array_merge( $st, array( 'url' => vs_file_url( $id, $i ), 'name' => $f['name'], 'short' => vs_short_filename( $f['name'], 34 ), 'meta' => vs_file_meta_text( $st ) ) );
 		}
 		// Báo cáo nặng trả qua Google Drive: xem và tải trực tiếp từ Drive.
 		foreach ( vs_drive_links( $id ) as $d ) {
-			$files[] = array( 'url' => $d['download'], 'view' => $d['view'], 'name' => $d['name'], 'short' => $d['short'], 'drive' => $d['kind'] );
+			$st      = vs_file_stats( $id, 'drive:' . $d['did'], $d['name'], '', 'folder' === $d['kind'] ? 'THƯ MỤC' : 'PDF' );
+			$files[] = array_merge( $st, array( 'url' => vs_go_url( $id, $d['did'], 'dl' ), 'view' => vs_go_url( $id, $d['did'], 'view' ), 'name' => $d['name'], 'short' => $d['short'], 'drive' => $d['kind'], 'meta' => vs_file_meta_text( $st, 'Google Drive' ) ) );
 		}
 	}
 

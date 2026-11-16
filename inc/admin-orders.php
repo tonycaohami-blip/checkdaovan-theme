@@ -168,7 +168,9 @@ function vs_adm_order_data( $id ) {
 	foreach ( array( 'file' => 'Tài liệu khách gửi', 'src_report' => 'Báo cáo khách gửi' ) as $which => $label ) {
 		if ( vs_meta( $id, $which ) ) {
 			$name    = (string) vs_meta( $id, $which . '_name', basename( vs_meta( $id, $which ) ) );
-			$files[] = array(
+			$st      = vs_file_stats( $id, 'src:' . $which, $name, vs_private_dir() . '/' . basename( vs_meta( $id, $which ) ) );
+			$files[] = $st + array(
+				'meta'  => vs_file_meta_text( $st ),
 				'label' => $label,
 				'name'  => $name,
 				'short' => vs_short_filename( $name, 34 ),

@@ -58,6 +58,7 @@ function vs_drive_links( $id ) {
 		$name  = '' !== $it['name'] ? $it['name'] : ( 'folder' === $it['kind'] ? 'Thư mục kết quả ' . ( $i + 1 ) : 'Báo cáo ' . ( $i + 1 ) );
 		$out[] = array_merge( vs_drive_urls( $it ), array(
 			'kind'  => $it['kind'],
+			'did'   => $it['id'],
 			'name'  => $name,
 			'short' => vs_short_filename( $name, 34 ),
 			'drive' => true,

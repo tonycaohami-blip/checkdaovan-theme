@@ -619,7 +619,7 @@
 				'</dl></div>' +
 				(o.files.length ? '<div class="sec"><h4>' + ic('file', 15) + 'File khách gửi</h4><div class="files">' + o.files.map(function (f) {
 					var ext = (f.name.split('.').pop() || '').toLowerCase();
-					return '<a class="file" href="' + esc(fixUrl(f.url)) + '" title="' + esc(f.name) + '"><span class="file__ext file__ext--' + esc(ext) + '">' + esc(ext.toUpperCase().slice(0, 4)) + '</span><span class="file__b"><b>' + esc(f.short || f.name) + '</b><small>' + esc(f.label) + '</small></span>' + ic('down', 18) + '</a>';
+					return '<a class="file" href="' + esc(fixUrl(f.url)) + '" title="' + esc(f.name) + '"><span class="file__ext file__ext--' + esc(ext) + '">' + esc(ext.toUpperCase().slice(0, 4)) + '</span><span class="file__b"><b>' + esc(f.short || f.name) + '</b><small>' + esc(f.label + (f.meta ? ' · ' + f.meta : '')) + '</small></span>' + ic('down', 18) + '</a>';
 				}).join('') + '</div></div>' : '') +
 				res +
 				'<div class="sec"><h4>' + ic('drive', 15) + 'Trả kết quả qua Google Drive</h4>' +
@@ -656,7 +656,7 @@
 	}
 	function reportHTML(f) {
 		var ext = f.drive ? (f.drive === 'folder' ? 'dir' : 'pdf') : ((f.name || '').split('.').pop() || 'pdf').toLowerCase();
-		return '<a class="file" href="' + esc(fixUrl(f.view || f.url)) + '" target="_blank" rel="noopener" title="' + esc(f.name) + '"><span class="file__ext file__ext--' + esc(ext) + '">' + esc(f.drive === 'folder' ? 'DIR' : ext.toUpperCase().slice(0, 4)) + '</span><span class="file__b"><b>' + esc(f.short || f.name) + '</b><small>' + (f.drive ? 'Google Drive' : 'Báo cáo trả khách') + '</small></span>' + ic(f.drive ? 'ext' : 'down', 17) + '</a>';
+		return '<a class="file" href="' + esc(fixUrl(f.view || f.url)) + '" target="_blank" rel="noopener" title="' + esc(f.name) + '"><span class="file__ext file__ext--' + esc(ext) + '">' + esc(f.drive === 'folder' ? 'DIR' : ext.toUpperCase().slice(0, 4)) + '</span><span class="file__b"><b>' + esc(f.short || f.name) + '</b><small>' + esc(f.meta || (f.drive ? 'Google Drive' : 'Báo cáo trả khách')) + '</small></span>' + ic(f.drive ? 'ext' : 'down', 17) + '</a>';
 	}
 	function busy(btn, p) {
 		var h = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Đang lưu...';

@@ -122,7 +122,7 @@
 			'</div>' +
 			(o.files.length ? '<section><h3>File khách gửi</h3><div class="sent-files">' + o.files.map(function (f) {
 				var ext = (f.name.split('.').pop() || '').toUpperCase();
-				return '<a class="sent-file" href="' + esc(f.url) + '" title="' + esc(f.name) + '"><span class="sent-file__ext sent-file__ext--' + esc(ext.toLowerCase()) + '">' + esc(ext) + '</span><span class="sent-file__body"><span class="sent-file__name">' + esc(f.short) + '</span><span class="sent-file__meta">' + esc(f.label) + '</span></span><span class="sent-file__dl">⬇</span></a>';
+				return '<a class="sent-file" href="' + esc(f.url) + '" title="' + esc(f.name) + '"><span class="sent-file__ext sent-file__ext--' + esc(ext.toLowerCase()) + '">' + esc(ext) + '</span><span class="sent-file__body"><span class="sent-file__name">' + esc(f.short) + '</span><span class="sent-file__meta">' + esc(f.label + (f.meta ? ' · ' + f.meta : '')) + '</span></span><span class="sent-file__dl">⬇</span></a>';
 			}).join('') + '</div></section>' : '') +
 			'<section><h3>Kết quả' + (o.auto ? ' <small class="adm-auto">⚙ đang chạy tự động</small>' : '') + '</h3>' +
 				(o.results.length ? '<div class="adm-results">' + o.results.map(function (r) {
@@ -130,7 +130,7 @@
 				}).join('') + '</div>' : '<p class="muted">Chưa có kết quả.</p>') +
 				(o.reports.length ? '<div class="sent-files adm-reports">' + o.reports.map(function (f) {
 					var ext = f.drive ? (f.drive === 'folder' ? 'DIR' : 'PDF') : ((f.name.split('.').pop() || 'PDF').toUpperCase().slice(0, 4));
-					return '<a class="sent-file' + (f.drive ? ' sent-file--drive' : '') + '" href="' + esc(f.view || f.url) + '" target="_blank" rel="noopener" title="' + esc(f.name) + '"><span class="sent-file__ext sent-file__ext--' + esc(ext.toLowerCase()) + '">' + esc(ext) + '</span><span class="sent-file__body"><span class="sent-file__name">' + esc(f.short || f.name) + '</span><span class="sent-file__meta">' + (f.drive ? 'Google Drive' : 'Báo cáo trả khách') + '</span></span><span class="sent-file__dl">' + (f.drive ? '↗' : '⬇') + '</span></a>';
+					return '<a class="sent-file' + (f.drive ? ' sent-file--drive' : '') + '" href="' + esc(f.view || f.url) + '" target="_blank" rel="noopener" title="' + esc(f.name) + '"><span class="sent-file__ext sent-file__ext--' + esc(ext.toLowerCase()) + '">' + esc(ext) + '</span><span class="sent-file__body"><span class="sent-file__name">' + esc(f.short || f.name) + '</span><span class="sent-file__meta">' + esc(f.meta || (f.drive ? 'Google Drive' : 'Báo cáo trả khách')) + '</span></span><span class="sent-file__dl">' + (f.drive ? '↗' : '⬇') + '</span></a>';
 				}).join('') + '</div>' : '') +
 			'</section>' +
 			'<section><h3>Link Google Drive trả khách</h3><textarea rows="3" data-drive placeholder="https://drive.google.com/file/d/…/view | Báo cáo Turnitin">' + esc(o.drive || '') + '</textarea><p class="muted adm-hint">Mỗi dòng 1 link file hoặc thư mục, tên hiển thị ghi sau dấu |. Trên Drive chọn Chia sẻ → Bất kỳ ai có đường liên kết → Người xem.</p><button class="btn btn--outline btn--sm" data-act="drive">Lưu link Drive</button></section>' +

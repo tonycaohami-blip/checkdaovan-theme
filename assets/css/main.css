@@ -1812,3 +1812,7 @@ body.adm-lock { overflow: hidden; }
 	.avatar-edit { flex-direction: column; text-align: center; }
 	.avatar-edit__acts { justify-content: center; }
 }
+
+/* 6.19: Thông tin file (định dạng · dung lượng · lượt tải) */
+.fcard__name { min-width: 0; }
+.fcard__name small { display: block; font-weight: 500; font-size: 11.5px; color: #5f6b7a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }

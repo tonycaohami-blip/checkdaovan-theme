@@ -117,7 +117,7 @@ $render_order = function ( $o, $open = false ) {
 									<?php if ( ! empty( $f['drive'] ) ) : ?>
 										<div class="fcard fcard--drive">
 											<span class="fcard__icon"><?php echo 'folder' === $f['drive'] ? 'DIR' : 'PDF'; ?></span>
-											<span class="fcard__name" title="<?php echo esc_attr( $f['name'] ); ?>"><?php echo esc_html( $f['short'] ); ?><small>Google Drive</small></span>
+											<span class="fcard__name" title="<?php echo esc_attr( $f['name'] ); ?>"><?php echo esc_html( $f['short'] ); ?><small><?php echo esc_html( isset( $f['meta'] ) ? $f['meta'] : 'Google Drive' ); ?></small></span>
 											<span class="fcard__acts">
 												<?php if ( 'folder' !== $f['drive'] ) : ?><a class="fcard__btn fcard__btn--ghost" href="<?php echo esc_url( $f['view'] ); ?>" target="_blank" rel="noopener">Xem</a><?php endif; ?>
 												<a class="fcard__btn" href="<?php echo esc_url( $f['url'] ); ?>" target="_blank" rel="noopener"><?php echo vs_icon( 'arrow', 16 ); // phpcs:ignore ?> <?php echo 'folder' === $f['drive'] ? 'Mở thư mục' : 'Tải xuống'; ?></a>
@@ -126,8 +126,8 @@ $render_order = function ( $o, $open = false ) {
 										<?php continue; ?>
 									<?php endif; ?>
 									<a class="fcard" href="<?php echo esc_url( $f['url'] ); ?>" target="_blank" rel="noopener" download>
-										<span class="fcard__icon">PDF</span>
-										<span class="fcard__name" title="<?php echo esc_attr( $f['name'] ); ?>"><?php echo esc_html( isset( $f['short'] ) ? $f['short'] : $f['name'] ); ?></span>
+										<span class="fcard__icon"><?php echo esc_html( isset( $f['ext'] ) ? $f['ext'] : 'PDF' ); ?></span>
+										<span class="fcard__name" title="<?php echo esc_attr( $f['name'] ); ?>"><?php echo esc_html( isset( $f['short'] ) ? $f['short'] : $f['name'] ); ?><?php echo ! empty( $f['meta'] ) ? '<small>' . esc_html( $f['meta'] ) . '</small>' : ''; ?></span>
 										<span class="fcard__btn"><?php echo vs_icon( 'arrow', 16 ); // phpcs:ignore ?> Tải xuống</span>
 									</a>
 								<?php endforeach; ?>
@@ -176,7 +176,7 @@ $render_order = function ( $o, $open = false ) {
 											<span class="sent-file__ext sent-file__ext--<?php echo esc_attr( strtolower( $sf['ext'] ) ); ?>"><?php echo esc_html( $sf['ext'] ? $sf['ext'] : 'FILE' ); ?></span>
 											<span class="sent-file__body">
 												<span class="sent-file__name"><?php echo esc_html( $sf['short'] ); ?></span>
-												<span class="sent-file__meta"><?php echo esc_html( $sf['label'] . ( $sf['size'] ? ' · ' . $sf['size'] : '' ) ); ?></span>
+												<span class="sent-file__meta"><?php echo esc_html( $sf['label'] . ( ! empty( $sf['meta'] ) ? ' · ' . $sf['meta'] : ( $sf['size'] ? ' · ' . $sf['size'] : '' ) ) ); ?></span>
 											</span>
 											<?php if ( $sf['url'] ) : ?><span class="sent-file__dl" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg></span><?php endif; ?>
 										</<?php echo $tag; // phpcs:ignore ?>>
