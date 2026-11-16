@@ -32,6 +32,21 @@ function vs_is_app() {
 	return $r;
 }
 
+/** Đường dẫn gốc của app khi chạy trên tên miền chính (không cần cấu hình nginx/DNS). */
+function vs_app_path() {
+	return '/app/';
+}
+
+/** Yêu cầu hiện tại có phải trang app trên tên miền chính (/app/...) không. */
+function vs_is_app_path() {
+	static $r = null;
+	if ( null === $r ) {
+		$path = (string) wp_parse_url( isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '/', PHP_URL_PATH );
+		$r    = ! vs_is_app() && (bool) preg_match( '#^/app(/|/index\.php)?$|^/app/manifest\.webmanifest$#', $path );
+	}
+	return $r;
+}
+
 /** Đường dẫn tương đối của theme (để tải CSS/JS/font từ chính tên miền app., không phụ thuộc CORS). */
 function vs_app_asset( $file ) {
 	return wp_parse_url( VS_URI, PHP_URL_PATH ) . '/' . ltrim( $file, '/' ) . '?v=' . VS_VERSION;
@@ -39,10 +54,23 @@ function vs_app_asset( $file ) {
 
 /* ---------- Điều hướng mọi yêu cầu trên tên miền app. ---------- */
 add_action( 'init', function () {
+	$path = (string) wp_parse_url( isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '/', PHP_URL_PATH );
+
+	// Chế độ đường dẫn trên tên miền chính: chỉ xử lý đúng /app/ và manifest của nó, mọi trang khác giữ nguyên.
+	if ( vs_is_app_path() && ! wp_doing_ajax() ) {
+		if ( '/app' === $path ) {
+			wp_redirect( vs_app_path() . ( empty( $_SERVER['QUERY_STRING'] ) ? '' : '?' . $_SERVER['QUERY_STRING'] ), 301 );
+			exit;
+		}
+		if ( '/app/manifest.webmanifest' === $path ) {
+			vs_app_manifest( vs_app_path() );
+		}
+		vs_app_render();
+		exit;
+	}
 	if ( ! vs_is_app() ) {
 		return;
 	}
-	$path = (string) wp_parse_url( isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '/', PHP_URL_PATH );
 
 	// API, AJAX, tải file, cron: để WordPress xử lý bình thường.
 	if ( wp_doing_ajax() || wp_doing_cron() || isset( $_GET['rest_route'] ) || preg_match( '#^/(wp-json/|wp-admin/admin-(ajax|post)\.php|wp-cron\.php)#', $path ) ) {
@@ -54,17 +82,7 @@ add_action( 'init', function () {
 		exit;
 	}
 	if ( '/manifest.webmanifest' === $path ) {
-		header( 'Content-Type: application/manifest+json; charset=utf-8' );
-		echo wp_json_encode( array(
-			'name'             => 'Quản trị ' . get_bloginfo( 'name' ),
-			'short_name'       => 'Quản trị',
-			'start_url'        => '/',
-			'display'          => 'standalone',
-			'background_color' => '#0b1630',
-			'theme_color'      => '#0b1630',
-			'icons'            => array( array( 'src' => vs_app_asset( 'assets/img/favicon.svg' ), 'sizes' => 'any', 'type' => 'image/svg+xml' ) ),
-		) );
-		exit;
+		vs_app_manifest( '/' );
 	}
 	// Trang quản trị WordPress, đăng nhập WordPress: chuyển về website chính.
 	if ( 0 === strpos( $path, '/wp-admin' ) ) {
@@ -79,10 +97,39 @@ add_action( 'init', function () {
 	exit;
 }, 99 );
 
+/* Lối tắt mở app quản trị trên thanh quản trị WordPress. */
+add_action( 'admin_bar_menu', function ( $bar ) {
+	if ( ! function_exists( 'vs_can_manage_orders' ) || ! vs_can_manage_orders() ) {
+		return;
+	}
+	$bar->add_node( array(
+		'id'    => 'vs-app',
+		'title' => '<span class="ab-icon dashicons dashicons-chart-area" style="top:2px"></span>App quản trị',
+		'href'  => home_url( vs_app_path() ),
+		'meta'  => array( 'target' => '_blank', 'title' => 'Mở app quản trị đơn hàng' ),
+	) );
+}, 80 );
+
 /* Trên tên miền app.: không chuyển hướng "canonical" về tên miền chính. */
 add_filter( 'redirect_canonical', function ( $to ) {
 	return vs_is_app() ? false : $to;
 } );
+
+/** Tệp manifest để "Thêm vào màn hình chính" như một ứng dụng. */
+function vs_app_manifest( $start ) {
+	header( 'Content-Type: application/manifest+json; charset=utf-8' );
+	echo wp_json_encode( array(
+		'name'             => 'Quản trị ' . get_bloginfo( 'name' ),
+		'short_name'       => 'Quản trị',
+		'start_url'        => $start,
+		'scope'            => $start,
+		'display'          => 'standalone',
+		'background_color' => '#0b1630',
+		'theme_color'      => '#0b1630',
+		'icons'            => array( array( 'src' => vs_app_asset( 'assets/img/favicon.svg' ), 'sizes' => 'any', 'type' => 'image/svg+xml' ) ),
+	) );
+	exit;
+}
 
 /** Trang khung của app (giao diện dựng bằng assets/app/app.js). */
 function vs_app_render() {
@@ -139,7 +186,7 @@ function vs_app_render() {
 <meta name="theme-color" content="#0b1630">
 <title>Quản trị đơn hàng | <?php echo esc_html( get_bloginfo( 'name' ) ); ?></title>
 <link rel="icon" href="<?php echo esc_url( vs_app_asset( 'assets/img/favicon.svg' ) ); ?>" type="image/svg+xml">
-<link rel="manifest" href="/manifest.webmanifest">
+<link rel="manifest" href="<?php echo esc_url( vs_is_app_path() ? vs_app_path() . 'manifest.webmanifest' : '/manifest.webmanifest' ); ?>">
 <link rel="preload" href="<?php echo esc_url( wp_parse_url( VS_URI, PHP_URL_PATH ) . '/assets/app/fonts/inter-latin.woff2' ); ?>" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="<?php echo esc_url( wp_parse_url( VS_URI, PHP_URL_PATH ) . '/assets/app/fonts/inter-vietnamese.woff2' ); ?>" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="<?php echo esc_url( vs_app_asset( 'assets/app/app.css' ) ); ?>">
@@ -156,9 +203,6 @@ function vs_app_render() {
 
 /* ---------- Đăng nhập / đăng xuất riêng cho app. ---------- */
 function vs_app_json_only() {
-	if ( ! vs_is_app() ) {
-		wp_send_json_error( array( 'message' => 'Chỉ dùng trên trang quản trị app.' ), 403 );
-	}
 	nocache_headers();
 }
 
