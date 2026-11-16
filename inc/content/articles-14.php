@@ -11,9 +11,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 return array(
 
 	array(
-		'slug'    => 'check-dao-van',
+		'slug'    => 'check-dao-van-truoc-khi-nop-bai',
 		'cat'     => 'huong-dan',
-		'cover'   => 'check-dao-van-check-dao-van.jpg',
+		'cover'   => 'check-dao-van-truoc-khi-nop-bai-check-dao-van.jpg',
 		'tags'    => array( 'check đạo văn', 'kiểm tra đạo văn', 'tỷ lệ trùng lặp', 'sinh viên', 'Turnitin' ),
 		'title'   => 'Check đạo văn: 9 điều cần biết trước khi nộp bài',
 		'excerpt' => 'Hướng dẫn cho người lần đầu check đạo văn: khái niệm, thời điểm nên kiểm tra, cách chọn phần mềm, quy trình đặt kiểm tra, cách đọc báo cáo và những giới hạn của phần mềm.',
@@ -49,7 +49,7 @@ return array(
 </ul>
 <p>Mỗi lần kiểm tra đạo văn nên cách nhau đủ xa để bạn kịp sửa. Kiểm tra liên tục mỗi ngày không làm bài tốt hơn, chỉ khiến bạn tập trung vào con số thay vì nội dung. Nếu bạn đang phân vân nên làm mấy lần, bài <a href="{home}check-dao-van-bao-nhieu-lan/">check đạo văn bao nhiêu lần</a> sẽ giúp bạn lên kế hoạch.</p>
 
-<figure><img src="{theme}assets/img/blog/check-dao-van-thoi-diem-kiem-tra.jpg?v=1" alt="Bốn thời điểm nên check đạo văn: bản nháp, sau khi sửa, trước khi nộp và khi trường yêu cầu" width="1200" height="495" loading="lazy" decoding="async"><figcaption>Kiểm tra sớm giúp bạn còn đủ thời gian sửa thay vì chạy đua sát hạn.</figcaption></figure>
+<figure><img src="{theme}assets/img/blog/check-dao-van-truoc-khi-nop-bai-thoi-diem-kiem-tra.jpg?v=1" alt="Bốn thời điểm nên check đạo văn: bản nháp, sau khi sửa, trước khi nộp và khi trường yêu cầu" width="1200" height="495" loading="lazy" decoding="async"><figcaption>Kiểm tra sớm giúp bạn còn đủ thời gian sửa thay vì chạy đua sát hạn.</figcaption></figure>
 
 <h2 id="dieu-3-chon-phan-mem-theo-yeu-cau-cua-noi-nhan-bai">Điều 3: Chọn phần mềm theo yêu cầu của nơi nhận bài</h2>
 <p>Có nhiều phần mềm kiểm tra đạo văn, mỗi phần mềm dùng kho dữ liệu và cách so khớp khác nhau. Vì vậy cùng một bài, kết quả trên hai công cụ có thể chênh lệch đáng kể. Nguyên tắc đơn giản nhất khi check đạo văn: dùng đúng phần mềm mà trường, khoa hoặc tạp chí sẽ dùng để đánh giá bài của bạn.</p>
@@ -60,7 +60,7 @@ return array(
 <h3>Các công cụ khác</h3>
 <p>Copyleaks, Grammarly, DoIT, QuillBot phù hợp khi bạn cần tham khảo thêm hoặc khi nơi nhận bài dùng chính các công cụ đó. Các phần mềm này không giới hạn số từ như Turnitin. Bảng <a href="{home}so-sanh-turnitin-ithenticate-copyleaks-originality/">so sánh Turnitin, iThenticate, Copyleaks, Originality</a> giúp bạn thấy rõ khác biệt.</p>
 
-<figure><img src="{theme}assets/img/blog/check-dao-van-chon-phan-mem.jpg?v=1" alt="Bảng chọn phần mềm kiểm tra đạo văn theo mục đích sử dụng" width="1200" height="568" loading="lazy" decoding="async"><figcaption>Ưu tiên phần mềm mà nơi nhận bài của bạn đang dùng.</figcaption></figure>
+<figure><img src="{theme}assets/img/blog/check-dao-van-truoc-khi-nop-bai-chon-phan-mem.jpg?v=1" alt="Bảng chọn phần mềm kiểm tra đạo văn theo mục đích sử dụng" width="1200" height="568" loading="lazy" decoding="async"><figcaption>Ưu tiên phần mềm mà nơi nhận bài của bạn đang dùng.</figcaption></figure>
 
 <h2 id="dieu-4-trung-lap-va-ty-le-ai-la-hai-phep-do-khac-nhau">Điều 4: Trùng lặp và tỷ lệ AI là hai phép đo khác nhau</h2>
 <p>Ngày nay, nhiều trường không chỉ quan tâm đến tỷ lệ trùng lặp mà còn để ý dấu hiệu văn bản do công cụ AI tạo ra. Đây là hai phép đo hoàn toàn khác nhau. Kiểm tra trùng lặp tìm đoạn khớp với nguồn có sẵn; kiểm tra AI đánh giá xác suất một đoạn văn được viết bởi mô hình ngôn ngữ.</p>
@@ -71,7 +71,7 @@ return array(
 <p>File đầu vào ảnh hưởng trực tiếp đến chất lượng báo cáo check đạo văn. Một lỗi phổ biến của người mới là nộp file PDF xuất từ bản scan: phần mềm không đọc được chữ, báo cáo trả về gần như trống. Một lỗi khác là nộp nhầm bản nháp cũ, rồi thắc mắc vì sao đoạn đã sửa vẫn bị tô màu.</p>
 <p>Các định dạng phổ biến được chấp nhận là .docx, .pdf, .txt và .rtf. Với Turnitin, hãy ước lượng số từ trước để chắc chắn bài nằm trong khoảng cho phép. Giữ nguyên danh mục tài liệu tham khảo trong file; bạn có thể loại trừ phần này khi đọc báo cáo. Hướng dẫn chi tiết có trong bài <a href="{home}chuan-bi-file-truoc-khi-kiem-tra-dao-van/">chuẩn bị file trước khi kiểm tra đạo văn</a>.</p>
 
-<figure><img src="{theme}assets/img/blog/check-dao-van-chuan-bi-file.jpg?v=1" alt="Checklist chuẩn bị file trước khi kiểm tra đạo văn" width="1200" height="600" loading="lazy" decoding="async"><figcaption>Một file sạch, đúng định dạng giúp báo cáo phản ánh đúng bài của bạn.</figcaption></figure>
+<figure><img src="{theme}assets/img/blog/check-dao-van-truoc-khi-nop-bai-chuan-bi-file.jpg?v=1" alt="Checklist chuẩn bị file trước khi kiểm tra đạo văn" width="1200" height="600" loading="lazy" decoding="async"><figcaption>Một file sạch, đúng định dạng giúp báo cáo phản ánh đúng bài của bạn.</figcaption></figure>
 
 <h2 id="dieu-6-quy-trinh-check-dao-van-qua-dich-vu">Điều 6: Quy trình check đạo văn qua dịch vụ</h2>
 <p>Sinh viên thường không có tài khoản phần mềm cá nhân, vì Turnitin hay iThenticate chủ yếu bán cho tổ chức. Nếu trường không cấp quyền tự kiểm tra đạo văn, bạn có thể dùng dịch vụ. Tại Check Đạo Văn, quy trình gồm các bước sau:</p>
@@ -101,7 +101,7 @@ return array(
 <p>Phần mềm kiểm tra đạo văn rất giỏi tìm chuỗi văn bản giống nhau, nhưng không hiểu ngữ cảnh. Nó không biết đoạn đó bạn đã trích dẫn đúng chuẩn hay chưa nếu không có dấu ngoặc kép, không biết thuật ngữ đó là cách nói bắt buộc trong ngành, và không thể so khớp với tài liệu nằm ngoài kho dữ liệu của nó.</p>
 <p>Điều đó có hai hệ quả. Thứ nhất, tỷ lệ trùng lặp cao chưa chắc là đạo văn. Thứ hai, tỷ lệ thấp cũng không có nghĩa bài hoàn toàn sạch: ý tưởng lấy từ tài liệu in chưa số hóa, hoặc được dịch từ tiếng nước ngoài, có thể không hiện ra nhưng vẫn là vi phạm nếu không ghi nguồn. Xem bài <a href="{home}dich-tai-lieu-nuoc-ngoai-co-phai-dao-van/">dịch tài liệu nước ngoài có phải đạo văn</a>.</p>
 
-<figure><img src="{theme}assets/img/blog/check-dao-van-gioi-han.jpg?v=1" alt="Những giới hạn của phần mềm kiểm tra tỷ lệ trùng lặp" width="1200" height="560" loading="lazy" decoding="async"><figcaption>Báo cáo là công cụ hỗ trợ, người đọc báo cáo mới là người đánh giá.</figcaption></figure>
+<figure><img src="{theme}assets/img/blog/check-dao-van-truoc-khi-nop-bai-gioi-han.jpg?v=1" alt="Những giới hạn của phần mềm kiểm tra tỷ lệ trùng lặp" width="1200" height="560" loading="lazy" decoding="async"><figcaption>Báo cáo là công cụ hỗ trợ, người đọc báo cáo mới là người đánh giá.</figcaption></figure>
 
 <p>Chính vì vậy, giảng viên và hội đồng luôn đọc báo cáo kèm với bài, không chỉ nhìn con số. Bạn cũng nên làm như vậy khi tự check đạo văn: dùng báo cáo như tấm bản đồ chỉ chỗ cần xem lại, không phải bảng điểm cuối cùng.</p>
 
@@ -306,7 +306,7 @@ HTML
 	<li>Báo cáo PDF gốc được gửi qua email và lưu ở trang tài khoản, có trang tra cứu đơn.</li>
 </ul></div>
 <p>Bạn đi làm cả ngày, học buổi tối, hoặc đang ở một tỉnh xa trường. Khoảng thời gian rảnh duy nhất để xử lý bài có khi là mười một giờ đêm. Với hoàn cảnh như vậy, <strong>check đạo văn online</strong> là cách thực tế nhất: toàn bộ quy trình diễn ra trên website, từ chọn phần mềm, tải file, thanh toán đến nhận báo cáo.</p>
-<p>Bài viết này hướng dẫn chi tiết 7 bước đặt và nhận kết quả trên Check Đạo Văn, kèm những lưu ý giúp bạn không phải đặt lại đơn, không bỏ lỡ email và biết xử lý khi có sự cố. Nếu đây là lần đầu bạn tìm hiểu về kiểm tra trùng lặp, nên đọc trước bài <a href="{home}check-dao-van/">check đạo văn: 9 điều cần biết</a>.</p>
+<p>Bài viết này hướng dẫn chi tiết 7 bước đặt và nhận kết quả trên Check Đạo Văn, kèm những lưu ý giúp bạn không phải đặt lại đơn, không bỏ lỡ email và biết xử lý khi có sự cố. Nếu đây là lần đầu bạn tìm hiểu về kiểm tra trùng lặp, nên đọc trước bài <a href="{home}check-dao-van-truoc-khi-nop-bai/">check đạo văn: 9 điều cần biết</a>.</p>
 
 <div class="wp-block-rank-math-toc-block toc-box" id="rank-math-toc"><details open><summary>Mục lục bài viết</summary><nav><ol><li><a href="#vi-sao-nhieu-nguoi-chon-check-dao-van-online">Vì sao nhiều người chọn check đạo văn online?</a></li><li><a href="#truoc-khi-bat-dau-ban-can-chuan-bi-gi">Trước khi bắt đầu: bạn cần chuẩn bị gì?</a></li><li><a href="#buoc-1-chuan-bi-dung-file-truoc-khi-check-dao-van-online">Bước 1: Chuẩn bị đúng file trước khi check đạo văn online</a></li><li><a href="#buoc-2-chon-phan-mem-phu-hop">Bước 2: Chọn phần mềm phù hợp</a></li><li><a href="#buoc-3-chon-hinh-thuc-va-toc-do">Bước 3: Chọn hình thức và tốc độ</a></li><li><a href="#buoc-4-tai-file-va-kiem-tra-thong-tin-don">Bước 4: Tải file và kiểm tra thông tin đơn</a></li><li><a href="#buoc-5-thanh-toan-vietqr-trong-30-phut">Bước 5: Thanh toán VietQR trong 30 phút</a></li><li><a href="#buoc-6-theo-doi-trang-thai-don">Bước 6: Theo dõi trạng thái đơn</a></li><li><a href="#buoc-7-nhan-va-luu-bao-cao-pdf-goc">Bước 7: Nhận và lưu báo cáo PDF gốc</a></li><li><a href="#check-dao-van-online-tren-dien-thoai">Check đạo văn online trên điện thoại</a></li><li><a href="#dat-don-ngoai-gio-hanh-chinh">Đặt đơn ngoài giờ hành chính</a></li><li><a href="#check-dao-van-online-cho-tung-loai-bai">Check đạo văn online cho từng loại bài</a></li><li><a href="#len-lich-check-dao-van-online-theo-han-nop">Lên lịch check đạo văn online theo hạn nộp</a></li><li><a href="#xu-ly-su-co-khi-kiem-tra-dao-van-online">Xử lý sự cố khi kiểm tra đạo văn online</a></li><li><a href="#bao-mat-khi-gui-bai-qua-mang">Bảo mật khi gửi bài qua mạng</a></li><li><a href="#sau-khi-nhan-bao-cao-lam-gi-tiep-theo">Sau khi nhận báo cáo: làm gì tiếp theo?</a></li><li><a href="#cau-hoi-thuong-gap">Câu hỏi thường gặp</a></li></ol></nav></details></div>
 
