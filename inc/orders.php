@@ -182,15 +182,15 @@ function vs_order_summary( $id ) {
 		}
 		$modes = vs_check_modes();
 		return sprintf(
-			'Kiểm tra %s · %s · %d trang%s',
+			'Kiểm tra %s | %s | %d trang%s',
 			implode( ', ', $names ),
 			isset( $modes[ $data['mode'] ] ) ? $modes[ $data['mode'] ] : '',
 			(int) $data['pages'],
-			! empty( $data['express'] ) ? ' · Hỏa tốc' : ''
+			! empty( $data['express'] ) ? ' | Hỏa tốc' : ''
 		);
 	}
 	$dl = isset( $p['reduce']['deadlines'][ $data['deadline'] ] ) ? $p['reduce']['deadlines'][ $data['deadline'] ]['label'] : '';
-	return sprintf( 'Giảm %s · %d trang · %s', vs_reduce_goal_text( $data, ', ' ), (int) $data['pages'], $dl );
+	return implode( ' | ', array_filter( array( 'Giảm ' . vs_reduce_goal_text( $data, ', ' ), (int) $data['pages'] . ' trang', $dl ) ) );
 }
 
 /* ---------- Danh sách đơn trong quản trị ---------- */
@@ -331,9 +331,9 @@ function vs_box_info( $post ) {
 		'Thành tiền'  => '<strong style="font-size:15px">' . esc_html( vs_money( vs_meta( $id, 'price', 0 ) ) ) . '</strong>',
 		'Mã giảm giá' => esc_html( vs_meta( $id, 'coupon', '—' ) ),
 		'Tài khoản'   => vs_meta( $id, 'user' ) ? '<a href="' . esc_url( get_edit_user_link( (int) vs_meta( $id, 'user' ) ) ) . '">' . esc_html( get_the_author_meta( 'display_name', (int) vs_meta( $id, 'user' ) ) ) . '</a>' : 'Khách vãng lai',
-		'Giới thiệu bởi' => vs_meta( $id, 'ref_user' ) ? esc_html( get_the_author_meta( 'display_name', (int) vs_meta( $id, 'ref_user' ) ) . ' · hoa hồng ' . vs_money( vs_meta( $id, 'commission' ) ) . ' (' . vs_comm_labels()[ vs_meta( $id, 'comm_status', 'pending' ) ] . ')' ) : '—',
+		'Giới thiệu bởi' => vs_meta( $id, 'ref_user' ) ? esc_html( get_the_author_meta( 'display_name', (int) vs_meta( $id, 'ref_user' ) ) . ' | hoa hồng ' . vs_money( vs_meta( $id, 'commission' ) ) . ' (' . vs_comm_labels()[ vs_meta( $id, 'comm_status', 'pending' ) ] . ')' ) : '—',
 		'Khách hàng'  => esc_html( vs_meta( $id, 'name' ) ),
-		'Điện thoại'  => esc_html( vs_meta( $id, 'phone' ) ) . ( vs_meta( $id, 'phone' ) ? ' · <a target="_blank" href="https://zalo.me/' . esc_attr( preg_replace( '/\D/', '', vs_meta( $id, 'phone' ) ) ) . '">Nhắn Zalo</a>' : '' ),
+		'Điện thoại'  => esc_html( vs_meta( $id, 'phone' ) ) . ( vs_meta( $id, 'phone' ) ? ' | <a target="_blank" href="https://zalo.me/' . esc_attr( preg_replace( '/\D/', '', vs_meta( $id, 'phone' ) ) ) . '">Nhắn Zalo</a>' : '' ),
 		'Email'       => esc_html( vs_meta( $id, 'email', '—' ) ),
 		'Ghi chú'     => nl2br( esc_html( vs_meta( $id, 'note', '—' ) ) ),
 		'File gốc'    => $file
@@ -439,7 +439,7 @@ function vs_box_result( $post ) {
 							<input type="number" step="0.1" min="0" max="100" data-kind="<?php echo esc_attr( $kind ); ?>" name="vs_results[<?php echo esc_attr( $key ); ?>][<?php echo esc_attr( $kind ); ?>]" value="<?php echo esc_attr( $val ); ?>" <?php echo $locked ? 'readonly' : ''; ?> placeholder="<?php echo $pending ? '...' : ''; ?>"><span class="vs-rb-pct">%</span>
 							<input type="hidden" class="vs-rb-src" name="vs_result_src[<?php echo esc_attr( $key ); ?>][<?php echo esc_attr( $kind ); ?>]" value="<?php echo esc_attr( $src ); ?>">
 							<?php if ( $locked ) : ?><button type="button" class="vs-rb-edit" title="Sửa tay số liệu tự động">Sửa</button><?php endif; ?>
-							<small class="vs-rb-tag"><?php echo $src ? '● ' . esc_html( $src_lbl[ $src ] ) . ( ! empty( $srcs[ $key ][ $kind ]['at'] ) ? ' · ' . esc_html( wp_date( 'H:i d/m', (int) $srcs[ $key ][ $kind ]['at'] ) ) : '' ) : ( $pending ? '● Đang chờ kết quả...' : '○ Chưa có' ); ?></small>
+							<small class="vs-rb-tag"><?php echo $src ? '● ' . esc_html( $src_lbl[ $src ] ) . ( ! empty( $srcs[ $key ][ $kind ]['at'] ) ? ' | ' . esc_html( wp_date( 'H:i d/m', (int) $srcs[ $key ][ $kind ]['at'] ) ) : '' ) : ( $pending ? '● Đang chờ kết quả...' : '○ Chưa có' ); ?></small>
 						</div>
 					</td>
 				<?php endforeach; ?>
@@ -466,7 +466,7 @@ function vs_box_result( $post ) {
 	<p><strong>File trả khách</strong></p>
 	<ul class="vs-files" id="vs-files">
 		<?php foreach ( $auto_f as $i => $f ) : ?>
-			<li class="is-auto">🤖 <a href="<?php echo esc_url( vs_file_url( $id, $i ) ); ?>"><?php echo esc_html( $f['name'] ); ?></a> <em>tự động · <?php echo esc_html( vs_file_meta_text( vs_file_stats( $id, 'auto:' . basename( $f['path'] ), $f['name'], vs_report_dir() . '/' . basename( $f['path'] ), 'PDF' ) ) ); ?></em></li>
+			<li class="is-auto">🤖 <a href="<?php echo esc_url( vs_file_url( $id, $i ) ); ?>"><?php echo esc_html( $f['name'] ); ?></a> <em>tự động | <?php echo esc_html( vs_file_meta_text( vs_file_stats( $id, 'auto:' . basename( $f['path'] ), $f['name'], vs_report_dir() . '/' . basename( $f['path'] ), 'PDF' ) ) ); ?></em></li>
 		<?php endforeach; ?>
 		<?php foreach ( $files as $fid ) : ?>
 			<li data-id="<?php echo (int) $fid; ?>">📎 <?php echo esc_html( get_the_title( $fid ) ?: basename( (string) get_attached_file( $fid ) ) ); ?> <em><?php echo esc_html( vs_file_meta_text( vs_file_stats( $id, 'att:' . $fid, basename( (string) get_attached_file( $fid ) ), (string) get_attached_file( $fid ), 'PDF' ) ) ); ?></em> <a href="#" class="vs-rm">Gỡ</a></li>

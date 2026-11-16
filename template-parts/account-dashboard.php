@@ -36,7 +36,7 @@ $render_order = function ( $o, $open = false ) {
 			<span class="oc__icon oc__icon--<?php echo esc_attr( $o['type'] ); ?>"><?php echo vs_icon( $is_check ? 'target' : 'pen', 22 ); // phpcs:ignore ?></span>
 			<span class="oc__main">
 				<span class="oc__title"><?php echo esc_html( $o['title'] ); ?></span>
-				<span class="oc__meta"><b><?php echo esc_html( $o['code'] ); ?></b> · <?php echo esc_html( $o['date'] ); ?><?php echo $o['files'] ? ' · <em class="oc__ready">' . count( $o['files'] ) . ' báo cáo sẵn sàng</em>' : ''; ?></span>
+				<span class="oc__meta"><b><?php echo esc_html( $o['code'] ); ?></b> | <?php echo esc_html( $o['date'] ); ?><?php echo $o['files'] ? ' | <em class="oc__ready">' . count( $o['files'] ) . ' báo cáo sẵn sàng</em>' : ''; ?></span>
 			</span>
 			<span class="oc__side">
 				<span class="oc__price"><?php echo esc_html( vs_money( $o['total'] ) ); ?></span>
@@ -157,6 +157,9 @@ $render_order = function ( $o, $open = false ) {
 								<dt>Số tiền</dt><dd class="big"><?php echo esc_html( vs_money( $pay['amount'] ) ); ?></dd>
 								<dt>Nội dung</dt><dd><?php echo esc_html( $pay['content'] ); ?> <button type="button" class="copy" data-copy="<?php echo esc_attr( $pay['content'] ); ?>">Chép</button></dd>
 							</dl>
+							<?php if ( ! empty( $pay['expires'] ) ) : ?>
+								<div class="pay-deadline" data-pay-exp="<?php echo esc_attr( $pay['expires'] * 1000 ); ?>"><span class="pay-deadline__ic">⏱</span><span>Vui lòng thanh toán trước <b><?php echo esc_html( $pay['deadline'] ); ?></b> (trong <?php echo (int) $pay['minutes']; ?> phút kể từ lúc đặt). Quá hạn, đơn sẽ <b>tự hủy</b>.<em data-pay-left></em></span></div>
+							<?php endif; ?>
 							<div class="pay-verify"><button type="button" class="btn btn--primary btn--sm btn--block" data-pay-verify data-code="<?php echo esc_attr( $o['code'] ); ?>" data-phone="<?php echo esc_attr( vs_user_phone() ); ?>">Tôi đã chuyển khoản</button><span data-pay-verify-msg></span></div>
 						</div>
 					<?php endif; ?>
@@ -176,7 +179,7 @@ $render_order = function ( $o, $open = false ) {
 											<span class="sent-file__ext sent-file__ext--<?php echo esc_attr( strtolower( $sf['ext'] ) ); ?>"><?php echo esc_html( $sf['ext'] ? $sf['ext'] : 'FILE' ); ?></span>
 											<span class="sent-file__body">
 												<span class="sent-file__name"><?php echo esc_html( $sf['short'] ); ?></span>
-												<span class="sent-file__meta"><?php echo esc_html( $sf['label'] . ( ! empty( $sf['meta'] ) ? ' · ' . $sf['meta'] : ( $sf['size'] ? ' · ' . $sf['size'] : '' ) ) ); ?></span>
+												<span class="sent-file__meta"><?php echo esc_html( $sf['label'] . ( ! empty( $sf['meta'] ) ? ' | ' . $sf['meta'] : ( $sf['size'] ? ' | ' . $sf['size'] : '' ) ) ); ?></span>
 											</span>
 											<?php if ( $sf['url'] ) : ?><span class="sent-file__dl" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg></span><?php endif; ?>
 										</<?php echo $tag; // phpcs:ignore ?>>
@@ -211,6 +214,11 @@ foreach ( $orders as $o ) {
 			</div>
 			<nav>
 				<?php foreach ( $tabs as $k => $t ) : ?>
+					<?php
+					if ( 'thong-bao' === $k ) {
+						continue; // Thông báo xem qua popup chuông ở đầu trang.
+					}
+					?>
 					<a href="<?php echo esc_url( vs_account_url( $k ) ); ?>" class="<?php echo $tab === $k ? 'is-active' : ''; ?>"><?php echo vs_icon( $t[1], 20 ); // phpcs:ignore ?><?php echo esc_html( $t[0] ); ?></a>
 				<?php endforeach; ?>
 				<a href="<?php echo esc_url( wp_logout_url( home_url( '/' ) ) ); ?>"><?php echo vs_icon( 'logout', 20 ); // phpcs:ignore ?>Đăng xuất</a>
@@ -332,7 +340,7 @@ foreach ( $orders as $o ) {
 					<?php else : ?>
 						<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="inline-form">
 							<input type="hidden" name="action" value="vs_payout"><?php wp_nonce_field( 'vs_payout', '_vsn' ); ?>
-							<span>Chuyển về: <b><?php echo esc_html( get_user_meta( $uid, '_vs_bank_name', true ) . ' · ' . $has_bank . ' · ' . get_user_meta( $uid, '_vs_bank_holder', true ) ); ?></b></span>
+							<span>Chuyển về: <b><?php echo esc_html( get_user_meta( $uid, '_vs_bank_name', true ) . ' | ' . $has_bank . ' | ' . get_user_meta( $uid, '_vs_bank_holder', true ) ); ?></b></span>
 							<button class="btn btn--accent" <?php disabled( $s['available'] < (int) vs_opt( 'payout_min' ) ); ?>>Yêu cầu rút <?php echo esc_html( vs_money( $s['available'] ) ); ?></button>
 						</form>
 					<?php endif; ?>

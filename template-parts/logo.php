@@ -38,6 +38,6 @@ foreach ( array( 'Đạo Văn', 'ĐạoVăn', 'Sạch' ) as $accent ) {
 	</svg>
 	<span class="logo__text">
 		<span class="logo__name"><?php echo $word; // phpcs:ignore -- đã escape. ?></span>
-		<span class="logo__tag">Kiểm tra đạo văn · AI</span>
+		<span class="logo__tag">Kiểm tra đạo văn | AI</span>
 	</span>
 </span>

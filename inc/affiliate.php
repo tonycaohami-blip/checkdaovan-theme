@@ -230,7 +230,7 @@ add_action( 'manage_vs_payout_posts_custom_column', function ( $col, $id ) {
 	if ( 'vs_amount' === $col ) {
 		echo '<strong>' . esc_html( vs_money( vs_meta( $id, 'amount' ) ) ) . '</strong>';
 	} elseif ( 'vs_bank' === $col ) {
-		echo esc_html( implode( ' · ', (array) vs_meta( $id, 'bank', array() ) ) );
+		echo esc_html( implode( ' | ', (array) vs_meta( $id, 'bank', array() ) ) );
 	} elseif ( 'vs_pstatus' === $col ) {
 		$st = vs_meta( $id, 'status', 'pending' );
 		echo esc_html( isset( $labels[ $st ] ) ? $labels[ $st ] : $st );
@@ -244,7 +244,7 @@ add_action( 'add_meta_boxes_vs_payout', function () {
 		$bank = (array) vs_meta( $post->ID, 'bank', array() );
 		echo '<p><strong>Cộng tác viên:</strong> ' . esc_html( $u ? $u->display_name . ' (' . vs_user_phone( $u->ID ) . ')' : '—' ) . '</p>';
 		echo '<p><strong>Số tiền:</strong> ' . esc_html( vs_money( vs_meta( $post->ID, 'amount' ) ) ) . '</p>';
-		echo '<p><strong>Chuyển đến:</strong> ' . esc_html( implode( ' · ', $bank ) ) . '</p>';
+		echo '<p><strong>Chuyển đến:</strong> ' . esc_html( implode( ' | ', $bank ) ) . '</p>';
 		echo '<p><select name="vs_pstatus">';
 		foreach ( vs_payout_labels() as $k => $l ) {
 			printf( '<option value="%s"%s>%s</option>', esc_attr( $k ), selected( vs_meta( $post->ID, 'status', 'pending' ), $k, false ), esc_html( $l ) );
@@ -274,7 +274,7 @@ add_action( 'admin_menu', function () {
 			}
 		}
 		usort( $rows, function ( $a, $b ) { return $b[1]['approved'] - $a[1]['approved']; } );
-		echo '<div class="wrap"><h1>Cộng tác viên</h1><p>Hoa hồng hiện tại: <strong>' . esc_html( vs_opt( 'aff_pct' ) ) . '%</strong> · Ưu đãi khách được giới thiệu: <strong>' . esc_html( vs_opt( 'ref_discount' ) ) . '%</strong> · Đổi trong Cài đặt & Bảng giá.</p>';
+		echo '<div class="wrap"><h1>Cộng tác viên</h1><p>Hoa hồng hiện tại: <strong>' . esc_html( vs_opt( 'aff_pct' ) ) . '%</strong> | Ưu đãi khách được giới thiệu: <strong>' . esc_html( vs_opt( 'ref_discount' ) ) . '%</strong> | Đổi trong Cài đặt & Bảng giá.</p>';
 		echo '<table class="widefat striped"><thead><tr><th>Cộng tác viên</th><th>Mã</th><th>Lượt click</th><th>Khách đăng ký</th><th>Đơn</th><th>Chờ duyệt</th><th>Đã duyệt</th><th>Đã trả</th><th>Có thể rút</th></tr></thead><tbody>';
 		if ( ! $rows ) {
 			echo '<tr><td colspan="9">Chưa có hoạt động giới thiệu nào.</td></tr>';

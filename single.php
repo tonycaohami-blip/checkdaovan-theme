@@ -62,7 +62,7 @@ $url       = get_permalink();
 			<div class="inline-cta">
 				<div>
 					<b>Kiểm tra bài của bạn trước khi nộp</b>
-					<span><?php echo count( vs_pricing()['tools'] ); ?> phần mềm: Turnitin, DoIT, GPTZero… · không lưu bài · từ <?php echo esc_html( vs_money( $min_check ) ); ?></span>
+					<span><?php echo count( vs_pricing()['tools'] ); ?> phần mềm: Turnitin, DoIT, GPTZero… | không lưu bài | từ <?php echo esc_html( vs_money( $min_check ) ); ?></span>
 				</div>
 				<a class="btn btn--accent" href="<?php echo esc_url( vs_page_url( 'dat-hang' ) ); ?>">Đặt kiểm tra</a>
 			</div>

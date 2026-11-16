@@ -63,7 +63,7 @@ get_template_part( 'template-parts/page-hero', null, array(
 				<div class="doc-mock__body">
 					<p><mark class="m1">Chuyển đổi số là quá trình thay đổi tổng thể và toàn diện</mark> của cá nhân, tổ chức về cách sống, cách làm việc và phương thức sản xuất dựa trên các công nghệ số.<sup>1</sup> Trong bối cảnh đó, doanh nghiệp vừa và nhỏ tại Việt Nam đứng trước nhiều cơ hội nhưng cũng không ít thách thức.</p>
 					<p>Nghiên cứu này khảo sát 214 doanh nghiệp tại Hà Nội nhằm đánh giá <mark class="m2">mức độ sẵn sàng chuyển đổi số theo bộ chỉ số</mark><sup>2</sup> được đề xuất bởi nhóm tác giả, kết hợp phỏng vấn sâu với 12 nhà quản lý.</p>
-					<div class="doc-mock__src"><span class="m1">1</span> Internet source · 3%<span class="m2">2</span> Publication · 2%</div>
+					<div class="doc-mock__src"><span class="m1">1</span> Internet source | 3%<span class="m2">2</span> Publication | 2%</div>
 				</div>
 			</div>
 		</div>

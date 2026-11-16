@@ -17,7 +17,7 @@ $done      = vs_completed_count();
 	<div class="hero__bg" aria-hidden="true"><span class="hero__glow hero__glow--1"></span><span class="hero__glow hero__glow--2"></span></div>
 	<div class="container hero__inner">
 		<div class="hero__copy reveal">
-			<span class="pill pill--light"><span class="dot"></span> Hoạt động 24/7 · Không lưu bài · Bảo mật tài liệu</span>
+			<span class="pill pill--light"><span class="dot"></span> Hoạt động 24/7 | Không lưu bài | Bảo mật tài liệu</span>
 			<h1>Nền tảng kiểm tra <span class="hl">đạo văn</span> &amp; <span class="hl">tỷ lệ AI</span> cho người làm học thuật</h1>
 			<p class="hero__lead">Kiểm tra bằng Turnitin, iThenticate, DoIT, Copyleaks, Originality.ai, GPTZero và nhiều phần mềm khác. Tỷ lệ cao? Biên tập viên chuyên ngành hỗ trợ sửa diễn đạt, bổ sung trích dẫn đúng chuẩn, hướng tới mức <strong>dưới 30%</strong> hoặc <strong>dưới 20%</strong> - bạn vẫn là tác giả của bài.</p>
 			<div class="hero__actions">

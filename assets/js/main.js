@@ -15,13 +15,13 @@
 
 	/* ================= Chung ================= */
 
-	// Dấu phân cách " · " -> chấm tròn được định dạng (.sep), giữ nguyên chữ cho trình đọc màn hình.
+	// Dấu phân cách " | " (và " | " trong dữ liệu cũ) -> vạch dọc được định dạng (.sep), giữ nguyên chữ cho trình đọc màn hình.
 	var SKIP = /^(SCRIPT|STYLE|TEXTAREA|INPUT|OPTION|SELECT|CODE|PRE|TITLE)$/;
 	function decorateSeps(root) {
 		if (!root || !root.querySelectorAll) return;
 		var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
 			acceptNode: function (n) {
-				if (n.nodeValue.indexOf('·') < 0) return NodeFilter.FILTER_REJECT;
+				if (!/\s[|·]\s/.test(n.nodeValue)) return NodeFilter.FILTER_REJECT;
 				for (var p = n.parentNode; p && p !== root.parentNode; p = p.parentNode) {
 					if (SKIP.test(p.nodeName) || (p.classList && (p.classList.contains('sep') || p.classList.contains('no-sep')))) return NodeFilter.FILTER_REJECT;
 				}
@@ -31,9 +31,9 @@
 		var nodes = [];
 		while (walker.nextNode()) nodes.push(walker.currentNode);
 		nodes.forEach(function (n) {
-			var parts = n.nodeValue.split(/\s*·\s*/), frag = document.createDocumentFragment();
+			var parts = n.nodeValue.split(/\s+[|·]\s+/), frag = document.createDocumentFragment();
 			parts.forEach(function (t, i) {
-				if (i) { var s = document.createElement('span'); s.className = 'sep'; s.textContent = ' · '; frag.appendChild(s); }
+				if (i) { var s = document.createElement('span'); s.className = 'sep'; s.textContent = ' | '; frag.appendChild(s); }
 				if (t) frag.appendChild(document.createTextNode(t));
 			});
 			n.parentNode.replaceChild(frag, n);
@@ -209,8 +209,23 @@
 			row('Chủ tài khoản', esc(pay.holder)) +
 			row('Số tiền', money(pay.amount), String(pay.amount), 'kv2__money') +
 			row('Nội dung', esc(pay.content), pay.content, 'kv2__code') +
-			'</div></div>';
+			'</div></div>' + deadlineHtml(pay);
 	}
+
+	// Hạn thanh toán: quá hạn đơn tự hủy (đồng bộ với máy chủ).
+	function deadlineHtml(pay) {
+		if (!pay || !pay.expires) return '';
+		return '<div class="pay-deadline" data-pay-exp="' + (pay.expires * 1000) + '"><span class="pay-deadline__ic">⏱</span><span>Vui lòng thanh toán trước <b>' + esc(pay.deadline) + '</b> (trong ' + (pay.minutes || 30) + ' phút kể từ lúc đặt). Quá hạn, đơn sẽ <b>tự hủy</b>.<em data-pay-left></em></span></div>';
+	}
+	function tickDeadlines() {
+		$$('[data-pay-exp]').forEach(function (el) {
+			var left = Math.floor((+el.getAttribute('data-pay-exp') - Date.now()) / 1000), out = el.querySelector('[data-pay-left]');
+			if (!out) return;
+			if (left <= 0) { el.classList.add('is-over'); out.textContent = ' Đã quá hạn thanh toán.'; return; }
+			out.textContent = ' Còn ' + Math.floor(left / 60) + ':' + ('0' + (left % 60)).slice(-2);
+		});
+	}
+	setInterval(tickDeadlines, 1000);
 
 	var watch = $('[data-autorefresh]');
 	if (watch) setTimeout(function () { if (!document.querySelector('input:focus, textarea:focus')) location.reload(); }, (+watch.dataset.autorefresh || 30) * 1000);
@@ -353,7 +368,7 @@
 		var steps = [['Đặt hàng', 'Đã đặt hàng', 'Đã đặt hàng'], ['Xử lý', 'Đang xử lý', 'Đã xử lý'], ['Hoàn thành', 'Hoàn thành', 'Đã hoàn thành']];
 		var idx = { cho_thanh_toan: 0, dang_xu_ly: 1, hoan_thanh: 2 }[d.status];
 		var html = '<div class="tr__head"><span class="tr__code">' + esc(d.code) + '</span><span class="status status--' + esc(d.status) + '">' + esc(d.label) + '</span></div>' +
-			'<div class="tr__meta">' + esc(d.summary) + ' · <b>' + money(d.total) + '</b> · Đặt lúc ' + esc(d.date) + '</div>';
+			'<div class="tr__meta">' + esc(d.summary) + ' | <b>' + money(d.total) + '</b> | Đặt lúc ' + esc(d.date) + '</div>';
 		if (idx != null) html += '<div class="progress">' + steps.map(function (s, i) {
 			// Bước đã qua (hoặc bước cuối khi đơn hoàn thành) -> "Đã ..."; bước hiện tại -> "Đang ...".
 			var done = i < idx || (i === idx && (d.status === 'hoan_thanh' || i === 0));
@@ -460,7 +475,7 @@
 		tools.forEach(function (t) {
 			var price = P.tools[t][mode];
 			sum += price;
-			lines.push([P.tools[t].name + ' · ' + modes[mode], money(price)]);
+			lines.push([P.tools[t].name + ' | ' + modes[mode], money(price)]);
 		});
 		var blocks = Math.max(0, Math.ceil(pages / Math.max(1, c.pages_included)) - 1);
 		var factor = 1 + blocks * c.extra_pct / 100;
@@ -847,6 +862,11 @@
 				if (!j.success) return setTimeout(tick, 10000);
 				var s = j.data.status;
 				if (s === 'cho_thanh_toan') return setTimeout(tick, 10000);
+				if (s === 'huy') {
+					box.classList.add('is-cancel');
+					box.innerHTML = '<span class="pay-wait__ok" style="background:#dc3b3b">✕</span><div><b>Đơn đã tự hủy</b><span>Quá thời hạn thanh toán. Nếu bạn đã chuyển khoản, đơn sẽ tự khôi phục khi hệ thống nhận được tiền.</span></div>';
+					return setTimeout(tick, 20000);
+				}
 				box.classList.add('is-paid');
 				box.innerHTML = '<span class="pay-wait__ok">✓</span><div><b>Đã nhận thanh toán!</b>' + autoHtml(j.data.auto) + filesHtml(j.data.results, j.data.files, j.data.waiting, j.data.upsell) + (s === 'hoan_thanh' ? '<span>Kết quả đã được gửi qua email và tài khoản của bạn.</span>' : (j.data.files && j.data.files.length ? '<span>Báo cáo đã sẵn sàng - bạn có thể tải ngay.</span>' : '')) + '</div>';
 				['#modal-content .paycard', '#modal-content .ok-steps', '#modal-content .pay'].forEach(function (q) { var x = $(q); if (x) x.remove(); }); var pv = $('#modal-content .pay-verify'); if (pv) pv.remove();

@@ -73,9 +73,9 @@ function vs_file_stats( $id, $key, $name, $path = '', $ext_fallback = 'FILE' ) {
 	);
 }
 
-/** Dòng mô tả gọn: "PDF · 2,4 MB · 3 lượt tải". */
+/** Dòng mô tả gọn: "PDF | 2,4 MB | 3 lượt tải". */
 function vs_file_meta_text( $s, $extra = '' ) {
-	return implode( ' · ', array_filter( array( $s['ext'], $extra ? $extra : $s['size'], $s['dl_text'] ) ) );
+	return implode( ' | ', array_filter( array( $s['ext'], $extra ? $extra : $s['size'], $s['dl_text'] ) ) );
 }
 
 /* ---------- Liên kết có chữ ký: báo cáo PDF quản trị tải lên ---------- */

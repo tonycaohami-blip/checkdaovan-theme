@@ -34,7 +34,7 @@ $steps = array(
 					<em>Minh họa</em>
 				</div>
 				<ul class="timeline">
-					<li class="is-done"><time>02:14</time><b>Đã đặt hàng</b><span>Luận văn · 86 trang · Turnitin</span></li>
+					<li class="is-done"><time>02:14</time><b>Đã đặt hàng</b><span>Luận văn | 86 trang | Turnitin</span></li>
 					<li class="is-done"><time>02:15</time><b>Đã nhận thanh toán</b><span>Xác nhận tự động qua ngân hàng</span></li>
 					<li class="is-done"><time>02:16</time><b>Đã gửi đến phần mềm</b><span>Chế độ không lưu bài</span></li>
 					<li class="is-run"><time>02:29</time><b>Đang xuất báo cáo PDF</b><span>Similarity 14%</span></li>

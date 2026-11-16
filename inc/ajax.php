@@ -37,7 +37,12 @@ function vs_payment_info( $code, $amount ) {
 		rawurlencode( $code ),
 		rawurlencode( vs_opt( 'bank_holder' ) )
 	);
+	$oid = vs_find_order( $code );
+	$exp = $oid ? vs_pay_expires( $oid ) : 0;
 	return array(
+		'expires'  => $exp,
+		'deadline' => $exp ? wp_date( 'H:i', $exp ) : '',
+		'minutes'  => vs_pay_timeout_min(),
 		'bank'    => vs_opt( 'bank_name' ),
 		'account' => $acc,
 		'holder'  => vs_opt( 'bank_holder' ),
@@ -409,7 +414,7 @@ function vs_order_upsell_html( $id ) {
 	?>
 	<div class="rs__card rs__card--up">
 		<span class="up__badge"><?php echo vs_icon( 'target', 14 ); // phpcs:ignore ?> Trên mức 20% (tham khảo)</span>
-		<b class="up__title"><?php echo esc_html( implode( ' · ', $head ) ); ?></b>
+		<b class="up__title"><?php echo esc_html( implode( ' | ', $head ) ); ?></b>
 		<div class="up__meters">
 			<?php foreach ( $high as $k ) : ?>
 				<div class="up__meter"><span><?php echo 'plag' === $k ? 'Đạo văn' : 'Tỷ lệ AI'; ?></span><s><?php echo esc_html( $fmt( $max[ $k ] ) ); ?></s><i aria-hidden="true">→</i><b>&lt; 20%</b></div>
@@ -424,7 +429,7 @@ function vs_order_upsell_html( $id ) {
 				<?php endforeach; ?>
 			</div>
 		<?php endif; ?>
-		<small class="up__note">Hỗ trợ biên tập cho bài do bạn viết · không cần gửi lại file · giảm thêm <?php echo (int) $r['linked_pct']; ?>%</small>
+		<small class="up__note">Hỗ trợ biên tập cho bài do bạn viết | không cần gửi lại file | giảm thêm <?php echo (int) $r['linked_pct']; ?>%</small>
 	</div>
 	<?php
 	return trim( ob_get_clean() );

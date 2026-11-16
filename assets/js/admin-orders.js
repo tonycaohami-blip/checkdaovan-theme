@@ -116,13 +116,13 @@
 					kv('Dịch vụ', esc(o.summary)) +
 					Object.keys(o.details).map(function (k) { return kv(k, esc(o.details[k])); }).join('') +
 					kv('Tổng tiền', '<b>' + esc(o.total) + '</b>') +
-					kv('Thanh toán', o.paid_at ? esc(o.paid_at) + (o.paid_via ? ' · ' + esc(o.paid_via) : '') : '<span class="muted">Chưa thanh toán</span>') +
+					kv('Thanh toán', o.paid_at ? esc(o.paid_at) + (o.paid_via ? ' | ' + esc(o.paid_via) : '') : '<span class="muted">Chưa thanh toán</span>') +
 					kv('Hoàn thành', esc(o.done_at)) +
 				'</dl></section>' +
 			'</div>' +
 			(o.files.length ? '<section><h3>File khách gửi</h3><div class="sent-files">' + o.files.map(function (f) {
 				var ext = (f.name.split('.').pop() || '').toUpperCase();
-				return '<a class="sent-file" href="' + esc(f.url) + '" title="' + esc(f.name) + '"><span class="sent-file__ext sent-file__ext--' + esc(ext.toLowerCase()) + '">' + esc(ext) + '</span><span class="sent-file__body"><span class="sent-file__name">' + esc(f.short) + '</span><span class="sent-file__meta">' + esc(f.label + (f.meta ? ' · ' + f.meta : '')) + '</span></span><span class="sent-file__dl">⬇</span></a>';
+				return '<a class="sent-file" href="' + esc(f.url) + '" title="' + esc(f.name) + '"><span class="sent-file__ext sent-file__ext--' + esc(ext.toLowerCase()) + '">' + esc(ext) + '</span><span class="sent-file__body"><span class="sent-file__name">' + esc(f.short) + '</span><span class="sent-file__meta">' + esc(f.label + (f.meta ? ' | ' + f.meta : '')) + '</span></span><span class="sent-file__dl">⬇</span></a>';
 			}).join('') + '</div></section>' : '') +
 			'<section><h3>Kết quả' + (o.auto ? ' <small class="adm-auto">⚙ đang chạy tự động</small>' : '') + '</h3>' +
 				(o.results.length ? '<div class="adm-results">' + o.results.map(function (r) {

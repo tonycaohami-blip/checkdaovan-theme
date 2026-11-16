@@ -167,6 +167,21 @@ function vs_ajax_pay_verify() {
 	if ( ! $id || ( vs_meta( $id, 'phone' ) !== $phone && ! vs_user_owns_order( $id ) ) ) {
 		wp_send_json_error( array( 'message' => 'Không tìm thấy đơn hàng.' ) );
 	}
+	if ( 'huy' === vs_meta( $id, 'status' ) && get_post_meta( $id, '_vs_auto_cancel', true ) ) {
+		if ( vs_auto_cfg( 'sepay_token' ) && ! get_transient( 'vs_verify_' . $id ) ) {
+			set_transient( 'vs_verify_' . $id, 1, 30 );
+			vs_sepay_pull( true );
+		}
+		if ( 'dang_xu_ly' === vs_meta( $id, 'status' ) ) {
+			wp_send_json_success( array( 'paid' => true, 'message' => 'Đã nhận thanh toán, đơn đã được khôi phục!' ) );
+		}
+		if ( ! get_post_meta( $id, '_vs_claimed_paid', true ) ) {
+			update_post_meta( $id, '_vs_claimed_paid', time() );
+			vs_auto_log( 'Khách báo đã chuyển khoản sau khi đơn tự hủy', $id );
+			vs_telegram( '🔔 Khách báo đã chuyển khoản cho đơn đã tự hủy ' . vs_meta( $id, 'code' ) . ' (' . vs_money( vs_meta( $id, 'price' ) ) . ') - vui lòng kiểm tra.' );
+		}
+		wp_send_json_success( array( 'paid' => false, 'message' => 'Đơn đã tự hủy do quá ' . vs_pay_timeout_min() . ' phút chưa thanh toán. Nếu bạn đã chuyển khoản, hệ thống sẽ tự khôi phục đơn khi nhận được tiền; chuyên viên cũng đã được thông báo.' ) );
+	}
 	if ( 'cho_thanh_toan' !== vs_meta( $id, 'status' ) ) {
 		wp_send_json_success( array( 'paid' => true, 'message' => 'Đơn đã được xác nhận thanh toán.' ) );
 	}

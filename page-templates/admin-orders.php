@@ -18,7 +18,7 @@ get_header();
 		<div class="adm__top">
 			<div>
 				<h1>Quản trị đơn hàng</h1>
-				<p class="muted">Tự cập nhật mỗi 20 giây · <span data-adm-updated>đang tải…</span></p>
+				<p class="muted">Tự cập nhật mỗi 20 giây | <span data-adm-updated>đang tải…</span></p>
 			</div>
 			<div class="adm__tools">
 				<button type="button" class="btn btn--outline btn--sm" data-adm-sound title="Phát âm thanh và hiện thông báo trình duyệt khi có sự kiện mới">🔕 Bật âm báo</button>

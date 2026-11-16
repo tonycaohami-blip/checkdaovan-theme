@@ -198,7 +198,7 @@ function vs_render_settings() {
 					<tr><th>Hệ số thời hạn: <?php echo esc_html( $d['label'] ); ?></th><td><?php $input( "vs_prices[reduce][deadlines][$k]", $ov( array( 'reduce', 'deadlines', $k ) ), $d['mult'] ); ?></td></tr>
 				<?php endforeach; ?>
 			</table>
-			<p class="description">Hệ số theo tỷ lệ hiện tại (cố định): ≤40% ×1.0 · 41-60% ×1.25 · 61-80% ×1.5 · trên 80% ×1.8. Có thể đổi qua filter <code>vs_pricing</code>.</p>
+			<p class="description">Hệ số theo tỷ lệ hiện tại (cố định): ≤40% ×1.0 | 41-60% ×1.25 | 61-80% ×1.5 | trên 80% ×1.8. Có thể đổi qua filter <code>vs_pricing</code>.</p>
 
 			<?php submit_button( 'Lưu cài đặt' ); ?>
 		</form>

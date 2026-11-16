@@ -16,7 +16,7 @@
 	<div class="container topbar__inner">
 		<span class="topbar__msg">
 			<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M12 2l8 4v6c0 5-3.4 9.3-8 10-4.6-.7-8-5-8-10V6z" fill="currentColor"/></svg>
-			Hoạt động 24/7 · Không lưu bài · Tự xóa file sau 30 ngày
+			Hoạt động 24/7 | Không lưu bài | Tự xóa file sau 30 ngày
 		</span>
 		<span class="topbar__links">
 			<span class="topbar__hours">Tư vấn viên: <?php echo esc_html( vs_opt( 'hours' ) ); ?></span>

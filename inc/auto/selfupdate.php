@@ -372,7 +372,7 @@ function vs_su_page() {
 		<table class="widefat striped" style="max-width:720px">
 			<tbody>
 				<tr><th>Trạng thái</th><td><?php echo $dev ? '⏸ Tắt trên máy lập trình (có thư mục .git)' : ( vs_su_allowed() ? '✅ Đang bật' : '⏸ Đang tắt' ); ?></td></tr>
-				<tr><th>Phiên bản đang chạy</th><td><code><?php echo esc_html( $s['sha'] ? substr( $s['sha'], 0, 7 ) : 'chưa đồng bộ' ); ?></code> · theme <?php echo esc_html( VS_VERSION ); ?></td></tr>
+				<tr><th>Phiên bản đang chạy</th><td><code><?php echo esc_html( $s['sha'] ? substr( $s['sha'], 0, 7 ) : 'chưa đồng bộ' ); ?></code> | theme <?php echo esc_html( VS_VERSION ); ?></td></tr>
 				<tr><th>Kiểm tra gần nhất</th><td><?php echo esc_html( $fmt( $s['checked'] ) ); ?></td></tr>
 				<tr><th>Cập nhật gần nhất</th><td><?php echo esc_html( $fmt( $s['updated'] ) ); ?></td></tr>
 				<?php if ( $s['error'] ) : ?><tr><th>Lỗi</th><td style="color:#b32d2e"><?php echo esc_html( $s['error'] ); ?></td></tr><?php endif; ?>

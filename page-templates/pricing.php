@@ -9,7 +9,7 @@ $r     = $p['reduce'];
 $meta  = vs_tool_meta();
 get_template_part( 'template-parts/page-hero', null, array(
 	'title'   => 'Bảng giá dịch vụ',
-	'eyebrow' => 'Minh bạch · Không phí ẩn',
+	'eyebrow' => 'Minh bạch | Không phí ẩn',
 	'lead'    => 'Giá được tính tự động khi bạn đặt hàng. Thanh toán bằng chuyển khoản VietQR sau khi đã xem giá.',
 	'size'    => 'sm',
 ) );

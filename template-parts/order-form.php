@@ -13,11 +13,11 @@ $min_check = vs_min_check_price();
 <div class="tabs" role="tablist">
 	<button class="tabs__btn is-active" role="tab" aria-selected="true" data-tab="check">
 		<span class="tabs__icon"><?php echo vs_icon( 'target' ); // phpcs:ignore ?></span>
-		<span><b>Kiểm tra đạo văn &amp; AI</b><small><?php echo count( $tools ); ?> phần mềm · từ <?php echo esc_html( vs_money( $min_check ) ); ?></small></span>
+		<span><b>Kiểm tra đạo văn &amp; AI</b><small><?php echo count( $tools ); ?> phần mềm | từ <?php echo esc_html( vs_money( $min_check ) ); ?></small></span>
 	</button>
 	<button class="tabs__btn" role="tab" aria-selected="false" data-tab="reduce">
 		<span class="tabs__icon"><?php echo vs_icon( 'pen' ); // phpcs:ignore ?></span>
-		<span><b>Giảm tỷ lệ đạo văn + AI</b><small>Đạo văn / AI · tự chọn mục tiêu</small></span>
+		<span><b>Giảm tỷ lệ đạo văn + AI</b><small>Đạo văn / AI | tự chọn mục tiêu</small></span>
 	</button>
 </div>
 
@@ -148,14 +148,14 @@ $min_check = vs_min_check_price();
 					'name'   => 'file',
 					'accept' => '.docx',
 					'title'  => '1. File Word bản gốc',
-					'sub'    => '.docx · bản Word bài cần chỉnh sửa',
+					'sub'    => '.docx | bản Word bài cần chỉnh sửa',
 					'icon'   => 'word',
 				) );
 				get_template_part( 'template-parts/order', 'file', array(
 					'name'   => 'report',
 					'accept' => '.pdf',
 					'title'  => '2. Báo cáo PDF đạo văn / AI',
-					'sub'    => '.pdf · báo cáo có tô màu các đoạn trùng hoặc AI · dưới ' . vs_max_upload_mb() . ' MB',
+					'sub'    => '.pdf | báo cáo có tô màu các đoạn trùng hoặc AI | dưới ' . vs_max_upload_mb() . ' MB',
 					'icon'   => 'pdf',
 				) );
 				?>

@@ -137,6 +137,15 @@ function vs_auto_log( $msg, $order_id = 0 ) {
 
 /** Đánh dấu đã thanh toán (từ webhook ngân hàng). Trả về true nếu đơn được chuyển trạng thái. */
 function vs_mark_paid( $order_id, $source, $tx_id = '', $amount = 0 ) {
+	if ( 'huy' === vs_meta( $order_id, 'status' ) && get_post_meta( $order_id, '_vs_auto_cancel', true ) ) {
+		update_post_meta( $order_id, '_vs_status', 'cho_thanh_toan' );
+		delete_post_meta( $order_id, '_vs_auto_cancel' );
+		vs_auto_log( 'Nhận thanh toán sau khi đơn đã tự hủy: khôi phục đơn.', $order_id );
+		vs_telegram( '♻️ Đơn ' . vs_meta( $order_id, 'code' ) . ' đã tự hủy nhưng khách chuyển khoản trễ: đã khôi phục và xử lý.' );
+		if ( function_exists( 'vs_notify_admin' ) ) {
+			vs_notify_admin( 'paid', 'Khôi phục đơn ' . vs_meta( $order_id, 'code' ), 'Khách chuyển khoản sau khi đơn tự hủy', $order_id );
+		}
+	}
 	if ( 'cho_thanh_toan' !== vs_meta( $order_id, 'status', 'cho_thanh_toan' ) ) {
 		return false;
 	}

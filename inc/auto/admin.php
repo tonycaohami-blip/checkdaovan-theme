@@ -103,9 +103,9 @@ function vs_auto_admin_page() {
 		<p>
 			Cron gần nhất: <strong><?php echo $last ? esc_html( human_time_diff( $last ) . ' trước' ) : 'chưa chạy'; ?></strong>
 			<?php $next = wp_next_scheduled( 'vs_auto_tick' ); ?>
-			· Lượt kế tiếp: <strong><?php echo $next ? esc_html( wp_date( 'H:i:s', $next ) ) : 'chưa lên lịch'; ?></strong>
-			<?php if ( defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON ) : ?>· <em>WP-Cron mặc định đang tắt (cần cron máy chủ)</em><?php endif; ?>
-			· <a class="button button-small" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=vs_auto_run' ), 'vs_auto_run' ) ); ?>">Chạy hàng đợi ngay</a><br>
+			| Lượt kế tiếp: <strong><?php echo $next ? esc_html( wp_date( 'H:i:s', $next ) ) : 'chưa lên lịch'; ?></strong>
+			<?php if ( defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON ) : ?>| <em>WP-Cron mặc định đang tắt (cần cron máy chủ)</em><?php endif; ?>
+			| <a class="button button-small" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=vs_auto_run' ), 'vs_auto_run' ) ); ?>">Chạy hàng đợi ngay</a><br>
 			Để chạy đều mỗi phút trên hosting thật: thêm <code>define( 'DISABLE_WP_CRON', true );</code> vào wp-config.php và tạo cron máy chủ:
 			<code>* * * * * wget -q -O - <?php echo esc_html( site_url( 'wp-cron.php?doing_wp_cron' ) ); ?> &gt;/dev/null 2>&amp;1</code>
 		</p>
@@ -118,7 +118,7 @@ function vs_auto_admin_page() {
 
 			<h2>1. Tự xác nhận thanh toán</h2>
 			<table class="form-table">
-				<tr><th>SePay - API Key</th><td><input class="regular-text" name="vs_auto[sepay_key]" value="<?php echo esc_attr( $c['sepay_key'] ); ?>"><p class="description">Webhook URL: <code><?php echo esc_html( rest_url( 'vansach/v1/pay/sepay' ) ); ?></code> · Chứng thực: API Key</p></td></tr>
+				<tr><th>SePay - API Key</th><td><input class="regular-text" name="vs_auto[sepay_key]" value="<?php echo esc_attr( $c['sepay_key'] ); ?>"><p class="description">Webhook URL: <code><?php echo esc_html( rest_url( 'vansach/v1/pay/sepay' ) ); ?></code> | Chứng thực: API Key</p></td></tr>
 				<tr><th>SePay - API Token</th><td><input class="regular-text" type="password" autocomplete="off" name="vs_auto[sepay_token]" value="<?php echo esc_attr( $c['sepay_token'] ); ?>"><p class="description">Dò giao dịch mới mỗi phút và khi khách bấm “Tôi đã chuyển khoản” (dự phòng khi webhook bị lỡ). Tạo tại my.sepay.vn &gt; API Access.</p></td></tr>
 				<tr><th>Casso - Secure token</th><td><input class="regular-text" name="vs_auto[casso_token]" value="<?php echo esc_attr( $c['casso_token'] ); ?>"><p class="description">Webhook URL: <code><?php echo esc_html( rest_url( 'vansach/v1/pay/casso' ) ); ?></code></p></td></tr>
 			</table>
@@ -186,7 +186,7 @@ function vs_auto_admin_page() {
 						$scope[] = 'Tỷ lệ AI';
 					}
 					?>
-					<tr><td><?php echo esc_html( $tool['name'] ); ?></td><td><strong<?php echo 'auto' === vs_tool_check_mode( $t ) ? ' class="vs-ok"' : ''; ?>><?php echo esc_html( $lab[0] ); ?></strong> · <?php echo esc_html( $lab[1] ); ?></td><td><?php echo $scope ? esc_html( implode( ', ', $scope ) ) . ( vs_auto_tool_ready( $t ) ? ' · <b class="vs-ok">API đã kết nối</b>' : ' · chưa nhập API (đơn vào hàng chờ xử lý tay)' ) : 'Không có API'; ?></td></tr>
+					<tr><td><?php echo esc_html( $tool['name'] ); ?></td><td><strong<?php echo 'auto' === vs_tool_check_mode( $t ) ? ' class="vs-ok"' : ''; ?>><?php echo esc_html( $lab[0] ); ?></strong> | <?php echo esc_html( $lab[1] ); ?></td><td><?php echo $scope ? esc_html( implode( ', ', $scope ) ) . ( vs_auto_tool_ready( $t ) ? ' | <b class="vs-ok">API đã kết nối</b>' : ' | chưa nhập API (đơn vào hàng chờ xử lý tay)' ) : 'Không có API'; ?></td></tr>
 				<?php endforeach; ?>
 				</tbody>
 			</table>
@@ -213,7 +213,7 @@ add_action( 'add_meta_boxes_vs_order', function ( $post ) {
 	}
 	add_meta_box( 'vs_auto_box', 'Tự động 24/7', function ( $post ) {
 		$v = vs_auto_view( $post->ID );
-		echo '<p>' . ( $v['paid_at'] ? 'Thanh toán: <strong>' . esc_html( $v['paid_at'] . ' · ' . $v['paid_via'] ) . '</strong>' : 'Chưa thanh toán' ) . '</p>';
+		echo '<p>' . ( $v['paid_at'] ? 'Thanh toán: <strong>' . esc_html( $v['paid_at'] . ' | ' . $v['paid_via'] ) . '</strong>' : 'Chưa thanh toán' ) . '</p>';
 		if ( $v['jobs'] ) {
 			echo '<ul style="margin:0 0 10px">';
 			foreach ( $v['jobs'] as $j ) {
@@ -250,7 +250,7 @@ function vs_admin_results_html( $id, $compact = false ) {
 		}
 		if ( $parts ) {
 			$name  = 'final' === $tool ? 'Sau sửa' : ( isset( $p['tools'][ $tool ] ) ? $p['tools'][ $tool ]['name'] : $tool );
-			$html .= '<div>' . esc_html( $name ) . ': ' . implode( ' · ', $parts ) . '</div>';
+			$html .= '<div>' . esc_html( $name ) . ': ' . implode( ' | ', $parts ) . '</div>';
 		}
 	}
 	foreach ( vs_auto_files( $id ) as $i => $f ) {

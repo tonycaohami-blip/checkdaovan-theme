@@ -307,8 +307,8 @@ function vs_calc_reduce( $a ) {
 	);
 }
 
-/** Mô tả mục tiêu của đơn giảm tỷ lệ: "Đạo văn 45% → dưới 15% · AI 60% → dưới 20%". */
-function vs_reduce_goal_text( $data, $sep = ' · ' ) {
+/** Mô tả mục tiêu của đơn giảm tỷ lệ: "Đạo văn 45% → dưới 15% | AI 60% → dưới 20%". */
+function vs_reduce_goal_text( $data, $sep = ' | ' ) {
 	$goal = vs_reduce_goal( $data );
 	$fmt  = function ( $v ) {
 		return str_replace( '.', ',', (string) (float) $v ) . '%';

@@ -14,7 +14,7 @@ $reduce = 'reduce' === $m( 'service' );
 		<?php if ( $m( 'sample' ) ) : ?><span class="case__sample" title="Ví dụ minh họa quy trình, không phải kết quả của một khách hàng cụ thể">Minh họa</span><?php endif; ?>
 	</div>
 	<h3><?php echo esc_html( get_the_title( $c ) ); ?></h3>
-	<p class="case__meta"><?php echo esc_html( implode( ' · ', array_filter( array( $m( 'field' ), $m( 'tool' ), $m( 'pages' ) ? $m( 'pages' ) . ' trang' : '', $m( 'days' ) ) ) ) ); ?></p>
+	<p class="case__meta"><?php echo esc_html( implode( ' | ', array_filter( array( $m( 'field' ), $m( 'tool' ), $m( 'pages' ) ? $m( 'pages' ) . ' trang' : '', $m( 'days' ) ) ) ) ); ?></p>
 
 	<div class="case__bars">
 		<div class="case__row">

@@ -206,7 +206,7 @@ add_action( 'vs_telegram', function ( $text ) {
 			break;
 		}
 	}
-	vs_notify_admin( $type, $title, implode( ' · ', $lines ), $order );
+	vs_notify_admin( $type, $title, implode( ' | ', $lines ), $order );
 } );
 
 /* =========================================================

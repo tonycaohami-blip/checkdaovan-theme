@@ -1816,3 +1816,22 @@ body.adm-lock { overflow: hidden; }
 /* 6.19: Thông tin file (định dạng · dung lượng · lượt tải) */
 .fcard__name { min-width: 0; }
 .fcard__name small { display: block; font-weight: 500; font-size: 11.5px; color: #5f6b7a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+
+/* =========================================================
+   6.20: Dấu phân cách " | " dạng vạch dọc (thay chấm tròn) + hạn thanh toán
+   ========================================================= */
+/* Phần tử có font-size 0 nên dùng đơn vị px (em sẽ bằng 0). */
+.sep, span.sep { display: inline-block !important; width: 1.5px !important; height: 13px !important; margin: 0 10px !important; padding: 0 !important; vertical-align: -1px; position: static; top: auto; font-size: 0 !important; line-height: 0; overflow: hidden; border-radius: 2px; background: currentColor; opacity: .32; grid-column: auto !important; }
+small .sep, .small .sep, .muted .sep, .pill .sep, .logo__tag .sep { height: 11px !important; margin: 0 8px !important; }
+h1 .sep, h2 .sep, .h1 .sep { height: 22px !important; margin: 0 14px !important; }
+.sep::before { content: none !important; display: none !important; }
+.pill .sep, .topbar .sep, .hero .sep, .page-hero .sep, .site-footer .sep, .summary .sep, .side-card .sep, .inline-cta .sep { opacity: .45; }
+.hero .sep, .page-hero .sep, .topbar .sep { background: #a9b8ff; opacity: .6; }
+.tool__prices .sep, .case__meta .sep { margin: 0 7px !important; }
+.pay-deadline { display: flex; align-items: flex-start; gap: 10px; margin: 0 0 14px; padding: 11px 13px; border-radius: 12px; background: var(--warn-soft, #fff6e5); color: #8a5300; font-size: 13.5px; line-height: 1.5; border: 1px solid rgba(217, 119, 6, .22); }
+.pay-deadline b { color: #6b3f00; }
+.pay-deadline em { display: block; font-style: normal; font-weight: 700; font-variant-numeric: tabular-nums; margin-top: 2px; }
+.pay-deadline.is-over { background: #fdecec; color: #b42323; border-color: rgba(220, 59, 59, .25); }
+.pay-deadline.is-over b { color: #8f1c1c; }
+.pay-deadline__ic { font-size: 16px; line-height: 1.3; }
+.pay-wait.is-cancel { border-color: rgba(220, 59, 59, .3); background: #fff6f6; }

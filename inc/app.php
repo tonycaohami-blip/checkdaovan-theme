@@ -137,7 +137,7 @@ function vs_app_render() {
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#0b1630">
-<title>Quản trị đơn hàng · <?php echo esc_html( get_bloginfo( 'name' ) ); ?></title>
+<title>Quản trị đơn hàng | <?php echo esc_html( get_bloginfo( 'name' ) ); ?></title>
 <link rel="icon" href="<?php echo esc_url( vs_app_asset( 'assets/img/favicon.svg' ) ); ?>" type="image/svg+xml">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="preload" href="<?php echo esc_url( wp_parse_url( VS_URI, PHP_URL_PATH ) . '/assets/app/fonts/inter-latin.woff2' ); ?>" as="font" type="font/woff2" crossorigin>

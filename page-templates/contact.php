@@ -49,7 +49,7 @@ if ( vs_opt( 'address' ) ) {
 				<p>Tra cứu tiến độ, tải báo cáo bằng mã đơn và số điện thoại.</p>
 				<a class="btn btn--primary btn--block" href="<?php echo esc_url( vs_page_url( 'tra-cuu-don-hang' ) ); ?>">Tra cứu đơn hàng</a>
 				<?php if ( vs_opt( 'company' ) || vs_opt( 'tax_code' ) ) : ?>
-					<p class="muted small"><?php echo esc_html( trim( vs_opt( 'company' ) . ( vs_opt( 'tax_code' ) ? ' · MST/ĐKKD: ' . vs_opt( 'tax_code' ) : '' ) ) ); ?></p>
+					<p class="muted small"><?php echo esc_html( trim( vs_opt( 'company' ) . ( vs_opt( 'tax_code' ) ? ' | MST/ĐKKD: ' . vs_opt( 'tax_code' ) : '' ) ) ); ?></p>
 				<?php endif; ?>
 			</div>
 		</div>

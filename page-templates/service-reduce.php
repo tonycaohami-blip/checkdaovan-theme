@@ -8,7 +8,7 @@ $order = vs_page_url( 'dat-hang', array( 'tab' => 'reduce' ) );
 
 get_template_part( 'template-parts/page-hero', null, array(
 	'title'   => 'Giảm tỷ lệ đạo văn + AI<br><span class="hl">bằng biên tập học thuật</span>',
-	'eyebrow' => 'Dịch vụ · Hỗ trợ biên tập',
+	'eyebrow' => 'Dịch vụ | Hỗ trợ biên tập',
 	'crumbs'  => array( 'Dịch vụ' => vs_page_url( 'bang-gia' ) ),
 	'lead'    => 'Biên tập viên theo chuyên ngành hỗ trợ diễn đạt lại, bổ sung trích dẫn đúng chuẩn cho <strong>bài do chính bạn nghiên cứu và viết</strong>, giữ nguyên ý và số liệu. Bạn vẫn là tác giả và rà soát mọi chỉnh sửa trước khi nộp.',
 	'actions' => '<a class="btn btn--accent btn--lg" href="' . esc_url( $order ) . '">Tính giá &amp; đặt hàng</a><a class="btn btn--glass btn--lg" href="' . esc_url( vs_page_url( 'ket-qua-thuc-te' ) ) . '">Xem kết quả</a>',
@@ -91,7 +91,7 @@ get_template_part( 'template-parts/page-hero', null, array(
 			<div><span>Hỏa tốc 24 giờ</span><b>+<?php echo (int) round( ( $r['deadlines']['urgent']['mult'] - 1 ) * 100 ); ?>%</b></div>
 			<div><span>Giảm tỷ lệ AI</span><b><?php echo esc_html( vs_money( $r['ai_unit'] ) ); ?></b><small>/trang</small></div>
 		</div>
-		<p class="center-note center-note--light">Mục tiêu tự chọn (thấp hơn tỷ lệ hiện tại) · dưới 20%: +<?php echo (int) $r['step_pct']; ?>% cho mỗi 1% · giảm cả hai: phần AI -<?php echo (int) ( 100 - $r['both_pct'] ); ?>% · hệ số theo tỷ lệ hiện tại: ≤40% ×1 · 41-60% ×1,25 · 61-80% ×1,5 · trên 80% ×1,8 · Đơn tối thiểu <?php echo esc_html( vs_money( $r['min'] ) ); ?></p>
+		<p class="center-note center-note--light">Mục tiêu tự chọn (thấp hơn tỷ lệ hiện tại) | dưới 20%: +<?php echo (int) $r['step_pct']; ?>% cho mỗi 1% | giảm cả hai: phần AI -<?php echo (int) ( 100 - $r['both_pct'] ); ?>% | hệ số theo tỷ lệ hiện tại: ≤40% ×1 | 41-60% ×1,25 | 61-80% ×1,5 | trên 80% ×1,8 | Đơn tối thiểu <?php echo esc_html( vs_money( $r['min'] ) ); ?></p>
 		<div class="center-actions"><a class="btn btn--accent btn--lg" href="<?php echo esc_url( $order ); ?>">Tính giá cho bài của bạn</a></div>
 	</div>
 </section>

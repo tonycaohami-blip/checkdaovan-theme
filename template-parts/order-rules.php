@@ -6,10 +6,10 @@
 $reduce = ! empty( $args['reduce'] );
 ?>
 <ul class="file-rules">
-	<li><span class="file-rules__k">Định dạng</span><span><?php echo $reduce ? 'Bản gốc <b>.docx</b> · báo cáo <b>.pdf</b>' : '<b>.docx</b>, <b>.pdf</b>, <b>.txt</b>, <b>.rtf</b>'; ?></span></li>
+	<li><span class="file-rules__k">Định dạng</span><span><?php echo $reduce ? 'Bản gốc <b>.docx</b> | báo cáo <b>.pdf</b>' : '<b>.docx</b>, <b>.pdf</b>, <b>.txt</b>, <b>.rtf</b>'; ?></span></li>
 	<li><span class="file-rules__k">Dung lượng</span><span>Mỗi file <b>dưới <?php echo (int) vs_max_upload_mb(); ?> MB</b></span></li>
 	<?php if ( ! $reduce ) : ?>
-		<li data-word-rule><span class="file-rules__k">Số từ</span><span><b>Turnitin</b>, <b>iThenticate</b>: <b class="file-rules__req">tối thiểu <?php echo (int) VS_MIN_WORDS; ?> từ</b> · tối đa <?php echo esc_html( number_format( VS_MAX_WORDS, 0, ',', '.' ) ); ?> từ. Các phần mềm khác: không giới hạn số từ.</span></li>
+		<li data-word-rule><span class="file-rules__k">Số từ</span><span><b>Turnitin</b>, <b>iThenticate</b>: <b class="file-rules__req">tối thiểu <?php echo (int) VS_MIN_WORDS; ?> từ</b> | tối đa <?php echo esc_html( number_format( VS_MAX_WORDS, 0, ',', '.' ) ); ?> từ. Các phần mềm khác: không giới hạn số từ.</span></li>
 	<?php else : ?>
 		<li><span class="file-rules__k">Số từ</span><span>Không giới hạn số từ</span></li>
 	<?php endif; ?>
