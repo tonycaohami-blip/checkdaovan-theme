@@ -571,7 +571,7 @@ HTML
 	array(
 		'slug'    => 'chatgpt-co-bi-phat-hien-khong',
 		'cat'     => 'ai',
-		'cover'   => 'chatgpt-co-bi-phat-hien-khong-check-dao-van.jpg',
+		'cover'   => 'chatgpt-co-bi-phat-hien-khong-check-dao-van-v2.jpg',
 		'tags'    => array( 'ChatGPT có bị phát hiện không', 'phát hiện ChatGPT', 'kiểm tra AI', 'Turnitin AI', 'liêm chính học thuật' ),
 		'title'   => 'ChatGPT có bị phát hiện không? 8 sự thật cần biết',
 		'excerpt' => 'Giải đáp thẳng thắn câu hỏi bài viết bằng ChatGPT có bị phát hiện không: công cụ phát hiện hoạt động ra sao, độ tin cậy, báo nhầm, dấu hiệu giảng viên nhận ra và cách dùng ChatGPT có trách nhiệm.',
@@ -698,7 +698,7 @@ HTML
 	array(
 		'slug'    => 'trich-dan-tai-lieu-tham-khao',
 		'cat'     => 'huong-dan',
-		'cover'   => 'trich-dan-tai-lieu-tham-khao-check-dao-van.jpg',
+		'cover'   => 'trich-dan-tai-lieu-tham-khao-check-dao-van-v2.jpg',
 		'tags'    => array( 'trích dẫn tài liệu tham khảo', 'APA', 'IEEE', 'Harvard', 'Vancouver', 'danh mục tài liệu tham khảo' ),
 		'title'   => 'Trích dẫn tài liệu tham khảo: 5 chuẩn phổ biến 2026',
 		'excerpt' => 'Hướng dẫn trích dẫn tài liệu tham khảo theo 5 chuẩn phổ biến APA, IEEE, Harvard, Vancouver và Chicago, kèm ví dụ trong bài và trong danh mục, cách chọn chuẩn và công cụ trích dẫn tự động.',
@@ -1262,7 +1262,7 @@ HTML
 	array(
 		'slug'    => 'cach-viet-bai-bao-khoa-hoc',
 		'cat'     => 'huong-dan',
-		'cover'   => 'cach-viet-bai-bao-khoa-hoc-check-dao-van.jpg',
+		'cover'   => 'cach-viet-bai-bao-khoa-hoc-check-dao-van-v2.jpg',
 		'tags'    => array( 'cách viết bài báo khoa học', 'IMRaD', 'gửi bài tạp chí', 'bài báo khoa học', 'công bố quốc tế', 'cover letter' ),
 		'title'   => 'Cách viết bài báo khoa học: 9 bước chuẩn bị gửi đăng',
 		'excerpt' => 'Hướng dẫn cách viết bài báo khoa học từ đầu đến khi gửi bài tạp chí: chọn tạp chí phù hợp, viết theo cấu trúc IMRaD, trình bày kết quả, thảo luận, cover letter, kiểm tra trùng lặp và xử lý phản biện.',
