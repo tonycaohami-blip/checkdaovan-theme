@@ -161,7 +161,13 @@ function vs_adm_order_data( $id ) {
 				'label' => $label,
 				'name'  => $name,
 				'short' => vs_short_filename( $name, 34 ),
-				'url'   => wp_nonce_url( admin_url( 'admin-post.php?action=vs_download&order=' . $id . ( 'src_report' === $which ? '&which=report' : '' ) ), 'vs_dl_' . $id ),
+				// URL thô (không dùng wp_nonce_url vì hàm đó trả "&amp;", JS escape thêm lần nữa làm hỏng tham số).
+				'url'   => add_query_arg( array_filter( array(
+					'action'   => 'vs_download',
+					'order'    => $id,
+					'which'    => 'src_report' === $which ? 'report' : '',
+					'_wpnonce' => wp_create_nonce( 'vs_dl_' . $id ),
+				) ), admin_url( 'admin-post.php' ) ),
 			);
 		}
 	}
