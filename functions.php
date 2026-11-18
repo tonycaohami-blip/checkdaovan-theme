@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'VS_VERSION', '6.28.0' );
+define( 'VS_VERSION', '6.29.0' );
 define( 'VS_BRAND', 'Check Đạo Văn' );       // Tên thương hiệu mặc định (đổi trong Cài đặt > Chung > Tên website).
 define( 'VS_DOMAIN', 'checkdaovan247.com' );          // Tên miền chính thức.
 define( 'VS_EMAIL', 'hotro@checkdaovan247.com' );     // Email hỗ trợ mặc định.
@@ -15,6 +15,7 @@ define( 'VS_DIR', get_template_directory() );
 define( 'VS_URI', get_template_directory_uri() );
 
 require VS_DIR . '/inc/pricing.php';
+require VS_DIR . '/inc/engine/engine.php'; // CDV Scan: bộ kiểm tra trùng lặp riêng.
 require VS_DIR . '/inc/settings.php';
 require VS_DIR . '/inc/orders.php';
 require VS_DIR . '/inc/ajax.php';
@@ -158,6 +159,7 @@ function vs_tool_meta() {
 		'doit'        => array( 'D', '#be123c', 'Việt Nam' ),
 		'quillbot'    => array( 'Q', '#65a30d', 'Đạo văn + AI' ),
 		'undetectable' => array( 'UA', '#334155', 'AI tổng hợp' ),
+		'cdv'         => array( 'CDV', '#3d5cff', 'Của Check Đạo Văn' ),
 	);
 }
 

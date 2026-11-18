@@ -199,7 +199,7 @@ function vs_auto_enqueue( $id ) {
 					'started'  => time(),
 				);
 			} else {
-				$manual[] = vs_pricing()['tools'][ $tool ]['name'] . ' (' . ( 'ai' === $kind ? 'AI' : 'đạo văn' ) . ')';
+				$manual[] = vs_tool_name( $tool ) . ' (' . ( 'ai' === $kind ? 'AI' : 'đạo văn' ) . ')';
 			}
 		}
 	}
@@ -311,7 +311,7 @@ function vs_auto_process( $id ) {
 
 /* Mỗi khi một phần mềm có kết quả: báo quản trị ngay (Telegram) - khách thấy và tải được ngay trong tài khoản. */
 add_action( 'vs_auto_job_done', function ( $id, $job ) {
-	$name = vs_pricing()['tools'][ $job['tool'] ]['name'];
+	$name = vs_tool_name( $job['tool'] );
 	$val  = null === $job['result'] ? '' : ' ' . $job['result'] . '%';
 	vs_auto_log( $name . ': đã có kết quả' . $val . ( $job['file'] ? ' + báo cáo PDF' : '' ) . ', khách đã tải được', $id );
 	vs_telegram( '📄 Kết quả ' . $name . ( 'ai' === $job['kind'] ? ' (AI)' : '' ) . $val . ' - đơn ' . vs_meta( $id, 'code' ) . "
@@ -381,7 +381,12 @@ function vs_auto_files( $id ) {
 	$out = array();
 	foreach ( (array) get_post_meta( $id, '_vs_jobs', true ) as $j ) {
 		if ( ! empty( $j['file'] ) ) {
-			$out[] = array( 'path' => $j['file'], 'name' => 'Bao-cao-' . vs_pricing()['tools'][ $j['tool'] ]['name'] . '-' . vs_meta( $id, 'code' ) . '.pdf' );
+			$out[] = array_filter( array(
+				'path' => $j['file'],
+				'name' => 'Bao-cao-' . sanitize_file_name( vs_tool_name( $j['tool'] ) ) . '-' . vs_meta( $id, 'code' ) . '.pdf',
+				// CDV Scan: thêm trang xem báo cáo trực tuyến (tô màu từng nguồn).
+				'view' => ! empty( $j['view'] ) && function_exists( 'vs_cdv_view_url' ) ? vs_cdv_view_url( $j['view'] ) : '',
+			) );
 		}
 	}
 	return $out;

@@ -117,6 +117,7 @@ function vs_ajax_submit() {
 			$data['tools'] = $calc['tools'];
 			$data['pages'] = $calc['pages'];
 		}
+		$data = apply_filters( 'vs_order_data', $data, $post );
 	} else {
 		$linked_id = 0;
 		if ( ! empty( $post['linked'] ) ) {
@@ -476,7 +477,7 @@ function vs_order_view( $id ) {
 	if ( $visible ) {
 		foreach ( vs_auto_files( $id ) as $i => $f ) {
 			$st      = vs_file_stats( $id, 'auto:' . basename( $f['path'] ), $f['name'], vs_report_dir() . '/' . basename( $f['path'] ), 'PDF' );
-			$files[] = array_merge( $st, array( 'url' => vs_file_url( $id, $i ), 'name' => $f['name'], 'short' => vs_short_filename( $f['name'], 34 ), 'meta' => vs_file_meta_text( $st ) ) );
+			$files[] = array_merge( $st, array( 'url' => vs_file_url( $id, $i ), 'name' => $f['name'], 'short' => vs_short_filename( $f['name'], 34 ), 'meta' => vs_file_meta_text( $st ) ), ! empty( $f['view'] ) ? array( 'view' => $f['view'] ) : array() );
 		}
 		// Báo cáo nặng trả qua Google Drive: xem và tải trực tiếp từ Drive.
 		foreach ( vs_drive_links( $id ) as $d ) {

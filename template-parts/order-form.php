@@ -70,6 +70,7 @@ $min_check = vs_min_check_price();
 				<span><b>Hỏa tốc</b> - trả trong 30 phút<br><small>+<?php echo (int) $check['express_pct']; ?>% phí</small></span>
 			</label>
 		</div>
+		<?php if ( function_exists( 'vs_cdv_order_field' ) ) { vs_cdv_order_field(); } ?>
 
 		<?php get_template_part( 'template-parts/order', 'common' ); ?>
 	</div>

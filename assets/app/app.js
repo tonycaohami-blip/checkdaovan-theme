@@ -86,6 +86,7 @@
 		tag: '<path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
 		left: '<path d="m15 6-6 6 6 6"/>',
 		palette: '<circle cx="12" cy="12" r="9"/><circle cx="8" cy="10" r="1.2"/><circle cx="12" cy="7.5" r="1.2"/><circle cx="16" cy="10" r="1.2"/><path d="M12 21a3 3 0 0 1 0-6h2a3 3 0 0 0 3-3"/>',
+		scan: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h4"/><path d="M14 3v5h5v2"/><circle cx="16.5" cy="16.5" r="3.5"/><path d="m19 19 2.5 2.5M8 9h3M8 13h4"/>',
 		ticket: '<path d="M3 8.5V6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v2.5a3.5 3.5 0 0 0 0 7V18a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2.5a3.5 3.5 0 0 0 0-7z"/><path d="M14 5v2M14 11v2M14 17v2"/>',
 		pct: '<path d="M19 5 5 19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>',
 		plus: '<path d="M12 5v14M5 12h14"/>',
@@ -267,6 +268,7 @@
 	var NAV = [
 		{ id: '', t: 'Tổng quan', i: 'home', s: 'Hoạt động kinh doanh hôm nay' },
 		{ id: 'orders', t: 'Đơn hàng', i: 'orders', s: 'Theo dõi và xử lý đơn', b: 'orders' },
+		{ id: 'scan', t: 'CDV Scan', i: 'scan', s: 'Bộ kiểm tra trùng lặp riêng của website: kiểm tra nhanh, kho đối chiếu, cài đặt' },
 		{ id: 'customers', t: 'Khách hàng', i: 'users', s: 'Tổng hợp theo số điện thoại đặt đơn' },
 		{ id: 'affiliates', t: 'Cộng tác viên', i: 'aff', s: 'Hoa hồng và yêu cầu rút tiền', b: 'payouts' },
 		{ id: 'coupons', t: 'Mã giảm giá', i: 'ticket', s: 'Tạo ưu đãi và tặng mã riêng cho khách hàng' },
@@ -1348,6 +1350,222 @@
 	});
 	document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeNotif(); });
 	window.addEventListener('resize', debounce(function () { if (notifOpen() && window.innerWidth > 900) { closeNotif(); } }, 200));
+
+	/* =========================================================
+	   CDV SCAN: bộ kiểm tra trùng lặp riêng của website
+	   ========================================================= */
+	/** Đọc toàn bộ chữ của file PDF (giữ xuống dòng). */
+	function pdfAll(file) {
+		return loadPdfjs().then(function (lib) { return file.arrayBuffer().then(function (buf) { return lib.getDocument({ data: buf }).promise; }); }).then(function (pdf) {
+			var jobs = [];
+			for (var i = 1; i <= pdf.numPages; i++) jobs.push(pdf.getPage(i).then(function (pg) { return pg.getTextContent().then(function (tc) { return tc.items.map(function (it) { return it.str + (it.hasEOL ? '\n' : ''); }).join(''); }); }));
+			return Promise.all(jobs).then(function (t) { return t.join('\n'); });
+		});
+	}
+	/** Dữ liệu gửi máy chủ cho 1 file: PDF đọc trên trình duyệt, .docx/.txt gửi file. */
+	function scanPayload(file) {
+		if (/\.pdf$/i.test(file.name)) return pdfAll(file).then(function (t) { if (t.replace(/\s/g, '').length < 100) throw new Error('PDF không có lớp chữ (bản scan ảnh): không đọc được nội dung.'); return { text: t }; });
+		if (!/\.(docx|txt)$/i.test(file.name)) return Promise.reject(new Error('Chỉ nhận file .docx, .pdf hoặc .txt.'));
+		return Promise.resolve({ file: file });
+	}
+	function scanRing(score, lv, size) {
+		var r = 44, c = 2 * Math.PI * r, p = Math.max(0, Math.min(100, score));
+		return '<div class="sring sring--' + esc(lv) + '" style="width:' + size + 'px;height:' + size + 'px"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="' + r + '" class="sring__bg"/><circle cx="50" cy="50" r="' + r + '" class="sring__fg" stroke-dasharray="' + (c * p / 100).toFixed(1) + ' ' + c.toFixed(1) + '"/></svg><b>' + p + '<small>%</small></b></div>';
+	}
+	function scanResultHTML(s) {
+		if (s.state !== 'done') {
+			return '<div class="srun"><div class="srun__bar"><i style="width:' + s.progress + '%"></i></div><div class="srun__t"><b>' + esc(s.label) + '</b><span class="mono">' + s.progress + '%</span></div>' +
+				'<ol class="srun__steps">' + [['search', 'Tìm câu đặc trưng trên Internet', s.web], ['fetch', 'Tải các trang nguồn về đối chiếu', s.web], ['match', 'So khớp với kho đối chiếu', true], ['done', 'Tạo báo cáo tô màu', true]].filter(function (x) { return x[2]; }).map(function (x) {
+					var order = ['search', 'fetch', 'match', 'done'], cur = order.indexOf(s.state), me = order.indexOf(x[0]);
+					return '<li class="' + (me < cur ? 'is-done' : me === cur ? 'is-cur' : '') + '">' + ic(me < cur ? 'check' : 'clock', 15) + esc(x[1]) + '</li>';
+				}).join('') + '</ol>' +
+				(s.errors && s.errors.length ? '<p class="srun__err">' + ic('x', 14) + esc(s.errors[0]) + '</p>' : '') + '</div>';
+		}
+		return '<div class="sres">' +
+			'<div class="sres__hd">' + scanRing(s.score, s.level[1], 112) + '<div><span class="slv slv--' + esc(s.level[1]) + '">' + esc(s.level[0]) + '</span><b>' + esc(s.title) + '</b><small>' + num(s.words) + ' từ | ' + s.n + ' nguồn trùng' + (s.web ? ' | ' + s.webdocs + ' trang web đã đối chiếu' : ' | chỉ kho nội bộ') + '</small></div></div>' +
+			(s.top.length ? '<ol class="ssrc">' + s.top.map(function (x) { return '<li><span class="ssrc__n" style="background:' + esc(x.c) + '">' + x.n + '</span><span class="ssrc__t"><b>' + esc(x.title) + '</b><small>' + esc(x.kind + (x.host ? ' | ' + x.host : '')) + '</small></span><span class="ssrc__p mono" style="color:' + esc(x.c) + '">' + String(x.pct).replace('.', ',') + '%</span></li>'; }).join('') + '</ol>' : '<p class="muted sres__none">Không có đoạn trùng nào đủ dài với kho đối chiếu' + (s.web ? ' và Internet' : '') + '.</p>') +
+			'<div class="sres__acts"><a class="btn btn--primary" href="' + esc(s.view) + '" target="_blank" rel="noopener">' + ic('eye', 16) + 'Xem báo cáo chi tiết</a><a class="btn" href="' + esc(s.pdf) + '">' + ic('down', 16) + 'Tải PDF</a></div></div>';
+	}
+
+	views.scan = function (el, q, alive) {
+		var tab = ['repo', 'cfg'].indexOf(q.tab) > -1 ? q.tab : 'check', home = null;
+		el.innerHTML = '<div class="grid g-kpi" id="scsum">' + [1, 2, 3, 4].map(function () { return '<div class="card kpi"><div class="sk" style="height:14px;width:40%"></div><div class="sk" style="height:24px;width:60%;margin-top:12px"></div></div>'; }).join('') + '</div>' +
+			'<div class="bar mt"><div class="tabs" id="sctabs">' + [['check', 'scan', 'Kiểm tra'], ['repo', 'list', 'Kho đối chiếu'], ['cfg', 'cog', 'Cài đặt']].map(function (t) { return '<button data-t="' + t[0] + '" class="' + (tab === t[0] ? 'on' : '') + '">' + ic(t[1], 15) + t[2] + '</button>'; }).join('') + '</div></div>' +
+			'<div id="scbody"><div class="card">' + skeleton(6) + '</div></div>';
+		$('#sctabs').onclick = function (e) { var b = e.target.closest('[data-t]'); if (b) go('scan', { tab: b.dataset.t === 'check' ? '' : b.dataset.t }); };
+
+		function sum(st, on) {
+			$('#scsum').innerHTML =
+				kpiHTML('hero', 'scan', 'Bán cho khách', on ? 'Đang bán' : 'Chưa bật', on ? 'Hiện trong trang đặt đơn' : 'Bật trong tab Cài đặt') +
+				kpiHTML('', 'file', 'Tài liệu trong kho', num(st.upload + st.order), num(st.upload) + ' tải lên | ' + num(st.order) + ' bài khách nộp') +
+				kpiHTML('violet', 'globe', 'Trang web đã lưu', num(st.web), home && home.webok ? 'Tìm Internet: đang bật' : 'Chưa kết nối API tìm kiếm') +
+				kpiHTML('ok', 'list', 'Từ đã lập chỉ mục', num(st.words), 'Dùng để so khớp mọi bài mới');
+		}
+		function load() {
+			api('vs_cdv_home').then(function (d) {
+				if (!alive()) return;
+				home = d; sum(d.stats, d.cfg.on);
+				({ check: paintCheck, repo: paintRepo, cfg: paintCfg })[tab]();
+			}, function (e) { if (alive()) $('#scbody').innerHTML = '<div class="card">' + errHTML(e.message) + '</div>'; });
+		}
+
+		/* ---------- Kiểm tra nhanh ---------- */
+		var picked = null, running = null;
+		function paintCheck() {
+			var c = home.cfg;
+			$('#scbody').innerHTML = '<div class="grid g-2 scan-g">' +
+				'<div class="card"><div class="card__hd"><h3>Kiểm tra văn bản</h3><span class="muted">Đối chiếu với kho' + (home.webok ? ' và Internet' : ' nội bộ') + '</span></div><div class="card__bd">' +
+					'<label class="field"><span>Tên tài liệu (tùy chọn)</span><input class="input" id="sct" maxlength="120" placeholder="VD: Luận văn Nguyễn Văn A - chương 2"></label>' +
+					'<div class="seg scan-seg" id="scmode"><button data-v="paste" class="on">' + ic('note', 14) + 'Dán văn bản</button><button data-v="file">' + ic('file', 14) + 'Tải file</button></div>' +
+					'<div id="scpaste"><textarea class="textarea scan-ta" id="sctext" placeholder="Dán nội dung cần kiểm tra (ít nhất 30 từ)..."></textarea><div class="scan-count muted" id="sccount">0 từ</div></div>' +
+					'<label class="upl scan-upl hide" id="scfile">' + ic('file', 22) + '<span><b id="scfn">Chọn hoặc kéo thả file vào đây</b><small>.docx, .pdf (có lớp chữ), .txt | tối đa 30 MB</small></span><input type="file" id="scf" accept=".docx,.pdf,.txt"></label>' +
+					'<div class="scan-opts">' +
+						'<label class="check"><input type="checkbox" id="scbib"' + (c.bib ? ' checked' : '') + '> Loại trừ tài liệu tham khảo</label>' +
+						'<label class="check"><input type="checkbox" id="scq"' + (c.quote ? ' checked' : '') + '> Loại trừ trích dẫn “…”</label>' +
+						'<label class="check' + (home.webok ? '' : ' is-off') + '" title="' + (home.webok ? '' : 'Cần nhập khóa API tìm kiếm trong tab Cài đặt') + '"><input type="checkbox" id="scweb"' + (home.webok ? ' checked' : ' disabled') + '> Tìm trên Internet</label>' +
+						'<label class="check"><input type="checkbox" id="screpo"> Lưu vào kho đối chiếu</label>' +
+					'</div>' +
+					'<button class="btn btn--primary scan-go" id="scgo">' + ic('scan', 17) + 'Bắt đầu kiểm tra</button>' +
+				'</div></div>' +
+				'<div class="card scan-out"><div class="card__hd"><h3>Kết quả</h3></div><div class="card__bd" id="scout">' + emptyHTML('Chưa có kết quả', 'Dán văn bản hoặc tải file rồi bấm "Bắt đầu kiểm tra".', 'scan') + '</div></div>' +
+			'</div>' +
+			'<div class="card mt"><div class="card__hd"><h3>Lượt kiểm tra gần đây</h3><span class="muted">Lưu 30 ngày</span></div><div id="screc"></div></div>';
+			paintRecent();
+			var mode = 'paste';
+			$('#scmode').onclick = function (e) {
+				var b = e.target.closest('[data-v]'); if (!b) return; mode = b.dataset.v;
+				$$('#scmode button').forEach(function (x) { x.classList.toggle('on', x === b); });
+				$('#scpaste').classList.toggle('hide', mode !== 'paste'); $('#scfile').classList.toggle('hide', mode !== 'file');
+			};
+			$('#sctext').addEventListener('input', debounce(function () { var n = (this.value.match(/[\p{L}\p{N}]+/gu) || []).length; $('#sccount').textContent = num(n) + ' từ'; }, 150));
+			var fz = $('#scfile');
+			['dragenter', 'dragover'].forEach(function (ev) { fz.addEventListener(ev, function (e) { e.preventDefault(); fz.classList.add('is-drag'); }); });
+			['dragleave', 'drop'].forEach(function (ev) { fz.addEventListener(ev, function () { fz.classList.remove('is-drag'); }); });
+			$('#scf').onchange = function () { picked = this.files[0] || null; $('#scfn').textContent = picked ? picked.name : 'Chọn hoặc kéo thả file vào đây'; if (picked && !$('#sct').value) $('#sct').value = picked.name.replace(/\.[^.]+$/, ''); };
+			$('#scgo').onclick = function () {
+				var btn = this, data = { title: $('#sct').value.trim(), bib: $('#scbib').checked ? 1 : '', quote: $('#scq').checked ? 1 : '', web: $('#scweb').checked ? 1 : '', repo: $('#screpo').checked ? 1 : '' };
+				var prep = mode === 'paste' ? ((($('#sctext').value.match(/[\p{L}\p{N}]+/gu) || []).length < 30) ? Promise.reject(new Error('Văn bản cần ít nhất 30 từ.')) : Promise.resolve({ text: $('#sctext').value })) : (picked ? scanPayload(picked) : Promise.reject(new Error('Vui lòng chọn file cần kiểm tra.')));
+				btn.disabled = true; btn.classList.add('is-busy');
+				$('#scout').innerHTML = scanResultHTML({ state: 'search', progress: 2, label: 'Đang đọc văn bản', web: !!data.web });
+				prep.then(function (p) { return api('vs_cdv_start', Object.assign(data, p)); }).then(function (s) { run(s); }, function (e) {
+					toast(e.message, 'err'); $('#scout').innerHTML = emptyHTML('Chưa kiểm tra được', e.message, 'scan');
+				}).then(function () { btn.disabled = false; btn.classList.remove('is-busy'); });
+			};
+		}
+		function run(s) {
+			running = s.id;
+			var box = $('#scout'); if (!box) return;
+			box.innerHTML = scanResultHTML(s);
+			if (s.state === 'done') { api('vs_cdv_home').then(function (d) { if (!alive()) return; home = d; sum(d.stats, d.cfg.on); paintRecent(); }); toast('Đã kiểm tra xong: trùng ' + s.score + '%.', 'ok'); return; }
+			if (s.state === 'failed') return;
+			api('vs_cdv_step', { id: s.id }).then(function (n) { if (alive() && running === s.id && $('#scout')) run(n); }, function (e) { toast(e.message, 'err'); });
+		}
+		function paintRecent() {
+			var box = $('#screc'); if (!box) return;
+			var list = home.recent;
+			box.innerHTML = !list.length ? emptyHTML('Chưa có lượt kiểm tra', 'Kết quả kiểm tra nhanh sẽ hiện ở đây.', 'clock') :
+				'<ul class="srec">' + list.map(function (s) {
+					return '<li data-sid="' + esc(s.id) + '">' + (s.state === 'done' ? '<span class="srec__s srec__s--' + esc(s.level[1]) + ' mono">' + s.score + '%</span>' : '<span class="srec__s srec__s--run">' + ic('clock', 15) + '</span>') +
+						'<span class="srec__t"><b>' + esc(s.title) + '</b><small>' + esc(s.created) + (s.state === 'done' ? ' | ' + num(s.words) + ' từ | ' + s.n + ' nguồn' : ' | ' + esc(s.label)) + '</small></span>' +
+						(s.state === 'done' ? '<a class="btn btn--sm" href="' + esc(s.view) + '" target="_blank" rel="noopener">' + ic('eye', 14) + 'Báo cáo</a><a class="ibtn" href="' + esc(s.pdf) + '" title="Tải PDF">' + ic('down', 16) + '</a>' : '<button class="btn btn--sm" data-resume="' + esc(s.id) + '">' + ic('refresh', 14) + 'Chạy tiếp</button>') + '</li>';
+				}).join('') + '</ul>';
+			box.onclick = function (e) { var b = e.target.closest('[data-resume]'); if (!b) return; var s = home.recent.filter(function (x) { return x.id === b.dataset.resume; })[0]; if (s) { run(s); window.scrollTo({ top: 0, behavior: 'smooth' }); } };
+		}
+
+		/* ---------- Kho đối chiếu ---------- */
+		var rq = { kind: '', q: '', page: 1 };
+		function paintRepo() {
+			$('#scbody').innerHTML =
+				'<div class="card"><div class="card__hd"><h3>Thêm tài liệu vào kho</h3><span class="muted">Giáo trình, luận văn mẫu, bài báo... mà bạn có quyền sử dụng</span></div><div class="card__bd">' +
+					'<label class="upl scan-upl" id="rpz">' + ic('plus', 22) + '<span><b>Chọn hoặc kéo thả nhiều file</b><small>.docx, .pdf (có lớp chữ), .txt | mỗi file trở thành 1 nguồn đối chiếu</small></span><input type="file" id="rpf" accept=".docx,.pdf,.txt" multiple></label>' +
+					'<ul class="rpq" id="rpq"></ul>' +
+				'</div></div>' +
+				'<div class="bar mt"><div class="tabs" id="rpk">' + [['', 'Tất cả'], ['upload', 'Kho tài liệu'], ['order', 'Bài đã nộp'], ['web', 'Internet']].map(function (t) { return '<button data-k="' + t[0] + '" class="' + (rq.kind === t[0] ? 'on' : '') + '">' + t[1] + '</button>'; }).join('') + '</div>' +
+				'<label class="search">' + ic('search', 17) + '<input id="rps" value="' + esc(rq.q) + '" placeholder="Tìm tên tài liệu, địa chỉ web..." aria-label="Tìm trong kho"></label></div>' +
+				'<div id="rpl"><div class="card">' + skeleton(5) + '</div></div>';
+			var z = $('#rpz');
+			['dragenter', 'dragover'].forEach(function (ev) { z.addEventListener(ev, function (e) { e.preventDefault(); z.classList.add('is-drag'); }); });
+			['dragleave', 'drop'].forEach(function (ev) { z.addEventListener(ev, function () { z.classList.remove('is-drag'); }); });
+			$('#rpf').onchange = function () { var fs = Array.prototype.slice.call(this.files); this.value = ''; addFiles(fs); };
+			$('#rpk').onclick = function (e) { var b = e.target.closest('[data-k]'); if (!b) return; rq.kind = b.dataset.k; rq.page = 1; $$('#rpk button').forEach(function (x) { x.classList.toggle('on', x === b); }); list(); };
+			$('#rps').addEventListener('input', debounce(function () { rq.q = this.value.trim(); rq.page = 1; list(); }, 300));
+			list();
+		}
+		function addFiles(fs) {
+			var ul = $('#rpq');
+			fs.forEach(function (f, i) { ul.insertAdjacentHTML('beforeend', '<li id="rpq' + i + '"><span class="rpq__i">' + ic('file', 16) + '</span><b>' + esc(f.name) + '</b><em>Đang chờ…</em></li>'); });
+			var p = Promise.resolve(), ok = 0;
+			fs.forEach(function (f, i) {
+				p = p.then(function () {
+					var li = $('#rpq' + i); li.querySelector('em').textContent = 'Đang đọc và lập chỉ mục…';
+					return scanPayload(f).then(function (d) { return api('vs_cdv_doc_add', Object.assign({ title: f.name.replace(/\.[^.]+$/, '') }, d)); }).then(function (r) {
+						ok++; li.className = 'is-ok'; li.querySelector('em').textContent = 'Đã thêm vào kho'; home.stats = r.stats;
+					}, function (e) { li.className = 'is-err'; li.querySelector('em').textContent = e.message; });
+				});
+			});
+			p.then(function () { if (!alive()) return; sum(home.stats, home.cfg.on); list(); if (ok) toast('Đã thêm ' + ok + ' tài liệu vào kho đối chiếu.', 'ok'); });
+		}
+		function list() {
+			api('vs_cdv_docs', rq).then(function (d) {
+				if (!alive() || !$('#rpl')) return;
+				if (!d.items.length) { $('#rpl').innerHTML = '<div class="card">' + emptyHTML(rq.q || rq.kind ? 'Không có tài liệu phù hợp' : 'Kho đối chiếu đang trống', rq.q || rq.kind ? 'Thử bộ lọc khác.' : 'Thêm tài liệu ở trên để CDV Scan có dữ liệu so khớp.', 'list') + '</div>'; return; }
+				$('#rpl').innerHTML = '<div class="card"><div class="tbl-wrap"><table class="tbl rpt-tbl"><thead><tr><th>Tài liệu</th><th>Loại</th><th class="r">Số từ</th><th>Ngày thêm</th><th></th></tr></thead><tbody>' + d.items.map(function (x) {
+					return '<tr><td><b class="rp-t">' + esc(x.title) + '</b>' + (x.url ? '<a class="rp-u" href="' + esc(x.url) + '" target="_blank" rel="nofollow noopener noreferrer">' + esc(x.url.replace(/^https?:\/\//, '').slice(0, 70)) + '</a>' : x.code ? '<small class="muted">Đơn ' + esc(x.code) + '</small>' : '') + '</td><td><span class="rp-k rp-k--' + esc(x.kind) + '">' + esc(x.kl) + '</span></td><td class="r mono">' + num(x.words) + '</td><td class="muted">' + esc(x.date) + '</td><td class="r"><button class="ibtn" data-del="' + x.id + '" title="Xóa khỏi kho">' + ic('trash', 16) + '</button></td></tr>';
+				}).join('') + '</tbody></table></div>' +
+				(d.pages > 1 ? '<div class="pager"><span>' + num(d.total) + ' tài liệu</span><div><button class="btn btn--sm" data-pg="' + (d.page - 1) + '"' + (d.page <= 1 ? ' disabled' : '') + '>' + ic('left', 14) + 'Trước</button> <span class="mono">' + d.page + '/' + d.pages + '</span> <button class="btn btn--sm" data-pg="' + (d.page + 1) + '"' + (d.page >= d.pages ? ' disabled' : '') + '>Sau' + ic('chev', 14) + '</button></div></div>' : '') + '</div>';
+				$('#rpl').onclick = function (e) {
+					var pg = e.target.closest('[data-pg]'), del = e.target.closest('[data-del]');
+					if (pg && !pg.disabled) { rq.page = +pg.dataset.pg; list(); }
+					if (del) modal({ title: 'Xóa tài liệu khỏi kho?', text: 'Bài kiểm tra sau này sẽ không còn được so với tài liệu này.', ok: 'Xóa', danger: true }).then(function (yes) {
+						if (yes) api('vs_cdv_doc_del', { id: del.dataset.del }).then(function (r) { home.stats = r.stats; sum(r.stats, home.cfg.on); list(); toast('Đã xóa khỏi kho.', 'ok'); }, function (e) { toast(e.message, 'err'); });
+					});
+				};
+			}, function (e) { if ($('#rpl')) $('#rpl').innerHTML = '<div class="card">' + errHTML(e.message) + '</div>'; });
+		}
+
+		/* ---------- Cài đặt ---------- */
+		function paintCfg() {
+			var c = home.cfg, dis = home.admin ? '' : ' disabled';
+			function sw(id, on, t, s) { return '<div class="set"><div class="set__t"><b>' + t + '</b><small>' + s + '</small></div><label class="sw"><input type="checkbox" id="' + id + '"' + (on ? ' checked' : '') + dis + '><i></i></label></div>'; }
+			$('#scbody').innerHTML = '<div class="grid g-2 scan-g">' +
+				'<div class="card"><div class="card__hd"><h3>Bán cho khách hàng</h3></div><div class="card__bd">' +
+					sw('cf_on', c.on, 'Hiện ' + esc(c.name) + ' trong trang đặt đơn', 'Khách chọn như 1 phần mềm, kết quả và báo cáo trả tự động 24/7') +
+					'<div class="cf-row"><label class="field"><span>Tên hiển thị</span><input class="input" id="cf_name" value="' + esc(c.name) + '" maxlength="40"' + dis + '></label>' +
+					'<label class="field"><span>Giá kiểm tra (đ, gói ' + 50 + ' trang đầu)</span><input class="input mono" id="cf_price" type="number" min="1000" step="500" value="' + esc(c.price) + '"' + dis + '></label></div>' +
+					sw('cf_repo', c.repo, 'Cho khách chọn lưu bài vào kho', 'Khách tự đánh dấu khi đặt đơn; bỏ trống thì bài không được lưu lại') +
+					'<h4 class="cf-h">Thiết lập so khớp mặc định</h4>' +
+					'<label class="field"><span>Đoạn trùng tối thiểu (từ liên tiếp)</span><input class="input mono" id="cf_minw" type="number" min="10" max="40" value="' + esc(c.minw) + '"' + dis + '><small class="cf-hint">Càng nhỏ càng nhạy nhưng dễ bắt cụm từ thông dụng. Đề xuất 12.</small></label>' +
+					sw('cf_bib', c.bib, 'Loại trừ tài liệu tham khảo', 'Bỏ phần sau tiêu đề “Tài liệu tham khảo / References”') +
+					sw('cf_quote', c.quote, 'Loại trừ trích dẫn trong ngoặc kép', 'Đoạn trong “…” không tính vào tỷ lệ') +
+				'</div></div>' +
+				'<div class="card"><div class="card__hd"><h3>Tìm trên Internet</h3><span class="pill pill--' + (home.webok ? 'paid">Đang bật' : 'pending">Chưa kết nối') + '</span></div><div class="card__bd">' +
+					'<p class="cf-p">Để so với Internet, ' + esc(c.name) + ' dùng API tìm kiếm chính thức (trả phí theo lượt). Mỗi bài dùng khoảng <b>' + esc(c.queries) + '</b> lượt tìm. Không có API thì chỉ so với kho nội bộ.</p>' +
+					'<label class="field"><span>Dịch vụ tìm kiếm</span><select class="select" id="cf_web"' + dis + '>' + [['none', 'Không dùng (chỉ kho nội bộ)'], ['google', 'Google Programmable Search (JSON API)'], ['serper', 'Serper.dev (kết quả Google)']].map(function (o) { return '<option value="' + o[0] + '"' + (c.web === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></label>' +
+					'<div id="cf_g"><label class="field"><span>Google API key</span><input class="input mono" id="cf_gkey" value="' + esc(c.gkey) + '" autocomplete="off"' + dis + '></label><label class="field"><span>Search engine ID (cx)</span><input class="input mono" id="cf_gcx" value="' + esc(c.gcx) + '"' + dis + '><small class="cf-hint">Tạo tại programmablesearchengine.google.com, chọn “Tìm kiếm toàn bộ web”.</small></label></div>' +
+					'<div id="cf_s"><label class="field"><span>Serper API key</span><input class="input mono" id="cf_skey" value="' + esc(c.skey) + '" autocomplete="off"' + dis + '><small class="cf-hint">Lấy tại serper.dev › API key.</small></label></div>' +
+					'<div class="cf-row"><label class="field"><span>Số câu tìm mỗi bài</span><input class="input mono" id="cf_queries" type="number" min="3" max="60" value="' + esc(c.queries) + '"' + dis + '></label>' +
+					'<label class="field"><span>Số trang web tải tối đa</span><input class="input mono" id="cf_pages" type="number" min="5" max="100" value="' + esc(c.pages) + '"' + dis + '></label></div>' +
+					'<div id="cf_test"></div>' +
+				'</div></div>' +
+			'</div>' +
+			'<div class="cf-save">' + (home.admin ? '<button class="btn btn--primary" id="cf_go">' + ic('check', 16) + 'Lưu cài đặt</button>' : '<span class="muted">Chỉ quản trị viên được đổi cài đặt.</span>') + '</div>' +
+			'<div class="card mt cf-lim"><div class="card__bd">' + ic('shield', 20) + '<div><b>Giới hạn cần nói rõ với khách</b><p>' + esc(c.name) + ' phát hiện văn bản trùng với kho của bạn và các trang tìm được trên Internet. Bộ máy không truy cập được kho bài nộp của Turnitin hay các cơ sở dữ liệu học thuật trả phí, và không phát hiện nội dung do AI tạo, nên tỷ lệ có thể khác phần mềm trường dùng. Trang đặt đơn và báo cáo đã ghi rõ điều này.</p></div></div></div>';
+			function sync() { var v = $('#cf_web').value; $('#cf_g').classList.toggle('hide', v !== 'google'); $('#cf_s').classList.toggle('hide', v !== 'serper'); }
+			$('#cf_web').onchange = sync; sync();
+			var go2 = $('#cf_go');
+			if (go2) go2.onclick = function () {
+				var d = {}; ['name', 'price', 'minw', 'web', 'gkey', 'gcx', 'skey', 'queries', 'pages'].forEach(function (k) { d[k] = $('#cf_' + k).value; });
+				['on', 'repo', 'bib', 'quote'].forEach(function (k) { d[k] = $('#cf_' + k).checked ? 1 : ''; });
+				go2.disabled = true; go2.classList.add('is-busy');
+				api('vs_cdv_cfg', d).then(function (r) {
+					toast(r.message, 'ok');
+					$('#cf_test').innerHTML = r.test ? '<p class="cf-test cf-test--' + (r.test.ok ? 'ok' : 'err') + '">' + ic(r.test.ok ? 'check' : 'x', 15) + esc(r.test.m) + '</p>' : '';
+					api('vs_cdv_home').then(function (h) { home = h; sum(h.stats, h.cfg.on); });
+				}, function (e) { toast(e.message, 'err'); }).then(function () { go2.disabled = false; go2.classList.remove('is-busy'); });
+			};
+		}
+		load();
+	};
 
 	/* =========================================================
 	   CÀI ĐẶT

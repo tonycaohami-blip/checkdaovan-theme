@@ -125,6 +125,17 @@ $render_order = function ( $o, $open = false ) {
 										</div>
 										<?php continue; ?>
 									<?php endif; ?>
+									<?php if ( ! empty( $f['view'] ) ) : // Báo cáo CDV Scan: xem trực tuyến + tải PDF. ?>
+										<div class="fcard fcard--drive">
+											<span class="fcard__icon">PDF</span>
+											<span class="fcard__name" title="<?php echo esc_attr( $f['name'] ); ?>"><?php echo esc_html( isset( $f['short'] ) ? $f['short'] : $f['name'] ); ?><?php echo ! empty( $f['meta'] ) ? '<small>' . esc_html( $f['meta'] ) . '</small>' : ''; ?></span>
+											<span class="fcard__acts">
+												<a class="fcard__btn fcard__btn--ghost" href="<?php echo esc_url( $f['view'] ); ?>" target="_blank" rel="noopener">Xem trực tuyến</a>
+												<a class="fcard__btn" href="<?php echo esc_url( $f['url'] ); ?>" target="_blank" rel="noopener"><?php echo vs_icon( 'arrow', 16 ); // phpcs:ignore ?> Tải xuống</a>
+											</span>
+										</div>
+										<?php continue; ?>
+									<?php endif; ?>
 									<a class="fcard" href="<?php echo esc_url( $f['url'] ); ?>" target="_blank" rel="noopener" download>
 										<span class="fcard__icon"><?php echo esc_html( isset( $f['ext'] ) ? $f['ext'] : 'PDF' ); ?></span>
 										<span class="fcard__name" title="<?php echo esc_attr( $f['name'] ); ?>"><?php echo esc_html( isset( $f['short'] ) ? $f['short'] : $f['name'] ); ?><?php echo ! empty( $f['meta'] ) ? '<small>' . esc_html( $f['meta'] ) . '</small>' : ''; ?></span>

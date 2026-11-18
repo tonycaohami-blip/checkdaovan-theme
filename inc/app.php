@@ -643,7 +643,7 @@ add_filter( 'vs_adm_order_data', function ( $d, $id ) {
 	$d['autofiles'] = array();
 	foreach ( function_exists( 'vs_auto_files' ) ? vs_auto_files( $id ) : array() as $i => $f ) {
 		$st               = vs_file_stats( $id, 'auto:' . basename( $f['path'] ), $f['name'], vs_report_dir() . '/' . basename( $f['path'] ), 'PDF' );
-		$d['autofiles'][] = array_merge( $st, array( 'name' => $f['name'], 'short' => vs_short_filename( $f['name'], 34 ), 'meta' => vs_file_meta_text( $st ) . ' | tự động', 'url' => vs_file_url( $id, $i ) ) );
+		$d['autofiles'][] = array_merge( $st, array( 'name' => $f['name'], 'short' => vs_short_filename( $f['name'], 34 ), 'meta' => vs_file_meta_text( $st ) . ' | tự động', 'url' => vs_file_url( $id, $i ) ), ! empty( $f['view'] ) ? array( 'view' => $f['view'] ) : array() );
 	}
 	return $d;
 }, 10, 2 );
