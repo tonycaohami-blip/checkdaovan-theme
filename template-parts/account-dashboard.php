@@ -256,6 +256,25 @@ foreach ( $orders as $o ) {
 					<a href="<?php echo esc_url( vs_page_url( 'dat-hang', array( 'tab' => 'reduce' ) ) ); ?>"><?php echo vs_icon( 'pen', 26 ); // phpcs:ignore ?><b>Giảm tỷ lệ đạo văn</b><span>Dưới 30% / 20%</span></a>
 					<a href="<?php echo esc_url( vs_account_url( 'cong-tac-vien' ) ); ?>"><?php echo vs_icon( 'gift', 26 ); // phpcs:ignore ?><b>Giới thiệu bạn bè</b><span>Nhận <?php echo esc_html( vs_opt( 'aff_pct' ) ); ?>% hoa hồng</span></a>
 				</div>
+				<?php $my_coupons = function_exists( 'vs_user_coupons' ) ? vs_user_coupons( $uid ) : array(); ?>
+				<?php if ( $my_coupons ) : ?>
+					<div class="panel">
+						<div class="panel__head"><h2>Mã giảm giá dành cho bạn</h2><span class="muted"><?php echo count( $my_coupons ); ?> mã</span></div>
+						<div class="vouchers">
+							<?php foreach ( $my_coupons as $c ) : ?>
+								<div class="voucher">
+									<div class="voucher__val"><b><?php echo esc_html( $c['big'] ); ?></b><span>Giảm</span></div>
+									<div class="voucher__bd">
+										<div class="voucher__code"><code><?php echo esc_html( $c['code'] ); ?></code><button type="button" class="voucher__copy" data-copy="<?php echo esc_attr( $c['code'] ); ?>">Sao chép</button></div>
+										<p><?php echo esc_html( $c['label'] ); ?></p>
+										<small><?php echo esc_html( implode( ' | ', array_filter( array( $c['scope'], $c['min'], $c['end'] ) ) ) ); ?></small>
+									</div>
+									<a class="btn btn--primary btn--sm voucher__use" href="<?php echo esc_url( $c['url'] ); ?>">Dùng ngay</a>
+								</div>
+							<?php endforeach; ?>
+						</div>
+					</div>
+				<?php endif; ?>
 				<div class="panel">
 					<div class="panel__head"><h2>Đơn hàng gần đây</h2><a href="<?php echo esc_url( vs_account_url( 'don-hang' ) ); ?>">Xem tất cả →</a></div>
 					<?php if ( $orders ) : ?>

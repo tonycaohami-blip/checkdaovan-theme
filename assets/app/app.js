@@ -85,6 +85,12 @@
 		tag: '<path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
 		left: '<path d="m15 6-6 6 6 6"/>',
 		palette: '<circle cx="12" cy="12" r="9"/><circle cx="8" cy="10" r="1.2"/><circle cx="12" cy="7.5" r="1.2"/><circle cx="16" cy="10" r="1.2"/><path d="M12 21a3 3 0 0 1 0-6h2a3 3 0 0 0 3-3"/>',
+		ticket: '<path d="M3 8.5V6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v2.5a3.5 3.5 0 0 0 0 7V18a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2.5a3.5 3.5 0 0 0 0-7z"/><path d="M14 5v2M14 11v2M14 17v2"/>',
+		pct: '<path d="M19 5 5 19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>',
+		plus: '<path d="M12 5v14M5 12h14"/>',
+		edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+		gift: '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v8a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-8M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/>',
+		cal: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>',
 		wp: '<circle cx="12" cy="12" r="9"/><path d="M4 9.5 8.2 20M9 7h3M7.5 7l4.3 12.4L14.5 12M14 7h3M15.6 7l3 8.6"/>',
 	};
 	function ic(n, s) { return '<svg width="' + (s || 18) + '" height="' + (s || 18) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (I[n] || '') + '</svg>'; }
@@ -262,6 +268,7 @@
 		{ id: 'orders', t: 'Đơn hàng', i: 'orders', s: 'Theo dõi và xử lý đơn', b: 'orders' },
 		{ id: 'customers', t: 'Khách hàng', i: 'users', s: 'Tổng hợp theo số điện thoại đặt đơn' },
 		{ id: 'affiliates', t: 'Cộng tác viên', i: 'aff', s: 'Hoa hồng và yêu cầu rút tiền', b: 'payouts' },
+		{ id: 'coupons', t: 'Mã giảm giá', i: 'ticket', s: 'Tạo ưu đãi và tặng mã riêng cho khách hàng' },
 		{ id: 'notifications', t: 'Thông báo', i: 'bell', s: 'Hoạt động gần đây trên website', b: 'unread', hide: true },
 		{ id: 'settings', t: 'Cài đặt', i: 'cog', s: 'Tài khoản, giao diện và liên kết nhanh' },
 	];
@@ -298,7 +305,7 @@
 				'</div>' +
 			'</div>' +
 			'<nav class="bnav" aria-label="Điều hướng">' +
-				[NAV[0], NAV[1], NAV[2], NAV[3], NAV[5]].map(function (n) {
+				NAV.filter(function (n) { return ['', 'orders', 'customers', 'affiliates', 'settings'].indexOf(n.id) > -1; }).map(function (n) {
 					return '<a href="#/' + n.id + '" data-nav="' + n.id + '">' + ic(n.i, 21) + '<span>' + (n.id === 'affiliates' ? 'CTV' : n.id === 'settings' ? 'Cài đặt' : n.t) + '</span>' + (n.b ? '<span class="badge hide" data-badge="' + n.b + '"></span>' : '') + '</a>';
 				}).join('') +
 			'</nav>';
@@ -732,7 +739,7 @@
 				d.items.map(function (c) {
 					var ph = phoneDigits(c.phone);
 					return '<tr><td><div class="who who--av">' + avHTML(c.avatar, c.name) + '<span class="who"><b>' + esc(c.name || '—') + (c.account ? ' <span class="tag" title="Có tài khoản trên website">' + ic('user', 11) + 'TK</span>' : '') + '</b><small>' + esc(c.email || '') + '</small></span></div></td><td class="mono">' + esc(c.phone || '—') + '</td><td class="r mono">' + c.paid + '<span class="muted">/' + c.orders + '</span></td><td class="r money">' + esc(c.spent_f) + '</td><td class="muted">' + esc(c.first_f) + '</td><td class="muted">' + esc(c.last_f) + '</td>' +
-						'<td class="r" style="white-space:nowrap"><a class="btn btn--sm" href="#/orders?q=' + encodeURIComponent(ph || c.email) + '">' + ic('orders', 14) + 'Xem đơn</a> ' + (ph ? '<a class="btn btn--sm btn--ghost" href="https://zalo.me/' + ph + '" target="_blank" rel="noopener" title="Zalo">' + ic('chat', 15) + '</a>' : '') + '</td></tr>';
+						'<td class="r" style="white-space:nowrap"><a class="btn btn--sm" href="#/orders?q=' + encodeURIComponent(ph || c.email) + '">' + ic('orders', 14) + 'Xem đơn</a> ' + (ph ? '<a class="btn btn--sm btn--ghost" href="#/coupons?new=1&phone=' + ph + '" title="Tặng mã giảm giá riêng cho khách này">' + ic('gift', 15) + '</a> ' : '') + (ph ? '<a class="btn btn--sm btn--ghost" href="https://zalo.me/' + ph + '" target="_blank" rel="noopener" title="Zalo">' + ic('chat', 15) + '</a>' : '') + '</td></tr>';
 				}).join('') + '</tbody></table></div>' +
 				'<div class="olist">' + d.items.map(function (c) {
 					var ph = phoneDigits(c.phone);
@@ -793,6 +800,247 @@
 	function payActs(p) {
 		if (p.status === 'pending') return '<button class="btn btn--sm btn--ok" data-pay="' + p.id + '" data-st="paid">' + ic('check', 14) + 'Đã chuyển</button> <button class="btn btn--sm btn--danger" data-pay="' + p.id + '" data-st="rejected">' + ic('x', 14) + 'Từ chối</button>';
 		return '<button class="btn btn--sm btn--ghost" data-pay="' + p.id + '" data-st="pending">' + ic('refresh', 14) + 'Đặt lại chờ</button>';
+	}
+
+	/* =========================================================
+	   MÃ GIẢM GIÁ
+	   ========================================================= */
+	var CP_SCOPE = { all: 'Mọi dịch vụ', check: 'Kiểm tra đạo văn', reduce: 'Giảm tỷ lệ' };
+	function cpNum(v) { return String(v).replace('.', ','); }
+	function cpBig(c) {
+		if (c.kind !== 'fixed') return cpNum(c.value) + '<small>%</small>';
+		var v = +c.value || 0;
+		return v >= 1e6 ? cpNum(Math.round(v / 1e5) / 10) + '<small>tr</small>' : Math.round(v / 1e3) + '<small>k</small>';
+	}
+	function cpRange(c) {
+		if (!c.start_f && !c.end_f) return 'Không giới hạn thời gian';
+		if (c.start_f && c.end_f) return c.start_f + ' → ' + c.end_f;
+		return c.end_f ? 'Đến hết ' + c.end_f : 'Từ ' + c.start_f;
+	}
+	function cpCard(c, admin) {
+		var pctUse = c.limit ? Math.min(100, Math.round(c.used / c.limit * 100)) : 0;
+		var who = c.phones && c.phones.length ? 'Riêng: ' + c.phones.slice(0, 2).join(', ') + (c.phones.length > 2 ? ' +' + (c.phones.length - 2) : '') : 'Mọi khách hàng';
+		return '<article class="cp cp--' + esc(c.state) + '">' +
+			'<div class="cp__val"><b>' + cpBig(c) + '</b><span>' + (c.kind === 'fixed' ? 'Giảm tiền' : 'Giảm giá') + '</span></div>' +
+			'<div class="cp__bd">' +
+				'<div class="cp__hd"><button type="button" class="cp__code" data-cp-copy="' + esc(c.code) + '" title="Sao chép mã">' + esc(c.code) + ic('copy', 13) + '</button>' + pill('cp-' + c.state, c.state_l) + (c.soon ? '<span class="tag tag--warn">' + ic('clock', 11) + 'Sắp hết hạn</span>' : '') + '</div>' +
+				'<div class="cp__lbl">' + esc(c.label) + '</div>' +
+				'<ul class="cp__meta">' +
+					'<li>' + ic('orders', 14) + esc(CP_SCOPE[c.scope] || '') + '</li>' +
+					'<li>' + ic(c.phones && c.phones.length ? 'gift' : 'users', 14) + esc(who) + '</li>' +
+					(c.min ? '<li>' + ic('cart', 14) + 'Đơn từ ' + money(c.min) + '</li>' : '') +
+					'<li>' + ic('cal', 14) + esc(cpRange(c)) + '</li>' +
+				'</ul>' +
+				'<div class="cp__use"><div class="cp__bar' + (c.limit ? '' : ' cp__bar--inf') + '"><i style="width:' + (c.limit ? pctUse : 100) + '%"></i></div><span><b>' + num(c.used) + '</b>' + (c.limit ? ' / ' + num(c.limit) : '') + ' lượt dùng' + (c.per ? ' | tối đa ' + c.per + '/khách' : '') + '</span></div>' +
+				(c.note ? '<div class="cp__note">' + ic('note', 13) + '<span>' + esc(c.note) + '</span></div>' : '') +
+			'</div>' +
+			'<div class="cp__ft"><span class="cp__stat">' + (c.paid ? ic('check', 14) + '<span>' + c.paid + ' đơn đã thanh toán | tiết kiệm <b>' + esc(c.saved_f) + '</b></span>' : ic('inbox', 14) + '<span>Chưa có đơn thanh toán</span>') + '</span>' +
+				(admin ? '<span class="cp__acts"><label class="sw" title="' + (c.active ? 'Đang bật - bấm để tạm tắt' : 'Đang tắt - bấm để bật') + '"><input type="checkbox" data-cp-toggle="' + esc(c.code) + '"' + (c.active ? ' checked' : '') + ' aria-label="Bật/tắt mã ' + esc(c.code) + '"><i></i></label>' +
+					'<button type="button" class="ibtn ibtn--sm" data-cp-edit="' + esc(c.code) + '" title="Sửa mã">' + ic('edit', 16) + '</button>' +
+					'<button type="button" class="ibtn ibtn--sm ibtn--danger" data-cp-del="' + esc(c.code) + '" title="Xóa mã">' + ic('trash', 16) + '</button></span>' : '') +
+			'</div>' +
+		'</article>';
+	}
+	var cpCache = { items: [], admin: false, sum: {} };
+	views.coupons = function (el, q, alive) {
+		var tab = ['active', 'ended'].indexOf(q.tab) > -1 ? q.tab : 'all', search = q.q || '';
+		el.innerHTML = '<div class="grid g-kpi" id="cpsum">' + [1, 2, 3, 4].map(function () { return '<div class="card kpi"><div class="sk" style="height:14px;width:40%"></div><div class="sk" style="height:24px;width:60%;margin-top:12px"></div></div>'; }).join('') + '</div>' +
+			'<div class="bar mt"><div class="tabs" id="cptabs">' + [['all', 'Tất cả'], ['active', 'Đang áp dụng'], ['ended', 'Đã tắt / hết hạn']].map(function (t) { return '<button data-t="' + t[0] + '" class="' + (tab === t[0] ? 'on' : '') + '">' + t[1] + ' <span class="n" data-n="' + t[0] + '">…</span></button>'; }).join('') + '</div>' +
+			'<label class="search cp-search">' + ic('search', 17) + '<input id="cpq" value="' + esc(search) + '" placeholder="Tìm mã, ghi chú, SĐT..." aria-label="Tìm mã giảm giá"></label>' +
+			'<button class="btn btn--primary hide" id="cpnew">' + ic('plus', 17) + 'Tạo mã giảm giá</button></div>' +
+			'<div id="cpres"><div class="card">' + skeleton(6) + '</div></div>';
+		function nav(ch) { go('coupons', Object.assign({ tab: tab === 'all' ? '' : tab, q: search }, ch)); }
+		$('#cptabs').onclick = function (e) { var b = e.target.closest('[data-t]'); if (b) nav({ tab: b.dataset.t === 'all' ? '' : b.dataset.t }); };
+		$('#cpq').addEventListener('input', debounce(function () { search = this.value.trim(); paint(); }, 200));
+		$('#cpnew').onclick = function () { openCoupon(null); };
+		function group(c) { return c.state === 'active' || c.state === 'scheduled' ? 'active' : 'ended'; }
+		function paint() {
+			var d = cpCache, s = search.toLowerCase();
+			var list = d.items.filter(function (c) { return !s || (c.code + ' ' + c.note + ' ' + (c.phones || []).join(' ') + ' ' + c.label).toLowerCase().indexOf(s) > -1; });
+			['all', 'active', 'ended'].forEach(function (t) { var n = $('[data-n="' + t + '"]'); if (n) n.textContent = list.filter(function (c) { return t === 'all' || group(c) === t; }).length; });
+			list = list.filter(function (c) { return tab === 'all' || group(c) === tab; });
+			var box = $('#cpres');
+			if (!list.length) {
+				box.innerHTML = '<div class="card">' + (d.items.length ? emptyHTML('Không có mã phù hợp', 'Thử bộ lọc hoặc từ khóa khác.', 'ticket') : emptyHTML('Chưa có mã giảm giá', d.admin ? 'Bấm "Tạo mã giảm giá" để tạo ưu đãi đầu tiên cho khách hàng.' : 'Quản trị viên chưa tạo mã nào.', 'ticket')) + '</div>';
+				return;
+			}
+			box.innerHTML = '<div class="cps">' + list.map(function (c) { return cpCard(c, d.admin); }).join('') + '</div>';
+		}
+		function load() {
+			api('vs_app_coupons').then(function (d) {
+				if (!alive()) return;
+				cpCache = d;
+				var sm = d.sum;
+				$('#cpsum').innerHTML =
+					kpiHTML('', 'ticket', 'Mã đang áp dụng', num(sm.active), num(d.items.length) + ' mã đã tạo') +
+					kpiHTML('violet', 'cart', 'Lượt sử dụng', num(sm.used), num(sm.paid) + ' đơn đã thanh toán') +
+					kpiHTML('ok', 'money', 'Khách đã tiết kiệm', esc(sm.saved_f), 'Trên các đơn đã thanh toán') +
+					kpiHTML('warn', 'clock', 'Sắp hết hạn', num(sm.soon), 'Trong 7 ngày tới');
+				$('#cpnew').classList.toggle('hide', !d.admin);
+				paint();
+				if (q.new && d.admin && !$('.drawer')) { openCoupon(null, { phones: q.phone || '' }); history.replaceState(null, '', '#/coupons'); q.new = ''; }
+			}, function (e) { if (alive()) $('#cpres').innerHTML = '<div class="card">' + errHTML(e.message) + '</div>'; });
+		}
+		el.onclick = function (e) {
+			var b;
+			if ((b = e.target.closest('[data-cp-copy]'))) { copy(b.dataset.cpCopy, 'mã ' + b.dataset.cpCopy); return; }
+			if ((b = e.target.closest('[data-cp-edit]'))) { openCoupon(cpCache.items.filter(function (c) { return c.code === b.dataset.cpEdit; })[0]); return; }
+			if ((b = e.target.closest('[data-cp-del]'))) {
+				var code = b.dataset.cpDel;
+				modal({ title: 'Xóa mã ' + code + '?', text: 'Khách sẽ không dùng được mã này nữa. Các đơn đã dùng mã vẫn giữ nguyên giá. Nếu chỉ muốn ngừng tạm thời, hãy tắt mã thay vì xóa.', ok: 'Xóa mã', danger: true }).then(function (ok) {
+					if (ok) busy(b, api('vs_app_coupon_del', { code: code })).then(function (r) { toast(r.message); load(); });
+				});
+			}
+		};
+		el.onchange = function (e) {
+			var t = e.target.closest('[data-cp-toggle]');
+			if (!t) return;
+			t.disabled = true;
+			api('vs_app_coupon_toggle', { code: t.dataset.cpToggle, active: t.checked ? 1 : '' }).then(function (r) { toast(r.message); cpCache.items = cpCache.items.map(function (c) { return c.code === r.item.code ? r.item : c; }); paint(); load(); }, function (er) { t.checked = !t.checked; t.disabled = false; toast(er.message, 'err'); });
+		};
+		load();
+		views.coupons.refresh = function () { if (!$('.drawer.on')) load(); };
+		views.coupons.reload = load;
+	};
+
+	function openCoupon(c, preset) {
+		var isNew = !c;
+		c = c || Object.assign({ code: '', kind: 'pct', value: 10, max: 0, min: 0, scope: 'all', start: '', end: '', limit: 0, per: 1, phones: [], active: true, note: '', used: 0 }, preset && preset.phones ? { phones: [preset.phones], limit: 1 } : {});
+		var old = $('.drawer'); if (old) { old.remove(); var oo = $('.ov--drawer'); if (oo) oo.remove(); }
+		var ov = document.createElement('div'); ov.className = 'ov ov--drawer'; ov.onclick = closeDrawer;
+		var dr = document.createElement('aside'); dr.className = 'drawer'; dr.setAttribute('role', 'dialog'); dr.setAttribute('aria-modal', 'true');
+		document.body.appendChild(ov); document.body.appendChild(dr);
+		requestAnimationFrame(function () { ov.classList.add('on'); dr.classList.add('on'); });
+		document.body.style.overflow = 'hidden';
+		function moneyIn(v) { return v ? Math.round(v).toLocaleString('vi-VN') : ''; }
+		dr.innerHTML = '<div class="drawer__hd"><span class="kpi__ic kpi__ic--violet">' + ic(isNew ? 'plus' : 'edit', 18) + '</span><div><h2>' + (isNew ? 'Tạo mã giảm giá' : 'Sửa mã ' + esc(c.code)) + '</h2><small>' + (isNew ? 'Mã áp dụng ngay trên form đặt hàng của website.' : num(c.used) + ' lượt đã dùng | thay đổi không ảnh hưởng đơn cũ') + '</small></div><button class="ibtn" data-close aria-label="Đóng">' + ic('x', 18) + '</button></div>' +
+			'<form class="drawer__bd cpf" id="cpf" novalidate>' +
+				'<div class="cpf__prev" id="cpprev"></div>' +
+				'<div class="err hide" id="cpe" role="alert"></div>' +
+				'<section class="sec"><h4>' + ic('ticket', 15) + 'Mã &amp; mức giảm</h4>' +
+					'<label class="field"><span>Mã giảm giá</span><div class="cpf__code"><input class="input mono" name="code" maxlength="24" autocomplete="off" spellcheck="false" placeholder="VD: SINHVIEN10" value="' + esc(c.code) + '"><button type="button" class="btn" data-gen>' + ic('bolt', 15) + 'Tạo ngẫu nhiên</button></div><small class="cpf__hint">3-24 ký tự: chữ không dấu, số, dấu - hoặc _. Khách nhập không phân biệt hoa thường.</small></label>' +
+					'<div class="field"><span>Kiểu giảm</span><div class="seg cpf__seg" role="radiogroup"><button type="button" data-kind="pct" class="' + (c.kind !== 'fixed' ? 'on' : '') + '">' + ic('pct', 14) + 'Theo phần trăm</button><button type="button" data-kind="fixed" class="' + (c.kind === 'fixed' ? 'on' : '') + '">' + ic('money', 14) + 'Số tiền cố định</button></div></div>' +
+					'<div class="cpf__row">' +
+						'<label class="field"><span>Mức giảm</span><div class="cpf__unit"><input class="input mono" name="value" inputmode="decimal" value="' + esc(c.kind === 'fixed' ? moneyIn(c.value) : cpNum(c.value)) + '"><em data-unit>' + (c.kind === 'fixed' ? 'đ' : '%') + '</em></div></label>' +
+						'<label class="field" data-maxf><span>Giảm tối đa</span><div class="cpf__unit"><input class="input mono" name="max" inputmode="numeric" placeholder="Không giới hạn" value="' + esc(moneyIn(c.max)) + '"><em>đ</em></div></label>' +
+					'</div>' +
+					'<div class="cpf__row">' +
+						'<label class="field"><span>Đơn tối thiểu</span><div class="cpf__unit"><input class="input mono" name="min" inputmode="numeric" placeholder="Không yêu cầu" value="' + esc(moneyIn(c.min)) + '"><em>đ</em></div></label>' +
+						'<label class="field"><span>Áp dụng cho</span><select class="select" name="scope">' + Object.keys(CP_SCOPE).map(function (k) { return '<option value="' + k + '"' + (c.scope === k ? ' selected' : '') + '>' + CP_SCOPE[k] + '</option>'; }).join('') + '</select></label>' +
+					'</div>' +
+				'</section>' +
+				'<section class="sec"><h4>' + ic('cal', 15) + 'Thời hạn &amp; số lượt</h4>' +
+					'<div class="cpf__row">' +
+						'<label class="field"><span>Ngày bắt đầu</span><input class="input" type="date" name="start" value="' + esc(c.start) + '"></label>' +
+						'<label class="field"><span>Ngày hết hạn</span><input class="input" type="date" name="end" value="' + esc(c.end) + '"></label>' +
+					'</div>' +
+					'<div class="cpf__chips">' + [['7', '+7 ngày'], ['30', '+30 ngày'], ['90', '+3 tháng'], ['', 'Không hạn']].map(function (x) { return '<button type="button" data-days="' + x[0] + '">' + x[1] + '</button>'; }).join('') + '</div>' +
+					'<div class="cpf__row">' +
+						'<label class="field"><span>Tổng số lượt dùng</span><input class="input mono" name="limit" inputmode="numeric" placeholder="Không giới hạn" value="' + (c.limit || '') + '"></label>' +
+						'<label class="field"><span>Mỗi khách dùng tối đa</span><input class="input mono" name="per" inputmode="numeric" placeholder="Không giới hạn" value="' + (c.per || '') + '"></label>' +
+					'</div>' +
+					'<small class="cpf__hint">Lượt dùng tính theo đơn chưa hủy; đơn tự hủy sau 30 phút chưa thanh toán sẽ trả lại lượt. "Mỗi khách" tính theo số điện thoại đặt hàng.</small>' +
+				'</section>' +
+				'<section class="sec"><h4>' + ic('gift', 15) + 'Khách hàng được dùng</h4>' +
+					'<div class="seg cpf__seg" role="radiogroup"><button type="button" data-w="all" class="' + (c.phones.length ? '' : 'on') + '">' + ic('users', 14) + 'Mọi khách hàng</button><button type="button" data-w="some" class="' + (c.phones.length ? 'on' : '') + '">' + ic('gift', 14) + 'Tặng riêng khách</button></div>' +
+					'<div class="' + (c.phones.length ? '' : 'hide') + '" data-whobox>' +
+						'<label class="field" style="margin-top:12px"><span>Số điện thoại khách (mỗi dòng 1 số, hoặc cách nhau bởi dấu phẩy)</span><textarea class="textarea mono" name="phones" rows="3" placeholder="0912345678">' + esc(c.phones.join('\n')) + '</textarea></label>' +
+						'<label class="check"><input type="checkbox" name="notify" value="1" checked> Gửi thông báo tặng mã tới tài khoản của khách (nếu đã đăng ký)</label>' +
+					'</div>' +
+				'</section>' +
+				'<section class="sec"><h4>' + ic('note', 15) + 'Khác</h4>' +
+					'<label class="field"><span>Ghi chú nội bộ (khách không thấy)</span><textarea class="textarea" name="note" rows="2" placeholder="VD: Ưu đãi mùa bảo vệ luận văn">' + esc(c.note) + '</textarea></label>' +
+					'<label class="check"><input type="checkbox" name="active" value="1"' + (c.active ? ' checked' : '') + '> Kích hoạt mã (khách dùng được ngay)</label>' +
+				'</section>' +
+			'</form>' +
+			'<div class="drawer__ft"><button type="button" class="btn" data-close>Hủy</button><span class="bar__grow"></span><button type="button" class="btn btn--primary" id="cpsave">' + ic('check', 16) + (isNew ? 'Tạo mã' : 'Lưu thay đổi') + '</button></div>';
+		var f = $('#cpf', dr), kind = c.kind === 'fixed' ? 'fixed' : 'pct';
+		$$('[data-close]', dr).forEach(function (b) { b.onclick = closeDrawer; });
+		function digits(v) { return +String(v || '').replace(/\D/g, '') || 0; }
+		function fmtMoneyInput(i) { var n = digits(i.value); i.value = n ? n.toLocaleString('vi-VN') : ''; }
+		function setKind(k, init) {
+			kind = k;
+			$$('[data-kind]', dr).forEach(function (b) { b.classList.toggle('on', b.dataset.kind === k); });
+			$('[data-unit]', dr).textContent = k === 'fixed' ? 'đ' : '%';
+			$('[data-maxf]', dr).classList.toggle('cpf__off', k === 'fixed');
+			f.max.disabled = k === 'fixed';
+			if (!init) {
+				f.value.value = k === 'fixed' ? '20.000' : '10';
+				f.value.focus(); f.value.select();
+			}
+			prev();
+		}
+		function data() {
+			var who = $('[data-w].on', dr).dataset.w;
+			return {
+				code: f.code.value.trim().toUpperCase(), kind: kind,
+				value: kind === 'fixed' ? digits(f.value.value) : parseFloat(String(f.value.value).replace(',', '.')) || 0,
+				max: kind === 'fixed' ? 0 : digits(f.max.value), min: digits(f.min.value), scope: f.scope.value,
+				start: f.start.value, end: f.end.value, limit: digits(f.limit.value), per: digits(f.per.value),
+				phones: who === 'some' ? f.phones.value : '', notify: who === 'some' && f.notify.checked ? 1 : '',
+				active: f.active.checked ? 1 : '', note: f.note.value.trim()
+			};
+		}
+		function prev() {
+			var d = data();
+			var fake = {
+				code: d.code || 'MÃ CỦA BẠN', kind: d.kind, value: d.value || 0, min: d.min, scope: d.scope, limit: d.limit, per: d.per, used: c.used || 0,
+				phones: d.phones ? d.phones.split(/[\s,;]+/).filter(Boolean) : [], note: '', paid: 0, soon: false,
+				state: d.active ? 'active' : 'off', state_l: d.active ? 'Đang chạy' : 'Tạm tắt',
+				start_f: d.start ? d.start.split('-').reverse().join('/') : '', end_f: d.end ? d.end.split('-').reverse().join('/') : '',
+				label: d.kind === 'fixed' ? 'Giảm ' + money(d.value) : 'Giảm ' + cpNum(d.value || 0) + '%' + (d.max ? ' (tối đa ' + money(d.max) + ')' : '')
+			};
+			$('#cpprev', dr).innerHTML = '<div class="cpf__plbl">' + ic('eye', 14) + 'Xem trước</div>' + cpCard(fake, false);
+		}
+		$$('[data-kind]', dr).forEach(function (b) { b.onclick = function () { if (b.dataset.kind !== kind) setKind(b.dataset.kind); }; });
+		$$('[data-w]', dr).forEach(function (b) {
+			b.onclick = function () {
+				$$('[data-w]', dr).forEach(function (x) { x.classList.toggle('on', x === b); });
+				$('[data-whobox]', dr).classList.toggle('hide', b.dataset.w !== 'some');
+				if (b.dataset.w === 'some') f.phones.focus();
+				prev();
+			};
+		});
+		$$('[data-days]', dr).forEach(function (b) {
+			b.onclick = function () {
+				if (!b.dataset.days) { f.end.value = ''; prev(); return; }
+				var base = f.start.value ? new Date(f.start.value + 'T00:00:00') : new Date();
+				base.setDate(base.getDate() + (+b.dataset.days));
+				f.end.value = base.getFullYear() + '-' + String(base.getMonth() + 1).padStart(2, '0') + '-' + String(base.getDate()).padStart(2, '0');
+				prev();
+			};
+		});
+		$('[data-gen]', dr).onclick = function () {
+			var a = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', s = '';
+			for (var i = 0; i < 5; i++) s += a.charAt(Math.floor(Math.random() * a.length));
+			var d = data();
+			f.code.value = (d.kind === 'fixed' ? 'GIAM' + Math.round((d.value || 0) / 1000) + 'K' : 'GIAM' + Math.round(d.value || 10)) + '-' + s;
+			prev();
+		};
+		f.code.addEventListener('input', function () { var p = this.selectionStart; this.value = this.value.toUpperCase().replace(/[^A-Z0-9_-]/g, ''); try { this.setSelectionRange(p, p); } catch (e) { /* bỏ qua */ } });
+		['max', 'min'].forEach(function (n) { f[n].addEventListener('blur', function () { fmtMoneyInput(this); }); });
+		f.value.addEventListener('blur', function () { if (kind === 'fixed') fmtMoneyInput(this); });
+		f.addEventListener('input', prev);
+		f.addEventListener('change', prev);
+		f.addEventListener('submit', function (e) { e.preventDefault(); save(); });
+		setKind(kind, true);
+		if (isNew) setTimeout(function () { f.code.focus(); }, 320);
+		function save() {
+			var d = data(), er = $('#cpe', dr), msg = '';
+			if (!/^[A-Z0-9_-]{3,24}$/.test(d.code)) msg = 'Vui lòng nhập mã 3-24 ký tự (chữ không dấu, số, - hoặc _).';
+			else if (d.kind === 'pct' && (d.value <= 0 || d.value > 90)) msg = 'Phần trăm giảm phải từ 0,1% đến 90%.';
+			else if (d.kind === 'fixed' && d.value < 1000) msg = 'Số tiền giảm tối thiểu 1.000đ.';
+			else if (d.start && d.end && d.end < d.start) msg = 'Ngày hết hạn phải sau ngày bắt đầu.';
+			else if ($('[data-w].on', dr).dataset.w === 'some' && !d.phones.trim()) msg = 'Nhập ít nhất 1 số điện thoại khách được tặng mã.';
+			if (msg) { er.textContent = msg; er.classList.remove('hide'); f.scrollTop = 0; return; }
+			er.classList.add('hide');
+			busy($('#cpsave', dr), api('vs_app_coupon_save', Object.assign({ orig: isNew ? '' : c.code }, d))).then(function (r) {
+				toast(r.message, 'ok', isNew ? 'Đã tạo mã giảm giá' : 'Đã lưu');
+				closeDrawer();
+				if (route.id === 'coupons' && views.coupons.reload) views.coupons.reload(); else go('coupons', {});
+			}, function (e2) { er.textContent = e2.message; er.classList.remove('hide'); f.scrollTop = 0; });
+		}
+		$('#cpsave', dr).onclick = save;
 	}
 
 	/* =========================================================

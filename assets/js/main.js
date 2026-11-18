@@ -571,11 +571,21 @@
 	function update(f) {
 		var res = f === formCheck ? calcCheck(f) : calcReduce(f);
 		var cp = f._coupon;
-		// Mã giảm giá hoặc ưu đãi giới thiệu CTV (không cộng dồn) - khớp với inc/ajax.php
-		var pctOff = cp ? cp.pct : (+VS.refPct || 0);
-		if (!res.error && pctOff) {
-			var after = Math.max(res.floor, roundK(res.total * (1 - pctOff / 100)));
-			res.lines.push([cp ? 'Mã ' + cp.code + ' (-' + cp.pct + '%)' : 'Ưu đãi giới thiệu (-' + pctOff + '%)', '-' + money(res.total - after), 'is-disc']);
+		// Mã giảm giá hoặc ưu đãi giới thiệu CTV (không cộng dồn) - khớp với inc/ajax.php + inc/coupons.php
+		var refPct = cp ? 0 : (+VS.refPct || 0), after;
+		if (!res.error && cp) {
+			if (cp.min && res.total < cp.min) {
+				res.lines.push(['Mã ' + cp.code + ': cần đơn từ ' + money(cp.min), '—', 'is-muted']);
+			} else {
+				var off = cp.kind === 'fixed' ? cp.value : res.total * cp.value / 100;
+				if (cp.kind !== 'fixed' && cp.max) off = Math.min(off, cp.max);
+				after = Math.max(res.floor, roundK(res.total - Math.min(off, res.total)));
+				res.lines.push(['Mã ' + cp.code + (cp.kind === 'fixed' ? '' : ' (-' + String(cp.value).replace('.', ',') + '%)'), '-' + money(res.total - after), 'is-disc']);
+				res.total = after;
+			}
+		} else if (!res.error && refPct) {
+			after = Math.max(res.floor, roundK(res.total * (1 - refPct / 100)));
+			res.lines.push(['Ưu đãi giới thiệu (-' + refPct + '%)', '-' + money(res.total - after), 'is-disc']);
 			res.total = after;
 		}
 		$('[data-lines]', f).innerHTML = res.lines.map(function (l) {
@@ -601,17 +611,24 @@
 			if (!code) { f._coupon = null; msg.hidden = true; update(f); return; }
 			var d = new FormData();
 			d.append('action', 'vs_coupon'); d.append('code', code); d.append('type', f.dataset.type);
+			d.append('phone', f.phone ? f.phone.value : '');
 			btn.disabled = true;
 			post(d).then(function (j) {
 				if (!j.success) throw new Error(j.data && j.data.message);
-				f._coupon = { code: code, pct: j.data.pct };
-				show('✓ Đã áp dụng mã ' + code + ' - giảm ' + j.data.pct + '%');
+				var r = j.data;
+				f._coupon = { code: code, kind: r.kind || 'pct', value: r.value != null ? +r.value : +r.pct, max: +r.max || 0, min: +r.min || 0 };
+				show('✓ Đã áp dụng mã ' + code + ': ' + (r.label || ('giảm ' + r.pct + '%')).replace(/^Giảm/, 'giảm') + (r.min ? ' | đơn từ ' + money(r.min) : ''));
 			}).catch(function (e) {
 				f._coupon = null;
+				needPhone = /số điện thoại/i.test(e.message || '');
 				show(e.message || 'Mã không hợp lệ.', true);
 			}).then(function () { btn.disabled = false; update(f); });
 		}
 		btn.addEventListener('click', apply);
+		// Mã riêng cần số điện thoại: tự áp dụng lại khi khách nhập xong SĐT.
+		var needPhone = false;
+		if (f.phone) f.phone.addEventListener('change', function () { if (needPhone && input.value.trim()) { needPhone = false; apply(); } });
+		f._applyCoupon = function (code) { input.value = code; apply(); };
 		input.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); apply(); } });
 		input.addEventListener('input', function () {
 			if (f._coupon && input.value.trim().toUpperCase() !== f._coupon.code) { f._coupon = null; msg.hidden = true; update(f); }
@@ -778,6 +795,9 @@
 		update(formReduce);
 		if (params.get('linked')) setLinked(params.get('linked'));
 		showTab(tab === 'reduce' || params.get('linked') ? 'reduce' : 'check');
+		// Mã giảm giá từ link (?coupon=) - ví dụ khách bấm "Dùng ngay" trong trang tài khoản.
+		var cpq = (params.get('coupon') || '').replace(/[^A-Za-z0-9_-]/g, '').toUpperCase();
+		if (cpq) (tab === 'reduce' || params.get('linked') ? formReduce : formCheck)._applyCoupon(cpq);
 	})();
 
 	function submit(f) {

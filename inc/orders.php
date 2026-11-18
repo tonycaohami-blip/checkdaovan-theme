@@ -329,7 +329,7 @@ function vs_box_info( $post ) {
 		'Mã đơn'      => '<strong>' . esc_html( vs_meta( $id, 'code' ) ) . '</strong>',
 		'Dịch vụ'     => esc_html( vs_order_summary( $id ) ),
 		'Thành tiền'  => '<strong style="font-size:15px">' . esc_html( vs_money( vs_meta( $id, 'price', 0 ) ) ) . '</strong>',
-		'Mã giảm giá' => esc_html( vs_meta( $id, 'coupon', '—' ) ),
+		'Mã giảm giá' => esc_html( vs_meta( $id, 'coupon', '—' ) . ( (int) vs_meta( $id, 'discount' ) ? ' (-' . vs_money( vs_meta( $id, 'discount' ) ) . ', tạm tính ' . vs_money( vs_meta( $id, 'subtotal' ) ) . ')' : '' ) ),
 		'Tài khoản'   => vs_meta( $id, 'user' ) ? '<a href="' . esc_url( get_edit_user_link( (int) vs_meta( $id, 'user' ) ) ) . '">' . esc_html( get_the_author_meta( 'display_name', (int) vs_meta( $id, 'user' ) ) ) . '</a>' : 'Khách vãng lai',
 		'Giới thiệu bởi' => vs_meta( $id, 'ref_user' ) ? esc_html( get_the_author_meta( 'display_name', (int) vs_meta( $id, 'ref_user' ) ) . ' | hoa hồng ' . vs_money( vs_meta( $id, 'commission' ) ) . ' (' . vs_comm_labels()[ vs_meta( $id, 'comm_status', 'pending' ) ] . ')' ) : '—',
 		'Khách hàng'  => esc_html( vs_meta( $id, 'name' ) ),
@@ -601,6 +601,9 @@ function vs_mail_admin_new( $id ) {
 	$body  = "Có đơn hàng mới trên " . get_bloginfo( 'name' ) . "\n\n";
 	$body .= 'Mã đơn: ' . vs_meta( $id, 'code' ) . "\n";
 	$body .= 'Dịch vụ: ' . vs_order_summary( $id ) . "\n";
+	if ( (int) vs_meta( $id, 'discount' ) ) {
+		$body .= 'Mã giảm giá: ' . vs_meta( $id, 'coupon' ) . ' (-' . vs_money( vs_meta( $id, 'discount' ) ) . ")\n";
+	}
 	$body .= 'Thành tiền: ' . vs_money( vs_meta( $id, 'price' ) ) . "\n";
 	$body .= 'Khách: ' . vs_meta( $id, 'name' ) . ' - ' . vs_meta( $id, 'phone' ) . ' - ' . vs_meta( $id, 'email' ) . "\n";
 	$body .= 'Ghi chú: ' . vs_meta( $id, 'note' ) . "\n\n";

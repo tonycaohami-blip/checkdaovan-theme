@@ -143,23 +143,24 @@ function vs_ajax_submit() {
 		wp_send_json_error( array( 'message' => $calc->get_error_message() ) );
 	}
 
-	$coupon = strtoupper( sanitize_text_field( isset( $post['coupon'] ) ? $post['coupon'] : '' ) );
-	$pct    = vs_coupon_pct( $coupon, $type );
-	if ( is_wp_error( $pct ) ) {
-		wp_send_json_error( array( 'message' => $pct->get_error_message() ) );
+	$coupon   = strtoupper( sanitize_text_field( isset( $post['coupon'] ) ? $post['coupon'] : '' ) );
+	$subtotal = (int) $calc['total'];
+	$floor    = 'reduce' === $type ? vs_pricing()['reduce']['min'] : 0;
+	$cp       = vs_coupon_eval( $coupon, $type, $subtotal, $phone );
+	if ( is_wp_error( $cp ) ) {
+		wp_send_json_error( array( 'message' => $cp->get_error_message() ) );
 	}
-	if ( $pct ) {
-		$floor          = 'reduce' === $type ? vs_pricing()['reduce']['min'] : 0;
-		$calc['total']  = max( $floor, vs_round_k( $calc['total'] * ( 1 - $pct / 100 ) ) );
+	if ( $cp ) {
+		$calc['total'] = max( $floor, vs_round_k( $subtotal - $cp['discount'] ) );
 	} else {
 		$coupon = '';
 		// Ưu đãi cho khách vào qua link cộng tác viên (không cộng dồn với mã giảm giá).
 		if ( vs_ref_discount_active() ) {
-			$floor         = 'reduce' === $type ? vs_pricing()['reduce']['min'] : 0;
-			$calc['total'] = max( $floor, vs_round_k( $calc['total'] * ( 1 - (float) vs_opt( 'ref_discount' ) / 100 ) ) );
+			$calc['total'] = max( $floor, vs_round_k( $subtotal * ( 1 - (float) vs_opt( 'ref_discount' ) / 100 ) ) );
 			$coupon        = 'CTV-' . vs_aff_code( vs_current_ref_user() );
 		}
 	}
+	$discount = max( 0, $subtotal - (int) $calc['total'] );
 
 	$code   = vs_new_code();
 	$stored = null;
@@ -214,6 +215,8 @@ function vs_ajax_submit() {
 		'file_name' => $stored['name'],
 		'linked'    => $linked,
 		'coupon'    => $coupon,
+		'subtotal'  => $subtotal,
+		'discount'  => $discount,
 		'user'      => get_current_user_id(),
 		'src_report'      => $report ? $report['path'] : '',
 		'src_report_name' => $report ? $report['name'] : '',
@@ -308,7 +311,8 @@ function vs_order_details( $id ) {
 		}
 	}
 	if ( vs_meta( $id, 'coupon' ) ) {
-		$d['Ưu đãi'] = vs_meta( $id, 'coupon' );
+		$disc        = (int) vs_meta( $id, 'discount' );
+		$d['Ưu đãi'] = vs_meta( $id, 'coupon' ) . ( $disc ? ' (-' . vs_money( $disc ) . ')' : '' );
 	}
 	$d['Ngày đặt'] = vs_post_date( 'H:i d/m/Y', $id );
 	return array_filter( $d );

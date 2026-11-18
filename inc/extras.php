@@ -1,68 +1,13 @@
 <?php
 /**
- * Chức năng mở rộng: mã giảm giá, Telegram, thống kê, xuất CSV, SEO.
+ * Chức năng mở rộng: Telegram, thống kê, xuất CSV, SEO.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/* =========================================================
- * Mã giảm giá
- * Mỗi dòng trong cài đặt: MÃ|phần trăm|hạn dùng dd/mm/yyyy (tùy chọn)|check hoặc reduce (tùy chọn)
- * ======================================================= */
-
-function vs_coupons() {
-	$out = array();
-	foreach ( preg_split( '/\r?\n/', (string) vs_opt( 'coupons' ) ) as $line ) {
-		$parts = array_map( 'trim', explode( '|', $line ) );
-		if ( count( $parts ) < 2 || '' === $parts[0] ) {
-			continue;
-		}
-		$out[ strtoupper( $parts[0] ) ] = array(
-			'pct'     => max( 0, min( 90, (float) $parts[1] ) ),
-			'expires' => isset( $parts[2] ) ? $parts[2] : '',
-			'scope'   => isset( $parts[3] ) && in_array( $parts[3], array( 'check', 'reduce' ), true ) ? $parts[3] : 'all',
-		);
-	}
-	return $out;
-}
-
-/**
- * @return float|WP_Error Phần trăm giảm.
- */
-function vs_coupon_pct( $code, $type ) {
-	$code = strtoupper( trim( (string) $code ) );
-	if ( '' === $code ) {
-		return 0;
-	}
-	$all = vs_coupons();
-	if ( ! isset( $all[ $code ] ) ) {
-		return new WP_Error( 'coupon', 'Mã giảm giá không tồn tại.' );
-	}
-	$c = $all[ $code ];
-	if ( 'all' !== $c['scope'] && $c['scope'] !== $type ) {
-		return new WP_Error( 'coupon', 'Mã này chỉ áp dụng cho dịch vụ ' . ( 'check' === $c['scope'] ? 'kiểm tra' : 'giảm tỷ lệ' ) . '.' );
-	}
-	if ( $c['expires'] ) {
-		$d = DateTime::createFromFormat( 'd/m/Y H:i:s', $c['expires'] . ' 23:59:59', wp_timezone() );
-		if ( $d && $d->getTimestamp() < time() ) {
-			return new WP_Error( 'coupon', 'Mã giảm giá đã hết hạn.' );
-		}
-	}
-	return $c['pct'];
-}
-
-add_action( 'wp_ajax_vs_coupon', 'vs_ajax_coupon' );
-add_action( 'wp_ajax_nopriv_vs_coupon', 'vs_ajax_coupon' );
-function vs_ajax_coupon() {
-	vs_rate_limit( 'coupon', 30 );
-	$pct = vs_coupon_pct( wp_unslash( isset( $_POST['code'] ) ? $_POST['code'] : '' ), sanitize_key( isset( $_POST['type'] ) ? $_POST['type'] : 'check' ) );
-	if ( is_wp_error( $pct ) ) {
-		wp_send_json_error( array( 'message' => $pct->get_error_message() ) );
-	}
-	wp_send_json_success( array( 'pct' => $pct ) );
-}
+/* Mã giảm giá: xem inc/coupons.php */
 
 /* =========================================================
  * Thông báo đơn mới qua Telegram
