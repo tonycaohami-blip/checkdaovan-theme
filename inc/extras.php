@@ -416,3 +416,12 @@ add_action( 'init', function () {
 		header( 'X-LiteSpeed-Purge: *' );
 	}
 }, 99 );
+
+/* Tiêu đề trang 404 bằng tiếng Việt (Rank Math mặc định "Page Not Found"). */
+function vs_404_title( $title ) {
+	return is_404() ? 'Không tìm thấy trang - ' . get_bloginfo( 'name' ) : $title;
+}
+add_filter( 'rank_math/frontend/title', 'vs_404_title', 20 );
+add_filter( 'pre_get_document_title', function ( $t ) {
+	return is_404() ? vs_404_title( '' ) : $t;
+}, 20 );

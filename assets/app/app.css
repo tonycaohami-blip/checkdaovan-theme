@@ -707,3 +707,19 @@ h1 .sep, h2 .sep { height: 18px; margin: 0 12px; }
 .paycf__amt b { font-size: 22px; font-weight: 800; color: var(--ok); letter-spacing: -.02em; }
 .paycf .field { margin: 0; }
 .paycf p { margin: 0; font-size: 13px; line-height: 1.5; }
+
+/* Chân popup thông báo: nút "Đánh dấu đã xem tất cả" */
+.npop { display: flex; flex-direction: column; }
+.npop__bd { flex: 1; min-height: 0; }
+.npop__ft { padding: 10px 12px; border-top: 1px solid var(--line-2); background: var(--panel); }
+.npop__all { width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; border: 1px solid color-mix(in srgb, var(--primary) 30%, var(--line)); border-radius: 11px; background: var(--primary-soft); color: var(--primary); font: 600 13.5px var(--font); cursor: pointer; transition: background .15s, color .15s; }
+.npop__all:hover:not(:disabled) { background: var(--primary); color: #fff; }
+.npop__all:disabled { cursor: default; background: var(--panel-2); color: var(--ink-3); border-color: var(--line); }
+#nread:disabled { opacity: .6; cursor: default; }
+@media (max-width: 900px) { .npop__ft { padding-bottom: calc(10px + env(safe-area-inset-bottom)); } }
+
+/* Bước đã xong trong ô trạng thái: Đã thanh toán / Đã xử lý xong */
+.stpick__b.is-done:not(.on) { --c: var(--ok); --s: var(--ok-soft); border-color: color-mix(in srgb, var(--ok) 40%, var(--line)); background: var(--ok-soft); color: var(--ok); }
+.stpick__b.is-done svg { color: var(--ok); }
+.stpick__tick { position: absolute; top: 6px; right: 6px; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; background: var(--ok); color: #fff; font-style: normal; }
+.stpick__tick svg { color: #fff !important; }

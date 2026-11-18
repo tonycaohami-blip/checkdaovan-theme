@@ -24,7 +24,7 @@ $render_order = function ( $o, $open = false ) {
 	$steps    = array(
 		array( 'Đặt hàng', 'Đặt hàng', 'Đã đặt hàng', $o['date'], true ),
 		array( 'Thanh toán', 'Chờ thanh toán', 'Đã thanh toán', $o['paid_at'], in_array( $o['status'], array( 'dang_xu_ly', 'hoan_thanh' ), true ) ),
-		array( 'Xử lý', 'Đang xử lý', 'Đã xử lý', '', 'hoan_thanh' === $o['status'] ),
+		array( 'Xử lý', 'Đang xử lý', 'Đã xử lý xong', '', 'hoan_thanh' === $o['status'] ),
 		array( 'Hoàn thành', 'Hoàn thành', 'Đã hoàn thành', $o['done_at'], 'hoan_thanh' === $o['status'] ),
 	);
 	$current  = array( 'cho_thanh_toan' => 2, 'dang_xu_ly' => 3, 'hoan_thanh' => 4, 'huy' => -1 );

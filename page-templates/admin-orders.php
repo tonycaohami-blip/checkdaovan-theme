@@ -28,7 +28,7 @@ get_header();
 						<span class="bell__count" data-adm-bell-count hidden>0</span>
 					</button>
 					<div class="bell__panel" data-adm-bell-panel hidden>
-						<div class="bell__head"><b>Thông báo quản trị</b><button type="button" class="bell__all" data-adm-bell-seen>Đánh dấu đã xem</button></div>
+						<div class="bell__head"><b>Thông báo quản trị</b><button type="button" class="bell__all" data-adm-bell-seen><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m2 12 5 5L18 6"/><path d="m13 16 1 1 8-9"/></svg><span>Đánh dấu đã xem tất cả</span></button></div>
 						<div class="bell__list" data-adm-bell-list><div class="bell__empty">Chưa có thông báo.</div></div>
 					</div>
 				</div>

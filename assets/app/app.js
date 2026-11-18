@@ -57,6 +57,7 @@
 		chart: '<path d="M3 3v18h18"/><path d="M7 15v2M11 11v6M15 7v10M19 12v5"/>',
 		cart: '<circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.7 12.4a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.5L21 8H6"/>',
 		check: '<path d="m5 12 5 5L20 7"/>',
+		check2: '<path d="m2 12 5 5L18 6"/><path d="m13 16 1 1 8-9"/>',
 		clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
 		card: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>',
 		chev: '<path d="m9 6 6 6-6 6"/>',
@@ -666,6 +667,13 @@
 		hoan_thanh: 'Khách xem và tải kết quả trong tài khoản, trang tra cứu.',
 		huy: 'Hoa hồng cộng tác viên (nếu có) cũng bị hủy. Mã giảm giá được trả lại lượt.'
 	};
+	// Bước đã xong: "Chờ thanh toán" -> "Đã thanh toán", "Đang xử lý" -> "Đã xử lý xong" (giống thanh tiến trình của khách).
+	var ST_DONE = { cho_thanh_toan: 'Đã thanh toán', dang_xu_ly: 'Đã xử lý xong' };
+	function stepDone(o, k) {
+		if (k === 'cho_thanh_toan') return o.status !== 'cho_thanh_toan' && ((o.pay && o.pay.state === 'paid') || o.status === 'dang_xu_ly' || o.status === 'hoan_thanh');
+		if (k === 'dang_xu_ly') return o.status === 'hoan_thanh';
+		return false;
+	}
 	function payHTML(o) {
 		var p = o.pay || {}, cls = 'muted', ico = 'card', t = '', s = '';
 		if (p.state === 'paid') { cls = 'ok'; ico = 'check'; t = 'Đã thanh toán <b>' + esc(p.amount) + '</b>'; s = [p.at, p.via, p.tx ? 'Mã GD ' + p.tx : ''].filter(Boolean).map(esc).join(' | '); }
@@ -679,7 +687,8 @@
 		return '<div class="sec stbox"><h4>' + ic('bolt', 15) + 'Trạng thái</h4>' +
 			payHTML(o) +
 			'<div class="stpick" role="radiogroup" aria-label="Trạng thái đơn">' + Object.keys(C.statuses).map(function (k) {
-				return '<button type="button" role="radio" aria-checked="' + (o.status === k) + '" class="stpick__b stpick__b--' + k + (o.status === k ? ' on is-cur' : '') + '" data-st="' + k + '">' + ic(ST_ICON[k] || 'check', 16) + '<span>' + esc(C.statuses[k]) + '</span>' + (o.status === k ? '<em>Hiện tại</em>' : '') + '</button>';
+				var dn = stepDone(o, k), lbl = dn ? ST_DONE[k] : C.statuses[k];
+				return '<button type="button" role="radio" aria-checked="' + (o.status === k) + '" class="stpick__b stpick__b--' + k + (o.status === k ? ' on is-cur' : '') + (dn ? ' is-done' : '') + '" data-st="' + k + '" title="' + esc(dn ? lbl + ' - bấm để chuyển lại ' + C.statuses[k] : C.statuses[k]) + '">' + ic(dn ? 'check' : (ST_ICON[k] || 'check'), 16) + '<span>' + esc(lbl) + '</span>' + (o.status === k ? '<em>Hiện tại</em>' : '') + (dn ? '<i class="stpick__tick">' + ic('check', 11) + '</i>' : '') + '</button>';
 			}).join('') + '</div>' +
 			'<p class="stbox__hint hide" id="sthint"></p>' +
 			'<label class="check stbox__mail"><input type="checkbox" id="stmail" checked> Gửi email cho khách khi chuyển sang “Hoàn thành”</label>' +
@@ -1259,7 +1268,7 @@
 	   THÔNG BÁO
 	   ========================================================= */
 	views.notifications = function (el, q, alive) {
-		el.innerHTML = '<div class="card"><div class="card__hd"><h3>Hoạt động trên website</h3><button class="btn btn--sm" id="nread">' + ic('check', 15) + 'Đánh dấu đã đọc</button></div><div class="card__bd" id="nres">' + skeleton(8) + '</div></div>';
+		el.innerHTML = '<div class="card"><div class="card__hd"><h3>Hoạt động trên website</h3><button class="btn btn--sm" id="nread">' + ic('check2', 15) + '<span>Đánh dấu đã xem tất cả</span></button></div><div class="card__bd" id="nres">' + skeleton(8) + '</div></div>';
 		bindRows($('#nres'));
 		function load(seen) {
 			api('vs_adm_feed', seen ? { seen: 1 } : {}).then(function (d) {
@@ -1269,7 +1278,7 @@
 				if (seen) $$('#nres .unread').forEach(function (li) { li.classList.remove('unread'); });
 			}, function (e) { if (alive()) $('#nres').innerHTML = errHTML(e.message); });
 		}
-		$('#nread').onclick = function () { load(true); feedState.unread = 0; };
+		$('#nread').onclick = function () { markAllSeen(this); };
 		load(false);
 		views.notifications.refresh = function () { load(false); };
 	};
@@ -1284,7 +1293,7 @@
 		var ov = document.createElement('div'); ov.className = 'npop-ov'; ov.onclick = closeNotif;
 		var p = document.createElement('div');
 		p.id = 'npop'; p.className = 'npop'; p.setAttribute('role', 'dialog'); p.setAttribute('aria-label', 'Thông báo');
-		p.innerHTML = '<div class="npop__hd"><b>' + ic('bell', 17) + 'Thông báo</b><span class="npop__n" id="npn"></span><button type="button" class="ibtn" data-x aria-label="Đóng">' + ic('x', 16) + '</button></div><div class="npop__bd" id="npb">' + skeleton(5) + '</div>';
+		p.innerHTML = '<div class="npop__hd"><b>' + ic('bell', 17) + 'Thông báo</b><span class="npop__n" id="npn"></span><button type="button" class="ibtn" data-x aria-label="Đóng">' + ic('x', 16) + '</button></div><div class="npop__bd" id="npb">' + skeleton(5) + '</div><div class="npop__ft"><button type="button" class="npop__all" id="npall" disabled>' + ic('check2', 16) + '<span>Đánh dấu đã xem tất cả</span></button></div>';
 		document.body.appendChild(ov); document.body.appendChild(p);
 		if (b) {
 			b.setAttribute('aria-expanded', 'true');
@@ -1293,6 +1302,7 @@
 		}
 		requestAnimationFrame(function () { ov.classList.add('on'); p.classList.add('on'); });
 		$('[data-x]', p).onclick = closeNotif;
+		$('#npall', p).onclick = function () { markAllSeen(this); };
 		$('#npb', p).addEventListener('click', function (e) {
 			var li = e.target.closest('[data-order]');
 			if (li) { closeNotif(); openOrder(+li.dataset.order); }
@@ -1300,14 +1310,30 @@
 		loadNotif();
 	}
 	function loadNotif() {
-		api('vs_adm_feed', { seen: 1 }).then(function (d) {
+		api('vs_adm_feed').then(function (d) {
 			var bd = $('#npb'); if (!bd) return;
-			var unread = d.items.filter(function (i) { return !i.read; }).length;
-			$('#npn').textContent = unread ? unread + ' mới' : '';
 			bd.innerHTML = d.items.length ? '<ul class="feed">' + d.items.map(feedHTML).join('') + '</ul>' : emptyHTML('Chưa có thông báo', 'Đơn mới, thanh toán và kết quả sẽ hiện ở đây.', 'bell');
-			setBadges({ unread: 0 });
-			feedState.unread = 0;
+			paintUnread(d.unread);
 		}, function (e) { var bd = $('#npb'); if (bd) bd.innerHTML = errHTML(e.message); });
+	}
+	/** Cập nhật số chưa xem: chuông, nhãn "N mới", nút "Đánh dấu đã xem tất cả". */
+	function paintUnread(n) {
+		feedState.unread = n;
+		setBadges({ unread: n });
+		var nn = $('#npn'); if (nn) nn.textContent = n ? n + ' mới' : '';
+		$$('#npall, #nread').forEach(function (b) {
+			b.disabled = !n;
+			var s = b.querySelector('span'); if (s) s.textContent = n ? 'Đánh dấu đã xem tất cả' : 'Đã xem tất cả';
+		});
+	}
+	/** Đánh dấu đã xem tất cả (đồng bộ với chuông trang /quan-tri/ và thanh quản trị WordPress). */
+	function markAllSeen(btn) {
+		if (btn) btn.disabled = true;
+		return api('vs_adm_feed', { seen: 1 }).then(function () {
+			$$('.feed li.unread').forEach(function (li) { li.classList.remove('unread'); });
+			paintUnread(0);
+			toast('Đã đánh dấu đã xem tất cả thông báo.');
+		}, function (e) { if (btn) btn.disabled = false; toast(e.message, 'err'); });
 	}
 	function closeNotif() {
 		var p = $('#npop'), ov = $('.npop-ov'), b = $('#bell');
@@ -1417,7 +1443,7 @@
 			}
 			feedState.first = false;
 			feedState.latest = Math.max(feedState.latest, d.latest || 0);
-			setBadges({ unread: notifOpen() ? 0 : d.unread });
+			paintUnread(d.unread);
 		}, function () { /* mất mạng: thử lại lần sau */ });
 	}
 

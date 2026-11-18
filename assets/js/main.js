@@ -300,7 +300,8 @@
 		var btn = $('[data-bell-toggle]', bell), panel = $('[data-bell-panel]', bell), list = $('[data-bell-list]', bell), count = $('[data-bell-count]', bell);
 		var last = parseInt(count.textContent, 10) || 0, loaded = false;
 		var ICON = { order: '🧾', paid: '💳', result: '📊', done: '✅', cancel: '⛔', money: '💸', info: '🔔' };
-		function setCount(n) { count.textContent = n > 99 ? '99+' : n; count.hidden = !n; }
+		var allBtn = $('[data-bell-readall]', bell);
+		function setCount(n) { count.textContent = n > 99 ? '99+' : n; count.hidden = !n; allBtn.disabled = !n; }
 		function render(items) {
 			list.innerHTML = items.length ? items.map(function (n) {
 				var tag = n.url ? 'a href="' + esc(n.url) + '"' : 'div';
@@ -365,8 +366,8 @@
 
 	function renderTrack(d) {
 		// Mỗi bước: [chưa tới, đang làm, đã xong]
-		var steps = [['Đặt hàng', 'Đã đặt hàng', 'Đã đặt hàng'], ['Xử lý', 'Đang xử lý', 'Đã xử lý'], ['Hoàn thành', 'Hoàn thành', 'Đã hoàn thành']];
-		var idx = { cho_thanh_toan: 0, dang_xu_ly: 1, hoan_thanh: 2 }[d.status];
+		var steps = [['Đặt hàng', 'Đã đặt hàng', 'Đã đặt hàng'], ['Thanh toán', 'Chờ thanh toán', 'Đã thanh toán'], ['Xử lý', 'Đang xử lý', 'Đã xử lý xong'], ['Hoàn thành', 'Hoàn thành', 'Đã hoàn thành']];
+		var idx = { cho_thanh_toan: 1, dang_xu_ly: 2, hoan_thanh: 3 }[d.status];
 		var html = '<div class="tr__head"><span class="tr__code">' + esc(d.code) + '</span><span class="status status--' + esc(d.status) + '">' + esc(d.label) + '</span></div>' +
 			'<div class="tr__meta">' + esc(d.summary) + ' | <b>' + money(d.total) + '</b> | Đặt lúc ' + esc(d.date) + '</div>';
 		if (idx != null) html += '<div class="progress">' + steps.map(function (s, i) {
