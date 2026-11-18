@@ -308,6 +308,7 @@ foreach ( $orders as $o ) {
 					<h1>Thông báo</h1>
 					<p class="muted">Cập nhật về đơn hàng, kết quả kiểm tra và hoa hồng cộng tác viên.</p>
 				</div>
+				<div class="push-box" data-push-card hidden></div>
 				<?php if ( ! $notices ) : ?>
 					<div class="empty-box"><?php echo vs_icon( 'bell', 32 ); // phpcs:ignore ?><p>Chưa có thông báo nào.</p></div>
 				<?php else : ?>

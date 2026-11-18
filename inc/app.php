@@ -126,7 +126,7 @@ function vs_app_manifest( $start ) {
 		'display'          => 'standalone',
 		'background_color' => '#0b1630',
 		'theme_color'      => '#0b1630',
-		'icons'            => array( array( 'src' => vs_app_asset( 'assets/img/favicon.svg' ), 'sizes' => 'any', 'type' => 'image/svg+xml' ) ),
+		'icons'            => function_exists( 'vs_push_icons' ) ? vs_push_icons() : array( array( 'src' => vs_app_asset( 'assets/img/favicon.svg' ), 'sizes' => 'any', 'type' => 'image/svg+xml' ) ),
 	) );
 	exit;
 }
@@ -186,6 +186,8 @@ function vs_app_render() {
 <meta name="theme-color" content="#0b1630">
 <title>Quản trị đơn hàng | <?php echo esc_html( get_bloginfo( 'name' ) ); ?></title>
 <link rel="icon" href="<?php echo esc_url( vs_app_asset( 'assets/img/favicon.svg' ) ); ?>" type="image/svg+xml">
+<link rel="apple-touch-icon" href="<?php echo esc_url( vs_app_asset( 'assets/img/icon-192.png' ) ); ?>">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="manifest" href="<?php echo esc_url( vs_is_app_path() ? vs_app_path() . 'manifest.webmanifest' : '/manifest.webmanifest' ); ?>">
 <link rel="preload" href="<?php echo esc_url( wp_parse_url( VS_URI, PHP_URL_PATH ) . '/assets/app/fonts/inter-latin.woff2' ); ?>" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="<?php echo esc_url( wp_parse_url( VS_URI, PHP_URL_PATH ) . '/assets/app/fonts/inter-vietnamese.woff2' ); ?>" as="font" type="font/woff2" crossorigin>
@@ -195,6 +197,10 @@ function vs_app_render() {
 <body>
 <div id="app" aria-live="polite"><div class="boot"><span class="boot__spin"></span></div></div>
 <script>window.VSAPP=<?php echo wp_json_encode( $cfg ); ?>;</script>
+<?php if ( $can && function_exists( 'vs_push_config' ) ) : ?>
+<script>window.VSPUSH=<?php echo wp_json_encode( vs_push_config( 'app' ) ); ?>;</script>
+<script src="<?php echo esc_url( vs_app_asset( 'assets/js/push.js' ) ); ?>"></script>
+<?php endif; ?>
 <script src="<?php echo esc_url( vs_app_asset( 'assets/app/app.js' ) ); ?>"></script>
 </body>
 </html>

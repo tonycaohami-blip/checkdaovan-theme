@@ -402,6 +402,7 @@ svg { flex-shrink: 0; }
 	.shell { grid-template-columns: minmax(0, 1fr); }
 	.side { position: fixed; left: 0; top: 0; bottom: 0; width: 280px; transform: translateX(-100%); transition: transform .25s var(--ease); box-shadow: var(--shadow-lg); }
 	.side.on { transform: none; }
+	.side { z-index: 65; }
 	.top { padding: 10px 16px; gap: 10px; }
 	.top__menu { display: grid; }
 	.top h1 { font-size: 18px; }
@@ -723,3 +724,45 @@ h1 .sep, h2 .sep { height: 18px; margin: 0 12px; }
 .stpick__b.is-done svg { color: var(--ok); }
 .stpick__tick { position: absolute; top: 6px; right: 6px; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; background: var(--ok); color: #fff; font-style: normal; }
 .stpick__tick svg { color: #fff !important; }
+
+/* Thông báo đẩy trên điện thoại, máy tính (assets/js/push.js) */
+.pushc { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); }
+.pushc[hidden], [data-push-card][hidden] { display: none; }
+.pushc__ic { flex: none; width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; background: var(--primary-soft); color: var(--primary); }
+.pushc--on .pushc__ic { background: var(--ok-soft); color: var(--ok); }
+.pushc--denied .pushc__ic, .pushc--ios-install .pushc__ic { background: var(--warn-soft); color: var(--warn); }
+.pushc--unsupported .pushc__ic { background: var(--line-2); color: var(--ink-3); }
+.pushc__t { flex: 1; min-width: 0; }
+.pushc__t b { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 8px; font-size: 14px; line-height: 1.35; color: var(--ink); }
+.pushc__t small { display: block; margin-top: 3px; color: var(--ink-3); font-size: 12.5px; line-height: 1.45; }
+.pushc__pill { font-style: normal; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 99px; background: var(--line-2); color: var(--ink-3); }
+.pushc--on .pushc__pill { background: var(--ok-soft); color: var(--ok); }
+.pushc--denied .pushc__pill, .pushc--ios-install .pushc__pill { background: var(--warn-soft); color: var(--warn); }
+.pushc__a { display: flex; gap: 8px; flex: none; }
+.pushc__btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 36px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); font: 600 13.5px var(--font); cursor: pointer; white-space: nowrap; transition: background .15s, color .15s, border-color .15s; }
+.pushc__btn:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
+.pushc__btn--pri { background: var(--primary); border-color: var(--primary); color: #fff; }
+.pushc__btn--pri:hover:not(:disabled) { background: var(--primary-2); color: #fff; }
+.pushc__btn--ghost { color: var(--danger); }
+.pushc__btn--ghost:hover:not(:disabled) { border-color: var(--danger); color: var(--danger); }
+.pushc__btn:disabled { opacity: .6; cursor: default; }
+.pushc__btn.is-busy::after { content: ""; width: 13px; height: 13px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: pushspin .7s linear infinite; }
+@keyframes pushspin { to { transform: rotate(360deg); } }
+.pushc--compact { padding: 10px 12px; gap: 10px; border-radius: 12px; background: var(--primary-soft); border-color: transparent; }
+.pushc--compact .pushc__ic { width: 34px; height: 34px; border-radius: 10px; background: var(--panel); }
+.pushc--compact .pushc__t b { font-size: 13px; }
+.pushc--compact .pushc__t small { font-size: 12px; margin-top: 1px; }
+.pushc--compact .pushc__btn { height: 32px; padding: 0 14px; }
+@media (max-width: 560px) {
+	.pushc:not(.pushc--compact) { flex-wrap: wrap; }
+	.pushc:not(.pushc--compact) .pushc__a { width: 100%; }
+	.pushc:not(.pushc--compact) .pushc__btn { flex: 1; height: 40px; }
+}
+.set--push { display: block; padding: 14px 0; }
+.set--push .pushc { border: 0; padding: 0; background: none; }
+.set--push .pushc:not(.pushc--compact) { flex-wrap: wrap; align-items: flex-start; }
+.set--push .pushc__ic { width: 40px; height: 40px; }
+.set--push .pushc__a { width: 100%; padding-left: 54px; }
+.set--push .pushc__btn { flex: 1; max-width: 220px; }
+.npop__push { padding: 10px 12px 0; }
+.npop__push[hidden] { display: none; }

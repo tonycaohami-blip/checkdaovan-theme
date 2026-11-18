@@ -340,6 +340,7 @@
 		// Kiểm tra thông báo mới mỗi phút khi tab đang mở.
 		loaded = 'poll';
 		setInterval(function () { if (!document.hidden) load(); }, 60000);
+		window.addEventListener('vs:push', function () { load(); });
 	})();
 	var P = VS.pricing;
 	var modes = { plag: 'Chỉ đạo văn', ai: 'Chỉ tỷ lệ AI', combo: 'Đạo văn + AI' };

@@ -30,7 +30,7 @@ function vs_notify_user( $uid, $type, $title, $text = '', $url = '', $key = '' )
 			}
 		}
 	}
-	array_unshift( $list, array(
+	$n = array(
 		'id'    => substr( md5( uniqid( '', true ) ), 0, 10 ),
 		'key'   => $key,
 		't'     => time(),
@@ -39,8 +39,10 @@ function vs_notify_user( $uid, $type, $title, $text = '', $url = '', $key = '' )
 		'text'  => $text,
 		'url'   => $url,
 		'read'  => 0,
-	) );
+	);
+	array_unshift( $list, $n );
 	update_user_meta( $uid, '_vs_notices', array_slice( $list, 0, 60 ) );
+	do_action( 'vs_notice_user_added', $uid, $n ); // Thông báo đẩy lên điện thoại / máy tính (inc/push.php).
 }
 
 function vs_user_notices( $uid ) {
@@ -56,15 +58,17 @@ function vs_user_unread( $uid ) {
 /** Thêm thông báo quản trị. */
 function vs_notify_admin( $type, $title, $text = '', $order_id = 0 ) {
 	$list = (array) get_option( 'vs_admin_notices', array() );
-	array_unshift( $list, array(
+	$n = array(
 		'id'    => substr( md5( uniqid( '', true ) ), 0, 10 ),
 		't'     => time(),
 		'type'  => $type,
 		'title' => $title,
 		'text'  => $text,
 		'order' => (int) $order_id,
-	) );
+	);
+	array_unshift( $list, $n );
 	update_option( 'vs_admin_notices', array_slice( $list, 0, 200 ), false );
+	do_action( 'vs_notice_admin_added', $n ); // Thông báo đẩy tới app quản trị (inc/push.php).
 }
 
 function vs_admin_notices() {
@@ -268,6 +272,7 @@ function vs_bell_html() {
 		</button>
 		<div class="bell__panel" data-bell-panel hidden>
 			<div class="bell__head"><b>Thông báo</b><button type="button" class="bell__all" data-bell-readall><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m2 12 5 5L18 6"/><path d="m13 16 1 1 8-9"/></svg><span>Đánh dấu đã xem tất cả</span></button></div>
+			<div class="bell__push" data-push-card="compact" hidden></div>
 			<div class="bell__list" data-bell-list><div class="bell__empty">Đang tải…</div></div>
 			<a class="bell__more" href="<?php echo esc_url( vs_account_url( 'thong-bao' ) ); ?>">Xem tất cả thông báo</a>
 		</div>

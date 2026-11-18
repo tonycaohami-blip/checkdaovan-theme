@@ -1293,7 +1293,7 @@
 		var ov = document.createElement('div'); ov.className = 'npop-ov'; ov.onclick = closeNotif;
 		var p = document.createElement('div');
 		p.id = 'npop'; p.className = 'npop'; p.setAttribute('role', 'dialog'); p.setAttribute('aria-label', 'Thông báo');
-		p.innerHTML = '<div class="npop__hd"><b>' + ic('bell', 17) + 'Thông báo</b><span class="npop__n" id="npn"></span><button type="button" class="ibtn" data-x aria-label="Đóng">' + ic('x', 16) + '</button></div><div class="npop__bd" id="npb">' + skeleton(5) + '</div><div class="npop__ft"><button type="button" class="npop__all" id="npall" disabled>' + ic('check2', 16) + '<span>Đánh dấu đã xem tất cả</span></button></div>';
+		p.innerHTML = '<div class="npop__hd"><b>' + ic('bell', 17) + 'Thông báo</b><span class="npop__n" id="npn"></span><button type="button" class="ibtn" data-x aria-label="Đóng">' + ic('x', 16) + '</button></div><div class="npop__push" id="nppush" hidden></div><div class="npop__bd" id="npb">' + skeleton(5) + '</div><div class="npop__ft"><button type="button" class="npop__all" id="npall" disabled>' + ic('check2', 16) + '<span>Đánh dấu đã xem tất cả</span></button></div>';
 		document.body.appendChild(ov); document.body.appendChild(p);
 		if (b) {
 			b.setAttribute('aria-expanded', 'true');
@@ -1303,6 +1303,7 @@
 		requestAnimationFrame(function () { ov.classList.add('on'); p.classList.add('on'); });
 		$('[data-x]', p).onclick = closeNotif;
 		$('#npall', p).onclick = function () { markAllSeen(this); };
+		if (window.VSPush) VSPush.mount($('#nppush', p), { compact: true });
 		$('#npb', p).addEventListener('click', function (e) {
 			var li = e.target.closest('[data-order]');
 			if (li) { closeNotif(); openOrder(+li.dataset.order); }
@@ -1367,7 +1368,7 @@
 				'<div class="card"><div class="card__hd"><h3>Giao diện & thông báo</h3></div><div class="card__bd">' +
 					'<div class="set"><span class="set__ic">' + ic('palette', 18) + '</span><div class="set__t"><b>Chế độ hiển thị</b><small>Sáng, tối hoặc theo thiết bị</small></div><div class="seg" id="thm">' + [['light', 'Sáng'], ['dark', 'Tối'], ['system', 'Tự động']].map(function (t) { return '<button data-v="' + t[0] + '" class="' + (theme === t[0] ? 'on' : '') + '">' + t[1] + '</button>'; }).join('') + '</div></div>' +
 					'<div class="set"><span class="set__ic set__ic--ok">' + ic('sound', 18) + '</span><div class="set__t"><b>Âm báo đơn mới</b><small>Phát tiếng “ting” khi có đơn hoặc thanh toán mới</small></div><label class="check"><input type="checkbox" id="snd"' + (sound ? ' checked' : '') + '> Bật</label></div>' +
-					'<div class="set"><span class="set__ic set__ic--warn">' + ic('bell', 18) + '</span><div class="set__t"><b>Thông báo trên máy</b><small>' + (perm === 'granted' ? 'Đã bật: hiện thông báo kể cả khi đang ở tab khác' : perm === 'denied' ? 'Đã bị chặn trong cài đặt trình duyệt' : perm === 'unsupported' ? 'Trình duyệt không hỗ trợ' : 'Hiện thông báo kể cả khi đang ở tab khác') + '</small></div>' + (perm === 'default' ? '<button class="btn btn--sm" id="ntf">' + ic('bell', 15) + 'Bật</button>' : '') + '</div>' +
+					(window.VSPush ? '<div class="set set--push" id="pushset"></div>' : '<div class="set"><span class="set__ic set__ic--warn">' + ic('bell', 18) + '</span><div class="set__t"><b>Thông báo trên máy</b><small>' + (perm === 'granted' ? 'Đã bật: hiện thông báo kể cả khi đang ở tab khác' : perm === 'denied' ? 'Đã bị chặn trong cài đặt trình duyệt' : perm === 'unsupported' ? 'Trình duyệt không hỗ trợ' : 'Hiện thông báo kể cả khi đang ở tab khác') + '</small></div>' + (perm === 'default' ? '<button class="btn btn--sm" id="ntf">' + ic('bell', 15) + 'Bật</button>' : '') + '</div>') +
 					'<div class="set"><span class="set__ic">' + ic('bolt', 18) + '</span><div class="set__t"><b>Thử âm báo</b><small>Kiểm tra loa của thiết bị</small></div><button class="btn btn--sm" id="tst">' + ic('sound', 15) + 'Phát thử</button></div>' +
 				'</div></div>' +
 			'</div>' +
@@ -1385,6 +1386,7 @@
 		$('#snd').onchange = function () { store('sound', this.checked ? '1' : '0'); };
 		$('#tst').onclick = function () { ding(true); };
 		var n = $('#ntf'); if (n) n.onclick = function () { Notification.requestPermission().then(function () { render(); }); };
+		if (window.VSPush) VSPush.mount($('#pushset', el));
 		// Đổi / xóa ảnh đại diện (đồng bộ toàn website).
 		function avSend(fd) {
 			var big = $('.av--xl', el); if (big) big.classList.add('is-busy');
@@ -1433,7 +1435,7 @@
 			if (!feedState.first && fresh.length) {
 				fresh.slice(0, 3).forEach(function (n) {
 					toast(n.text || '', 'new', n.title, n.order ? function () { openOrder(n.order); } : null);
-					if (document.hidden && 'Notification' in window && Notification.permission === 'granted') {
+					if (document.hidden && !pushOn && 'Notification' in window && Notification.permission === 'granted') {
 						try { var nt = new Notification(n.title, { body: n.text || '', icon: C.logo, tag: 'vs-' + n.id }); nt.onclick = function () { window.focus(); if (n.order) openOrder(n.order); nt.close(); }; } catch (e) { /* bỏ qua */ }
 					}
 				});
@@ -1457,6 +1459,13 @@
 	render();
 	poll();
 	setInterval(poll, 20000);
+	// Thông báo đẩy: cập nhật ngay khi có thông báo mới, biết thiết bị đã bật hay chưa.
+	var pushOn = false;
+	if (window.VSPush) {
+		VSPUSH.toast = function (m, err) { toast(m, err ? 'err' : 'ok'); };
+		VSPush.state().then(function (s) { pushOn = s === 'on'; });
+		window.addEventListener('vs:push', function () { VSPush.state().then(function (s) { pushOn = s === 'on'; }); poll(); });
+	}
 	document.addEventListener('visibilitychange', function () { if (!document.hidden) poll(); });
 	// Lấy số liệu cho huy hiệu menu khi không mở trang Tổng quan.
 	if (route.id !== '') api('vs_app_dash').then(function (d) { setBadges({ orders: d.stats.manual, payouts: d.kpi.payouts }); }, function () {});
