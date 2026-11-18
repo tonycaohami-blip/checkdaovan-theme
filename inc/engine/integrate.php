@@ -18,7 +18,7 @@ function vs_tool_name( $k ) {
 
 /* Bán cho khách: thêm vào danh sách phần mềm (đứng đầu) khi quản trị bật. */
 add_filter( 'vs_pricing', function ( $p ) {
-	if ( ! vs_cdv_cfg( 'on' ) ) {
+	if ( ! vs_cdv_sellable() ) {
 		return $p;
 	}
 	$price = max( 1000, (int) vs_cdv_cfg( 'price' ) );
@@ -103,7 +103,7 @@ add_filter( 'vs_order_data', function ( $data, $post ) {
 
 /** Ô đồng ý lưu bài (hiện khi khách chọn CDV Scan). */
 function vs_cdv_order_field() {
-	if ( ! vs_cdv_cfg( 'on' ) || ! vs_cdv_cfg( 'repo' ) ) {
+	if ( ! vs_cdv_sellable() || ! vs_cdv_cfg( 'repo' ) ) {
 		return;
 	}
 	?>

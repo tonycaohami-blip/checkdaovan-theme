@@ -1396,7 +1396,7 @@
 
 		function sum(st, on) {
 			$('#scsum').innerHTML =
-				kpiHTML('hero', 'scan', 'Bán cho khách', on ? 'Đang bán' : 'Chưa bật', on ? 'Hiện trong trang đặt đơn' : 'Bật trong tab Cài đặt') +
+				kpiHTML('hero', 'scan', 'Bán cho khách', !on ? 'Chưa bật' : home && home.sell ? 'Đang bán' : 'Chờ kết nối', !on ? 'Bật trong tab Cài đặt' : home && home.sell ? 'Hiện trong trang đặt đơn' : 'Tự hiện khi kết nối tìm kiếm Internet') +
 				kpiHTML('', 'file', 'Tài liệu trong kho', num(st.upload + st.order), num(st.upload) + ' tải lên | ' + num(st.order) + ' bài khách nộp') +
 				kpiHTML('violet', 'globe', 'Trang web đã lưu', num(st.web), home && home.webok ? 'Tìm Internet: đang bật' : 'Chưa kết nối API tìm kiếm') +
 				kpiHTML('ok', 'list', 'Từ đã lập chỉ mục', num(st.words), 'Dùng để so khớp mọi bài mới');
@@ -1529,7 +1529,7 @@
 			function sw(id, on, t, s) { return '<div class="set"><div class="set__t"><b>' + t + '</b><small>' + s + '</small></div><label class="sw"><input type="checkbox" id="' + id + '"' + (on ? ' checked' : '') + dis + '><i></i></label></div>'; }
 			$('#scbody').innerHTML = '<div class="grid g-2 scan-g">' +
 				'<div class="card"><div class="card__hd"><h3>Bán cho khách hàng</h3></div><div class="card__bd">' +
-					sw('cf_on', c.on, 'Hiện ' + esc(c.name) + ' trong trang đặt đơn', 'Khách chọn như 1 phần mềm, kết quả và báo cáo trả tự động 24/7') +
+					sw('cf_on', c.on, 'Hiện ' + esc(c.name) + ' trong trang đặt đơn', 'Khách chọn như 1 phần mềm, kết quả trả tự động 24/7. Chỉ hiện khi đã kết nối tìm kiếm Internet (để kết quả đáng tin)') + (c.on && !home.webok ? '<p class="cf-test cf-test--err">' + ic('clock', 15) + 'Đã bật nhưng khách chưa thấy: cần kết nối dịch vụ tìm kiếm ở khung bên cạnh.</p>' : '') +
 					'<div class="cf-row"><label class="field"><span>Tên hiển thị</span><input class="input" id="cf_name" value="' + esc(c.name) + '" maxlength="40"' + dis + '></label>' +
 					'<label class="field"><span>Giá kiểm tra (đ, gói ' + 50 + ' trang đầu)</span><input class="input mono" id="cf_price" type="number" min="1000" step="500" value="' + esc(c.price) + '"' + dis + '></label></div>' +
 					sw('cf_repo', c.repo, 'Cho khách chọn lưu bài vào kho', 'Khách tự đánh dấu khi đặt đơn; bỏ trống thì bài không được lưu lại') +

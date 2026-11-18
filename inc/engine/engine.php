@@ -63,6 +63,14 @@ function vs_cdv_web_ready() {
 	return ( 'google' === $c['web'] && $c['gkey'] && $c['gcx'] ) || ( 'serper' === $c['web'] && $c['skey'] );
 }
 
+/**
+ * Có hiện cho khách đặt đơn không: quản trị đã bật VÀ đã kết nối tìm kiếm Internet.
+ * Chưa kết nối thì kho nội bộ quá ít dữ liệu, kết quả gần như luôn 0% - không bán để tránh sai lệch cho khách.
+ */
+function vs_cdv_sellable() {
+	return (bool) vs_cdv_cfg( 'on' ) && vs_cdv_web_ready();
+}
+
 /* =========================================================
  * Cơ sở dữ liệu (bảng riêng của website này, không đụng web khác)
  * ======================================================= */

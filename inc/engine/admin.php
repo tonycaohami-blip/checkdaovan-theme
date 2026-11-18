@@ -111,6 +111,7 @@ add_action( 'wp_ajax_vs_cdv_home', function () {
 		'recent' => array_slice( $recent, 0, 12 ),
 		'cfg'    => $c,
 		'webok'  => vs_cdv_web_ready(),
+		'sell'   => vs_cdv_sellable(),
 		'admin'  => current_user_can( 'manage_options' ),
 	) );
 } );
