@@ -22,6 +22,18 @@ jQuery(function ($) {
 		$cell.find('.vs-rb-tag').text(tag);
 	}
 
+	// Đơn hoàn thành: mở khóa toàn bộ kết quả khi bấm "Sửa kết quả".
+	$('#vs-rb-unlock').on('click', function () {
+		$box.removeClass('is-locked');
+		$list.removeClass('vs-files-lock');
+		$box.find('input[data-done]').prop('readonly', false).removeAttr('data-done');
+		$box.find('.vs-rb-cell--api input[type=number]').each(function () {
+			$('<button type="button" class="vs-rb-edit" title="Sửa tay số liệu tự động">Sửa</button>').insertAfter($(this).siblings('.vs-rb-pct'));
+		});
+		$('#vs-rb-lockbar').remove();
+		$box.find('input[type=number]:not([readonly])').first().trigger('focus');
+	});
+
 	// Mở khóa số liệu tự động để sửa tay
 	$box.on('click', '.vs-rb-edit', function () {
 		var $i = $(this).closest('.vs-rb-cell').find('input[type=number]');

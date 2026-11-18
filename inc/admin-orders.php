@@ -163,6 +163,10 @@ add_action( 'wp_ajax_vs_adm_orders', function () {
 
 /* ---------- Chi tiết đơn ---------- */
 function vs_adm_order_data( $id ) {
+	return apply_filters( 'vs_adm_order_data', vs_adm_order_data_base( $id ), $id );
+}
+
+function vs_adm_order_data_base( $id ) {
 	$v     = vs_order_view( $id );
 	$files = array();
 	foreach ( array( 'file' => 'Tài liệu khách gửi', 'src_report' => 'Báo cáo khách gửi' ) as $which => $label ) {

@@ -294,6 +294,9 @@ add_action( 'admin_head', function () {
 		.vs-rb-edit{border:0;background:none;color:#2271b1;cursor:pointer;font-size:12px;padding:0 2px;text-decoration:underline}
 		.vs-rb-files a{display:block;font-weight:600;white-space:nowrap}
 		.vs-rb-upload{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:12px 0}
+		.vs-rb-lockbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px;padding:10px 12px;border-radius:6px;background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46}
+		.vs-rb.is-locked input[type=number]{background:#f6f7f7;border-color:#e0e0e0;color:#1d2327;font-weight:600}
+		.vs-rb.is-locked ~ .vs-rb-upload,.vs-rb.is-locked ~ .vs-files-lock .vs-rm{display:none}
 		.vs-rb-log{background:#1d2327;color:#c3c4c7;font:12px/1.7 monospace;padding:10px 12px;border-radius:6px;margin-bottom:12px}
 		.vs-rb-log .is-ok{color:#6ee7b7}.vs-rb-log .is-err{color:#fca5a5}.vs-rb-log .is-skip{color:#fcd34d}.vs-rb-log .is-hint{color:#93c5fd}
 		.vs-files li.is-auto em{color:#047857;font-style:normal;font-size:12px}
@@ -400,10 +403,14 @@ function vs_box_result( $post ) {
 	$jobs    = (array) get_post_meta( $id, '_vs_jobs', true );
 	$auto_f  = function_exists( 'vs_auto_files' ) ? vs_auto_files( $id ) : array();
 	$labels  = array( 'plag' => 'Đạo văn', 'ai' => 'Tỷ lệ AI' );
+	$done    = 'hoan_thanh' === vs_meta( $id, 'status' ); // Đơn hoàn thành: chỉ xem tỷ lệ, bấm "Sửa kết quả" mới sửa được (giống App quản trị).
 	$src_lbl = array( 'api' => 'Tự động từ API', 'pdf' => 'Đọc từ PDF', 'manual' => 'Nhập tay' );
 	?>
 	<p class="vs-rb-intro">Số liệu được <b>tự động điền</b> khi phần mềm trả kết quả qua API. Với phần kiểm tra tay, bấm <b>“Tải báo cáo PDF lên”</b> - hệ thống tự đọc tỷ lệ trong báo cáo Turnitin, iThenticate, Copyleaks, Originality.ai.</p>
-	<table class="vs-rb">
+	<?php if ( $done ) : ?>
+		<div class="vs-rb-lockbar" id="vs-rb-lockbar"><span>✅ Đơn đã hoàn thành - kết quả đang được khóa để tránh sửa nhầm.</span><button type="button" class="button" id="vs-rb-unlock">✏️ Sửa kết quả</button></div>
+	<?php endif; ?>
+	<table class="vs-rb<?php echo $done ? ' is-locked' : ''; ?>">
 		<thead><tr><th>Phần mềm</th><?php foreach ( $labels as $l ) { echo '<th>' . esc_html( $l ) . '</th>'; } ?><th>Báo cáo</th></tr></thead>
 		<tbody>
 		<?php foreach ( vs_result_rows( $id ) as $key => $row ) : ?>
@@ -436,9 +443,9 @@ function vs_box_result( $post ) {
 					?>
 					<td>
 						<div class="vs-rb-cell vs-rb-cell--<?php echo esc_attr( $src ? $src : ( $pending ? 'wait' : 'empty' ) ); ?>">
-							<input type="number" step="0.1" min="0" max="100" data-kind="<?php echo esc_attr( $kind ); ?>" name="vs_results[<?php echo esc_attr( $key ); ?>][<?php echo esc_attr( $kind ); ?>]" value="<?php echo esc_attr( $val ); ?>" <?php echo $locked ? 'readonly' : ''; ?> placeholder="<?php echo $pending ? '...' : ''; ?>"><span class="vs-rb-pct">%</span>
+							<input type="number" step="0.1" min="0" max="100" data-kind="<?php echo esc_attr( $kind ); ?>" name="vs_results[<?php echo esc_attr( $key ); ?>][<?php echo esc_attr( $kind ); ?>]" value="<?php echo esc_attr( $val ); ?>" <?php echo $locked || $done ? 'readonly' : ''; ?><?php echo $done && ! $locked ? ' data-done="1"' : ''; ?> placeholder="<?php echo $pending ? '...' : ''; ?>"><span class="vs-rb-pct">%</span>
 							<input type="hidden" class="vs-rb-src" name="vs_result_src[<?php echo esc_attr( $key ); ?>][<?php echo esc_attr( $kind ); ?>]" value="<?php echo esc_attr( $src ); ?>">
-							<?php if ( $locked ) : ?><button type="button" class="vs-rb-edit" title="Sửa tay số liệu tự động">Sửa</button><?php endif; ?>
+							<?php if ( $locked && ! $done ) : ?><button type="button" class="vs-rb-edit" title="Sửa tay số liệu tự động">Sửa</button><?php endif; ?>
 							<small class="vs-rb-tag"><?php echo $src ? '● ' . esc_html( $src_lbl[ $src ] ) . ( ! empty( $srcs[ $key ][ $kind ]['at'] ) ? ' | ' . esc_html( wp_date( 'H:i d/m', (int) $srcs[ $key ][ $kind ]['at'] ) ) : '' ) : ( $pending ? '● Đang chờ kết quả...' : '○ Chưa có' ); ?></small>
 						</div>
 					</td>
@@ -464,7 +471,7 @@ function vs_box_result( $post ) {
 	<div id="vs-rb-log" class="vs-rb-log" hidden></div>
 
 	<p><strong>File trả khách</strong></p>
-	<ul class="vs-files" id="vs-files">
+	<ul class="vs-files<?php echo $done ? ' vs-files-lock' : ''; ?>" id="vs-files">
 		<?php foreach ( $auto_f as $i => $f ) : ?>
 			<li class="is-auto">🤖 <a href="<?php echo esc_url( vs_file_url( $id, $i ) ); ?>"><?php echo esc_html( $f['name'] ); ?></a> <em>tự động | <?php echo esc_html( vs_file_meta_text( vs_file_stats( $id, 'auto:' . basename( $f['path'] ), $f['name'], vs_report_dir() . '/' . basename( $f['path'] ), 'PDF' ) ) ); ?></em></li>
 		<?php endforeach; ?>

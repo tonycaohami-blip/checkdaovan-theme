@@ -542,6 +542,8 @@ add_action( 'wp_ajax_vs_app_results', function () {
 		wp_send_json_error( array( 'message' => 'Không có quyền với đơn này.' ), 403 );
 	}
 	$in      = json_decode( wp_unslash( isset( $_POST['values'] ) ? $_POST['values'] : '' ), true );
+	$in_src  = json_decode( wp_unslash( isset( $_POST['srcs'] ) ? $_POST['srcs'] : '' ), true );
+	$in_src  = is_array( $in_src ) ? $in_src : array();
 	$allowed = array();
 	foreach ( vs_result_rows( $id ) as $key => $row ) {
 		$allowed[ $key ] = $row[1];
@@ -562,9 +564,11 @@ add_action( 'wp_ajax_vs_app_results', function () {
 				continue;
 			}
 			$val = max( 0, min( 100, round( (float) str_replace( ',', '.', (string) $vals[ $f ] ), 1 ) ) );
-			if ( ! isset( $results[ $key ][ $f ] ) || (float) $results[ $key ][ $f ] !== $val ) {
+			$psrc = isset( $in_src[ $key ][ $f ] ) && 'pdf' === $in_src[ $key ][ $f ] ? 'pdf' : 'manual';
+			$osrc = isset( $srcs[ $key ][ $f ]['src'] ) ? $srcs[ $key ][ $f ]['src'] : '';
+			if ( ! isset( $results[ $key ][ $f ] ) || (float) $results[ $key ][ $f ] !== $val || ( 'pdf' === $psrc && 'pdf' !== $osrc ) ) {
 				$results[ $key ][ $f ] = $val;
-				$srcs[ $key ][ $f ]    = array( 'src' => 'manual', 'at' => time(), 'note' => '' );
+				$srcs[ $key ][ $f ]    = array( 'src' => $psrc, 'at' => time(), 'note' => '' );
 			}
 		}
 		if ( empty( $results[ $key ] ) ) {
@@ -585,5 +589,114 @@ add_action( 'wp_ajax_vs_app_results', function () {
 	}
 	$u = wp_get_current_user();
 	vs_auto_log( 'Quản trị (' . $u->display_name . '): cập nhật kết quả trên app.', $id );
+	wp_send_json_success( array( 'message' => $msg, 'order' => vs_adm_order_data( $id ) ) );
+} );
+
+/* =========================================================
+ * Cập nhật đơn đầy đủ trên app (đồng bộ với hộp "Kết quả trả khách" / "Trạng thái" trong WP Admin)
+ * ======================================================= */
+
+/** File trả khách đã đính kèm (Thư viện Media) - danh sách cho app, kèm id để gỡ. */
+function vs_app_order_atts( $id ) {
+	$out = array();
+	foreach ( array_filter( array_map( 'intval', explode( ',', (string) vs_meta( $id, 'report_ids' ) ) ) ) as $fid ) {
+		$path = (string) get_attached_file( $fid );
+		if ( ! $path || ! is_file( $path ) ) {
+			continue;
+		}
+		$n     = basename( $path );
+		$st    = vs_file_stats( $id, 'att:' . $fid, $n, $path, 'PDF' );
+		$out[] = array_merge( $st, array(
+			'id'    => $fid,
+			'name'  => $n,
+			'short' => vs_short_filename( $n, 34 ),
+			'meta'  => vs_file_meta_text( $st ),
+			'url'   => wp_get_attachment_url( $fid ),
+		) );
+	}
+	return $out;
+}
+add_filter( 'vs_adm_order_data', function ( $d, $id ) {
+	$d['atts']      = vs_app_order_atts( $id );
+	$d['autofiles'] = array();
+	foreach ( function_exists( 'vs_auto_files' ) ? vs_auto_files( $id ) : array() as $i => $f ) {
+		$st               = vs_file_stats( $id, 'auto:' . basename( $f['path'] ), $f['name'], vs_report_dir() . '/' . basename( $f['path'] ), 'PDF' );
+		$d['autofiles'][] = array_merge( $st, array( 'name' => $f['name'], 'short' => vs_short_filename( $f['name'], 34 ), 'meta' => vs_file_meta_text( $st ) . ' | tự động', 'url' => vs_file_url( $id, $i ) ) );
+	}
+	return $d;
+}, 10, 2 );
+
+function vs_app_order_guard() {
+	vs_adm_guard();
+	$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
+	if ( 'vs_order' !== get_post_type( $id ) || ! current_user_can( 'edit_post', $id ) ) {
+		wp_send_json_error( array( 'message' => 'Không có quyền với đơn này.' ), 403 );
+	}
+	return $id;
+}
+
+/* Tải file trả khách (báo cáo PDF, file Word đã chỉnh sửa...) lên đơn: lưu vào Thư viện Media như WP Admin. */
+add_action( 'wp_ajax_vs_app_upload', function () {
+	$id = vs_app_order_guard();
+	if ( empty( $_FILES['file']['name'] ) ) {
+		wp_send_json_error( array( 'message' => 'Chưa chọn file.' ) );
+	}
+	$ext = strtolower( pathinfo( (string) $_FILES['file']['name'], PATHINFO_EXTENSION ) );
+	if ( ! in_array( $ext, array( 'pdf', 'docx', 'doc', 'xlsx', 'zip', 'png', 'jpg', 'jpeg' ), true ) ) {
+		wp_send_json_error( array( 'message' => 'Chỉ nhận file PDF, Word, Excel, ZIP hoặc ảnh.' ) );
+	}
+	require_once ABSPATH . 'wp-admin/includes/file.php';
+	require_once ABSPATH . 'wp-admin/includes/media.php';
+	require_once ABSPATH . 'wp-admin/includes/image.php';
+	$fid = media_handle_upload( 'file', 0 );
+	if ( is_wp_error( $fid ) ) {
+		wp_send_json_error( array( 'message' => 'Không tải được file: ' . $fid->get_error_message() ) );
+	}
+	$ids   = array_filter( array_map( 'intval', explode( ',', (string) vs_meta( $id, 'report_ids' ) ) ) );
+	$ids[] = (int) $fid;
+	update_post_meta( $id, '_vs_report_ids', implode( ',', array_unique( $ids ) ) );
+	$u = wp_get_current_user();
+	vs_auto_log( 'Quản trị (' . $u->display_name . '): thêm file trả khách ' . basename( (string) get_attached_file( $fid ) ) . ' trên app.', $id );
+	wp_send_json_success( array( 'message' => 'Đã thêm file.', 'atts' => vs_app_order_atts( $id ) ) );
+} );
+
+/* Gỡ file trả khách khỏi đơn (file vẫn còn trong Thư viện Media, giống nút "Gỡ" trong WP Admin). */
+add_action( 'wp_ajax_vs_app_unattach', function () {
+	$id  = vs_app_order_guard();
+	$fid = isset( $_POST['fid'] ) ? (int) $_POST['fid'] : 0;
+	$ids = array_values( array_diff( array_filter( array_map( 'intval', explode( ',', (string) vs_meta( $id, 'report_ids' ) ) ) ), array( $fid ) ) );
+	update_post_meta( $id, '_vs_report_ids', implode( ',', $ids ) );
+	wp_send_json_success( array( 'message' => 'Đã gỡ file khỏi đơn.', 'atts' => vs_app_order_atts( $id ) ) );
+} );
+
+/* Đổi trạng thái bất kỳ (như ô "Trạng thái" trong WP Admin). */
+add_action( 'wp_ajax_vs_app_status', function () {
+	$id  = vs_app_order_guard();
+	$new = isset( $_POST['status'] ) ? sanitize_key( $_POST['status'] ) : '';
+	$old = vs_meta( $id, 'status', 'cho_thanh_toan' );
+	$all = vs_statuses();
+	if ( ! isset( $all[ $new ] ) ) {
+		wp_send_json_error( array( 'message' => 'Trạng thái không hợp lệ.' ) );
+	}
+	if ( $new === $old ) {
+		wp_send_json_error( array( 'message' => 'Đơn đang ở trạng thái ' . $all[ $new ] . '.' ) );
+	}
+	$mail = ! empty( $_POST['mail'] );
+	if ( 'dang_xu_ly' === $new && 'cho_thanh_toan' === $old ) {
+		vs_mark_paid( $id, 'Quản trị xác nhận', '', (int) vs_meta( $id, 'price' ) ); // Ghi nhận thanh toán + chạy phần tự động.
+	} else {
+		update_post_meta( $id, '_vs_status', $new );
+		if ( 'hoan_thanh' === $new ) {
+			update_post_meta( $id, '_vs_done_at', time() );
+			delete_post_meta( $id, '_vs_auto_pending' );
+		}
+		do_action( 'vs_order_status', $id, $new, $old );
+		if ( 'hoan_thanh' === $new && $mail ) {
+			vs_auto_mail_done( $id );
+		}
+	}
+	$msg = 'Đã chuyển đơn sang ' . $all[ $new ] . ( 'hoan_thanh' === $new && $mail ? ' và gửi email kết quả cho khách.' : '.' );
+	$u   = wp_get_current_user();
+	vs_auto_log( 'Quản trị (' . $u->display_name . '): ' . $all[ $old ] . ' → ' . $all[ $new ] . ' (trên app).', $id );
 	wp_send_json_success( array( 'message' => $msg, 'order' => vs_adm_order_data( $id ) ) );
 } );

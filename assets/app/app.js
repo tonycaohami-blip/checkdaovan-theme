@@ -586,6 +586,7 @@
 	var cur = null;
 	function openOrder(id) {
 		if (!id) return;
+		if (!cur || cur.id !== id) resEdit = 0;
 		var dr = $('.drawer');
 		if (!dr) {
 			var ov = document.createElement('div'); ov.className = 'ov ov--drawer'; ov.onclick = closeDrawer;
@@ -612,31 +613,12 @@
 		cur = o;
 		var dr = $('.drawer'); if (!dr) return;
 		var c = o.customer, ph = phoneDigits(c.phone);
-		var acts = '';
-		if (o.status === 'cho_thanh_toan') acts = '<button class="btn btn--ok" data-act="paid">' + ic('check', 16) + 'Xác nhận đã thanh toán</button><button class="btn btn--danger" data-act="cancel">' + ic('x', 16) + 'Hủy đơn</button>';
-		else if (o.status === 'dang_xu_ly') acts = '<button class="btn btn--primary" data-act="done" data-mail="1">' + ic('mail', 16) + 'Hoàn thành & gửi email</button><button class="btn" data-act="done">' + ic('check', 16) + 'Hoàn thành (không gửi email)</button><button class="btn btn--danger" data-act="cancel">' + ic('x', 16) + 'Hủy đơn</button>';
-		else acts = '<button class="btn" data-act="reopen">' + ic('refresh', 16) + 'Mở lại đơn (Đang xử lý)</button>';
-
-		var kinds = { plag: 'Đạo văn', ai: 'Tỷ lệ AI' };
-		var res = o.rows && o.rows.length ?
-			'<div class="sec"><h4>' + ic('chart', 15) + 'Kết quả' + (o.auto ? ' <span class="tag tag--auto">' + ic('bolt', 12) + 'Đang chạy tự động</span>' : '') + '</h4>' +
-				'<div class="tbl-wrap"><table class="res"><thead><tr><th>Phần mềm</th><th>' + kinds.plag + '</th><th>' + kinds.ai + '</th></tr></thead><tbody>' +
-				o.rows.map(function (r) {
-					return '<tr><td><b>' + esc(r.name) + '</b></td>' + ['plag', 'ai'].map(function (k) {
-						var cell = r.cells[k];
-						if (!cell) return '<td class="na">—</td>';
-						return '<td><div class="pct' + (cell.src === 'api' ? ' pct--api' : '') + '"><input inputmode="decimal" data-row="' + esc(r.key) + '" data-kind="' + k + '" value="' + (cell.v == null ? '' : esc(String(cell.v).replace('.', ','))) + '" placeholder="' + (o.auto ? '...' : '') + '" aria-label="' + esc(r.name + ' ' + kinds[k]) + '"><span>%</span><small>' + (cell.src ? '● ' + (SRC[cell.src] || cell.src) : '○ Chưa có') + '</small></div></td>';
-					}).join('') + '</tr>';
-				}).join('') + '</tbody></table></div>' +
-				(o.status === 'dang_xu_ly' ? '<label class="check" style="margin-top:12px"><input type="checkbox" id="rcomp" checked> Đủ kết quả thì chuyển <b>&nbsp;Hoàn thành&nbsp;</b> và gửi email cho khách</label>' : '') +
-				'<div class="acts" style="margin-top:12px"><button class="btn btn--primary btn--sm" id="rsave">' + ic('check', 15) + 'Lưu kết quả</button></div>' +
-				(o.reports.length ? '<div class="files" style="margin-top:14px">' + o.reports.map(reportHTML).join('') + '</div>' : '') +
-			'</div>' : (o.reports.length ? '<div class="sec"><h4>' + ic('file', 15) + 'File trả khách</h4><div class="files">' + o.reports.map(reportHTML).join('') + '</div></div>' : '');
+		var res = resultsHTML(o);
 
 		dr.innerHTML =
 			'<div class="drawer__hd"><div><h2>' + esc(o.code) + ' ' + pill(o.status, o.label) + '</h2><small>Đặt lúc ' + esc(o.date) + '</small></div><button class="ibtn" data-close aria-label="Đóng">' + ic('x', 18) + '</button></div>' +
 			'<div class="drawer__bd">' +
-				'<div class="sec"><h4>' + ic('bolt', 15) + 'Thao tác</h4><div class="acts">' + acts + '</div></div>' +
+				statusHTML(o) +
 				'<div class="sec"><h4>' + ic('users', 15) + 'Khách hàng</h4><dl class="kv">' +
 					'<dt>' + ic('user', 14) + 'Họ tên</dt><dd><b>' + esc(c.name || '—') + '</b></dd>' +
 					'<dt>' + ic('phone', 14) + 'Điện thoại</dt><dd>' + esc(c.phone || '—') + (c.phone ? ' <button class="copy" data-copy="' + esc(c.phone) + '" data-l="số điện thoại">Sao chép</button>' : '') + '</dd>' +
@@ -673,19 +655,225 @@
 		$$('[data-copy]', dr).forEach(function (b) { b.onclick = function () { copy(b.dataset.copy, b.dataset.l); }; });
 		$$('[data-close-go]', dr).forEach(function (a) { a.addEventListener('click', closeDrawer); });
 		$$('[data-act]', dr).forEach(function (b) { b.onclick = function () { orderAction(b.dataset.act, b.dataset.mail); }; });
+		bindStatus(o, dr);
+		bindResults(o, dr);
+		$('#drvs', dr).onclick = function () { busy(this, api('vs_adm_action', { id: o.id, act: 'drive', drive: $('#drv', dr).value })).then(done); };
+		$('#nts', dr).onclick = function () { busy(this, api('vs_adm_action', { id: o.id, act: 'note', note: $('#nt', dr).value })).then(done); };
+	}
+	/* ---------- Trạng thái đơn (đổi sang bất kỳ trạng thái nào, như WP Admin) ---------- */
+	var ST_ICON = { cho_thanh_toan: 'clock', dang_xu_ly: 'refresh', hoan_thanh: 'check', huy: 'x' };
+	var ST_HINT = {
+		cho_thanh_toan: 'Đơn chờ khách chuyển khoản.',
+		dang_xu_ly: 'Từ "Chờ thanh toán": ghi nhận đã thanh toán và bắt đầu xử lý (kể cả phần tự động).',
+		hoan_thanh: 'Khách xem và tải kết quả trong tài khoản, trang tra cứu.',
+		huy: 'Hoa hồng cộng tác viên (nếu có) cũng bị hủy. Mã giảm giá được trả lại lượt.'
+	};
+	function statusHTML(o) {
+		return '<div class="sec"><h4>' + ic('bolt', 15) + 'Trạng thái đơn</h4>' +
+			'<div class="stpick" role="radiogroup" aria-label="Trạng thái đơn">' + Object.keys(C.statuses).map(function (k) {
+				return '<button type="button" role="radio" aria-checked="' + (o.status === k) + '" class="stpick__b stpick__b--' + k + (o.status === k ? ' on is-cur' : '') + '" data-st="' + k + '">' + ic(ST_ICON[k] || 'check', 16) + '<span>' + esc(C.statuses[k]) + '</span>' + (o.status === k ? '<em>Hiện tại</em>' : '') + '</button>';
+			}).join('') + '</div>' +
+			'<div class="stpick__go hide" id="stgo"><p class="muted" id="sthint"></p>' +
+				'<label class="check hide" id="stmailw"><input type="checkbox" id="stmail" checked> Gửi email kết quả cho khách</label>' +
+				'<div class="acts"><button type="button" class="btn btn--primary btn--sm" id="stsave">' + ic('check', 15) + 'Cập nhật trạng thái</button><button type="button" class="btn btn--sm btn--ghost" id="stcancel">Hủy</button></div>' +
+			'</div></div>';
+	}
+	function bindStatus(o, dr) {
+		var pick = null, go = $('#stgo', dr);
+		function sel(k) {
+			pick = k === o.status ? null : k;
+			$$('[data-st]', dr).forEach(function (b) { var on = b.dataset.st === (pick || o.status); b.classList.toggle('on', on); b.setAttribute('aria-checked', on); });
+			go.classList.toggle('hide', !pick);
+			if (!pick) return;
+			$('#sthint', dr).innerHTML = 'Chuyển <b>' + esc(C.statuses[o.status]) + '</b> → <b>' + esc(C.statuses[pick]) + '</b>. ' + esc(ST_HINT[pick] || '');
+			$('#stmailw', dr).classList.toggle('hide', pick !== 'hoan_thanh');
+			$('#stsave', dr).className = 'btn btn--sm ' + (pick === 'huy' ? 'btn--danger' : pick === 'hoan_thanh' ? 'btn--ok' : 'btn--primary');
+		}
+		$$('[data-st]', dr).forEach(function (b) { b.onclick = function () { sel(b.dataset.st); }; });
+		$('#stcancel', dr).onclick = function () { sel(o.status); };
+		$('#stsave', dr).onclick = function () {
+			if (!pick) return;
+			var b = this, run = function () { busy(b, api('vs_app_status', { id: o.id, status: pick, mail: pick === 'hoan_thanh' && $('#stmail', dr).checked ? 1 : '' })).then(function (d) { resEdit = 0; done(d); }); };
+			if (pick === 'huy') modal({ title: 'Hủy đơn ' + o.code + '?', text: ST_HINT.huy, ok: 'Hủy đơn', danger: true }).then(function (ok) { if (ok) run(); });
+			else run();
+		};
+	}
+
+	/* ---------- Kết quả: xem (đơn hoàn thành) / sửa + tải báo cáo PDF tự đọc tỷ lệ ---------- */
+	var resEdit = 0; // id đơn đang mở chế độ sửa kết quả
+	var RS_KIND = { plag: 'Đạo văn', ai: 'Tỷ lệ AI' };
+	function rateLevel(v) { return v == null ? '' : v <= 20 ? 'ok' : v <= 40 ? 'warn' : 'bad'; }
+	function resultsHTML(o) {
+		var files = (o.autofiles || []).map(reportHTML).join('') + (o.atts || []).map(function (f) { return attHTML(f, false); }).join('');
+		if (!o.rows || !o.rows.length) {
+			return (o.atts && o.atts.length) || (o.autofiles && o.autofiles.length) ? '<div class="sec"><h4>' + ic('file', 15) + 'File trả khách</h4><div class="files">' + files + '</div></div>' : '';
+		}
+		var editing = o.status !== 'hoan_thanh' || resEdit === o.id;
+		var head = '<h4>' + ic('chart', 15) + 'Kết quả' + (o.auto ? ' <span class="tag tag--auto">' + ic('bolt', 12) + 'Đang chạy tự động</span>' : '') +
+			(o.status === 'hoan_thanh' && !editing ? '<button type="button" class="btn btn--sm rs__edit" id="redit">' + ic('edit', 14) + 'Sửa</button>' : '') + '</h4>';
+		if (!editing) {
+			return '<div class="sec rs rs--view">' + head +
+				'<div class="rates">' + o.rows.map(function (r) {
+					return '<div class="rates__row"><b class="rates__tool">' + esc(r.name) + '</b><div class="rates__vals">' + ['plag', 'ai'].map(function (k) {
+						var cell = r.cells[k];
+						if (!cell) return '';
+						var v = cell.v == null ? null : +cell.v;
+						return '<div class="rate rate--' + (v == null ? 'none' : rateLevel(v)) + '"><span>' + RS_KIND[k] + '</span><b>' + (v == null ? '—' : String(v).replace('.', ',') + '<small>%</small>') + '</b></div>';
+					}).join('') + '</div></div>';
+				}).join('') + '</div>' +
+				(files ? '<div class="files" style="margin-top:12px">' + files + '</div>' : '') +
+			'</div>';
+		}
+		return '<div class="sec rs">' + head +
+			'<div class="tbl-wrap"><table class="res"><thead><tr><th>Phần mềm</th><th>' + RS_KIND.plag + '</th><th>' + RS_KIND.ai + '</th></tr></thead><tbody>' +
+				o.rows.map(function (r) {
+					return '<tr data-rrow="' + esc(r.key) + '"><td><b>' + esc(r.name) + '</b></td>' + ['plag', 'ai'].map(function (k) {
+						var cell = r.cells[k];
+						if (!cell) return '<td class="na">—</td>';
+						return '<td><div class="pct' + (cell.src === 'api' ? ' pct--api' : '') + '"><input inputmode="decimal" data-row="' + esc(r.key) + '" data-kind="' + k + '" data-src="' + esc(cell.src || '') + '" value="' + (cell.v == null ? '' : esc(String(cell.v).replace('.', ','))) + '" placeholder="' + (o.auto ? '...' : '') + '" aria-label="' + esc(r.name + ' ' + RS_KIND[k]) + '"><span>%</span><small>' + (cell.src ? '● ' + (SRC[cell.src] || cell.src) : '○ Chưa có') + '</small></div></td>';
+					}).join('') + '</tr>';
+				}).join('') + '</tbody></table></div>' +
+			'<label class="upl" id="upl"><input type="file" id="uplf" multiple accept=".pdf,.docx,.doc,.xlsx,.zip,.png,.jpg,.jpeg">' + ic('down', 20) + '<span><b>Tải báo cáo PDF lên</b><small>Tự đọc tỷ lệ Turnitin, iThenticate, Copyleaks, Originality.ai. Chọn nhiều file hoặc kéo thả vào đây.</small></span></label>' +
+			'<div class="rlog hide" id="rlog"></div>' +
+			'<div class="files" id="ratts">' + (o.autofiles || []).map(reportHTML).join('') + (o.atts || []).map(function (f) { return attHTML(f, true); }).join('') + '</div>' +
+			(o.status === 'dang_xu_ly' ? '<label class="check" style="margin-top:12px"><input type="checkbox" id="rcomp" checked> Đủ kết quả thì chuyển <b>&nbsp;Hoàn thành&nbsp;</b> và gửi email cho khách</label>' : '') +
+			'<div class="acts" style="margin-top:12px"><button class="btn btn--primary btn--sm" id="rsave">' + ic('check', 15) + 'Lưu kết quả</button>' + (o.status === 'hoan_thanh' ? '<button type="button" class="btn btn--sm btn--ghost" id="rcancel">Hủy sửa</button>' : '') + '</div>' +
+		'</div>';
+	}
+	function attHTML(f, rm) {
+		var ext = ((f.name || '').split('.').pop() || 'pdf').toLowerCase();
+		return '<div class="file file--att"><a class="file__lnk" href="' + esc(f.url) + '" target="_blank" rel="noopener" title="' + esc(f.name) + '"><span class="file__ext file__ext--' + esc(ext) + '">' + esc(ext.toUpperCase().slice(0, 4)) + '</span><span class="file__b"><b>' + esc(f.short || f.name) + '</b><small>' + esc(f.meta || '') + '</small></span>' + ic('down', 17) + '</a>' +
+			(rm ? '<button type="button" class="ibtn ibtn--sm ibtn--danger" data-unatt="' + f.id + '" title="Gỡ file khỏi đơn">' + ic('x', 15) + '</button>' : '') + '</div>';
+	}
+
+	/* Đọc PDF bằng pdf.js (tải khi cần) - cùng quy tắc nhận diện với WP Admin (assets/js/admin-results.js). */
+	var pdfjsP = null;
+	function loadPdfjs() {
+		if (window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+		if (pdfjsP) return pdfjsP;
+		pdfjsP = new Promise(function (ok, fail) {
+			var s = document.createElement('script');
+			s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+			s.onload = function () { window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; ok(window.pdfjsLib); };
+			s.onerror = function () { pdfjsP = null; fail(new Error('Không tải được bộ đọc PDF.')); };
+			document.head.appendChild(s);
+		});
+		return pdfjsP;
+	}
+	function pdfText(file) {
+		return loadPdfjs().then(function (lib) { return file.arrayBuffer().then(function (buf) { return lib.getDocument({ data: buf }).promise; }); }).then(function (pdf) {
+			var pages = [], n = Math.min(pdf.numPages, 4);
+			for (var i = 1; i <= n; i++) pages.push(pdf.getPage(i).then(function (pg) { return pg.getTextContent().then(function (tc) { return tc.items.map(function (it) { return it.str; }).join(' '); }); }));
+			return Promise.all(pages).then(function (t) { return t.join(' \n ').replace(/\s+/g, ' '); });
+		});
+	}
+	var NUMRE = '(\\d{1,3}(?:[.,]\\d{1,2})?)\\s*%';
+	function firstRate(text, pats) {
+		for (var i = 0; i < pats.length; i++) {
+			var m = text.match(new RegExp(pats[i], 'i'));
+			if (m) { var v = parseFloat(m[1].replace(',', '.')); if (v >= 0 && v <= 100) return v; }
+		}
+		return null;
+	}
+	function detectPdf(text, filename) {
+		var hay = text + ' ' + filename, tool = null;
+		if (/ithenticate/i.test(hay)) tool = 'ithenticate';
+		else if (/copyleaks/i.test(hay)) tool = 'copyleaks';
+		else if (/originality\s*\.?\s*ai\b/i.test(hay)) tool = 'originality';
+		else if (/turnitin|feedback ?studio|similarity\s+index|integrity\s+overview|overall\s+similarity|detected\s+as\s+AI|trn:oid/i.test(hay)) tool = 'turnitin';
+		return {
+			tool: tool,
+			plag: firstRate(text, [NUMRE + '\\s*Overall\\s+Similarity', NUMRE + '\\s*SIMILARITY\\s+INDEX', 'Overall\\s+Similarity\\D{0,30}?' + NUMRE, 'Similarity\\s+Index\\D{0,30}?' + NUMRE, 'Similarity\\s+(?:Score|Report)?\\D{0,20}?' + NUMRE, NUMRE + '\\s*(?:Plagiarism|Matched\\s+Text|Identical)', '(?:Plagiarism|Matched\\s+Text)\\s*(?:Score|Detected)?\\D{0,20}?' + NUMRE]),
+			ai: firstRate(text, [NUMRE + '\\s*detected\\s+as\\s+AI', NUMRE + '\\s*(?:of\\s+text\\s+)?(?:likely\\s+)?AI[- ]?(?:generated|written|writing|content)', 'AI\\s+(?:writing|generated|content|score|detection)\\D{0,30}?' + NUMRE, NUMRE + '\\s*AI\\b', '\\bAI\\s*(?:Score|Likelihood|Content|Probability)?\\s*:?\\s*' + NUMRE]),
+			aiStar: /\*\s*%\s*detected\s+as\s+AI/i.test(text)
+		};
+	}
+	function bindResults(o, dr) {
+		var ed = $('#redit', dr);
+		if (ed) ed.onclick = function () { resEdit = o.id; renderOrder(o); var s = $('.rs', dr); if (s) s.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); };
+		var rc = $('#rcancel', dr);
+		if (rc) rc.onclick = function () { resEdit = 0; renderOrder(o); };
 		var rs = $('#rsave', dr);
-		if (rs) rs.onclick = function () {
-			var vals = {}, bad = false;
+		if (!rs) return;
+		var logBox = $('#rlog', dr);
+		function log(msg, cls) { logBox.classList.remove('hide'); var d = document.createElement('div'); d.className = cls || ''; d.textContent = msg; logBox.appendChild(d); }
+		function rowEl(tool) {
+			var rows = $$('tr[data-rrow]', dr);
+			if (tool) { var m = rows.filter(function (r) { return r.dataset.rrow === tool; })[0]; if (m) return m; }
+			if (rows.length === 1) return rows[0];
+			return rows.filter(function (r) { return $$('input', r).some(function (i) { return !i.value; }); })[0] || null;
+		}
+		function fill(row, kind, v) {
+			var i = $('input[data-kind="' + kind + '"]', row);
+			if (!i) return false;
+			if (i.dataset.src === 'api' && i.value) { log('• ' + $('b', row).textContent + ' - ' + RS_KIND[kind] + ': giữ số liệu tự động từ API (' + i.value + '%).', 'is-skip'); return false; }
+			i.value = String(v).replace('.', ',');
+			i.dataset.src = 'pdf';
+			var p = i.closest('.pct'); p.classList.add('is-fresh'); p.querySelector('small').textContent = '● Đọc từ PDF - kiểm tra lại';
+			return true;
+		}
+		function readOne(file) {
+			if (!/\.pdf$/i.test(file.name)) return Promise.resolve();
+			log('Đang đọc ' + file.name + '…');
+			return pdfText(file).then(function (text) {
+				var d = detectPdf(text, file.name), row = rowEl(d.tool), got = [];
+				if (!row) { log('✗ ' + file.name + ': không tìm thấy hàng phù hợp trong đơn.', 'is-err'); return; }
+				var nm = $('b', row).textContent;
+				if (d.plag !== null && fill(row, 'plag', d.plag)) got.push('Đạo văn ' + d.plag + '%');
+				if (d.ai !== null && fill(row, 'ai', d.ai)) got.push('AI ' + d.ai + '%');
+				if (d.aiStar) log('• ' + file.name + ': Turnitin ghi “*%” (dưới 20%, độ tin cậy thấp) - nhập tay tỷ lệ AI nếu cần.', 'is-skip');
+				if (got.length) log('✓ ' + file.name + ' → ' + nm + (d.tool ? '' : ' (không nhận ra phần mềm, đã điền vào hàng trống)') + ': ' + got.join(', '), 'is-ok');
+				else log('✗ ' + file.name + ': không tìm thấy tỷ lệ trong báo cáo - vui lòng nhập tay.', 'is-err');
+			}).catch(function (e) { log('✗ ' + file.name + ': ' + (e && /bộ đọc/.test(e.message) ? e.message : 'không đọc được nội dung (có thể là ảnh scan)') + ' - vui lòng nhập tay.', 'is-err'); });
+		}
+		function handle(files) {
+			files = Array.prototype.slice.call(files || []);
+			if (!files.length) return;
+			logBox.innerHTML = '';
+			var up = $('#upl', dr); up.classList.add('is-busy');
+			var chain = Promise.resolve();
+			files.forEach(function (f) {
+				chain = chain.then(function () { return readOne(f); }).then(function () {
+					if (f.size > 64 * 1024 * 1024) { log('✗ ' + f.name + ': file quá lớn (trên 64 MB) - hãy gửi qua Google Drive.', 'is-err'); return; }
+					log('Đang tải lên ' + f.name + '…');
+					return api('vs_app_upload', { id: o.id, file: f }).then(function (r) {
+						o.atts = r.atts; cur = o;
+						$('#ratts', dr).innerHTML = (o.autofiles || []).map(reportHTML).join('') + r.atts.map(function (a) { return attHTML(a, true); }).join('');
+						log('✓ Đã thêm ' + f.name + ' vào file trả khách.', 'is-ok');
+					}, function (e) { log('✗ ' + f.name + ': ' + e.message, 'is-err'); });
+				});
+			});
+			chain.then(function () {
+				up.classList.remove('is-busy');
+				if ($('.pct.is-fresh', dr)) log('Kiểm tra lại các ô màu vàng rồi bấm “Lưu kết quả”.', 'is-hint');
+			});
+		}
+		var inp = $('#uplf', dr), up = $('#upl', dr);
+		inp.onchange = function () { handle(inp.files); inp.value = ''; };
+		['dragenter', 'dragover'].forEach(function (ev) { up.addEventListener(ev, function (e) { e.preventDefault(); up.classList.add('is-drag'); }); });
+		['dragleave', 'drop'].forEach(function (ev) { up.addEventListener(ev, function (e) { e.preventDefault(); up.classList.remove('is-drag'); }); });
+		up.addEventListener('drop', function (e) { handle(e.dataTransfer && e.dataTransfer.files); });
+		$('#ratts', dr).addEventListener('click', function (e) {
+			var b = e.target.closest('[data-unatt]');
+			if (!b) return;
+			modal({ title: 'Gỡ file khỏi đơn?', text: 'Khách sẽ không thấy file này nữa. File vẫn còn trong Thư viện Media của WordPress.', ok: 'Gỡ file', danger: true }).then(function (ok) {
+				if (ok) busy(b, api('vs_app_unattach', { id: o.id, fid: b.dataset.unatt })).then(function (r) { toast(r.message); o.atts = r.atts; $('#ratts', dr).innerHTML = (o.autofiles || []).map(reportHTML).join('') + r.atts.map(function (a) { return attHTML(a, true); }).join(''); });
+			});
+		});
+		$$('.pct input', dr).forEach(function (i) {
+			i.addEventListener('input', function () { i.dataset.src = i.value ? 'manual' : ''; var p = i.closest('.pct'); p.classList.remove('is-fresh'); p.classList.remove('pct--api'); p.querySelector('small').textContent = i.value ? '● Nhập tay' : '○ Chưa có'; });
+		});
+		rs.onclick = function () {
+			var vals = {}, srcs = {}, bad = false;
 			$$('.pct input', dr).forEach(function (i) {
 				var v = i.value.trim().replace(',', '.');
 				if (v !== '' && (isNaN(+v) || +v < 0 || +v > 100)) { bad = true; i.style.borderColor = 'var(--danger)'; }
 				(vals[i.dataset.row] = vals[i.dataset.row] || {})[i.dataset.kind] = v === '' ? null : v;
+				if (i.dataset.src === 'pdf') (srcs[i.dataset.row] = srcs[i.dataset.row] || {})[i.dataset.kind] = 'pdf';
 			});
 			if (bad) { toast('Tỷ lệ phải là số từ 0 đến 100.', 'err'); return; }
-			busy(rs, api('vs_app_results', { id: o.id, values: JSON.stringify(vals), complete: $('#rcomp', dr) && $('#rcomp', dr).checked ? 1 : '' })).then(done);
+			busy(rs, api('vs_app_results', { id: o.id, values: JSON.stringify(vals), srcs: JSON.stringify(srcs), complete: $('#rcomp', dr) && $('#rcomp', dr).checked ? 1 : '' })).then(function (d) { resEdit = 0; done(d); });
 		};
-		$('#drvs', dr).onclick = function () { busy(this, api('vs_adm_action', { id: o.id, act: 'drive', drive: $('#drv', dr).value })).then(done); };
-		$('#nts', dr).onclick = function () { busy(this, api('vs_adm_action', { id: o.id, act: 'note', note: $('#nt', dr).value })).then(done); };
 	}
 	// Biểu tượng cho từng dòng chi tiết đơn (theo nhãn máy chủ trả về).
 	function detIcon(k) {
