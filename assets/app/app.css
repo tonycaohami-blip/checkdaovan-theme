@@ -678,3 +678,21 @@ h1 .sep, h2 .sep { height: 18px; margin: 0 12px; }
 }
 .res .pct { max-width: 150px; }
 .res .pct span { top: 18px; }
+
+/* Ô Trạng thái gộp: thanh toán + trạng thái + email + ghi chú (như hộp "Trạng thái" WP Admin) */
+.stbox { display: grid; gap: 12px; }
+.stbox h4 { margin-bottom: 0; }
+.paybox { --c: var(--ink-3); --s: var(--muted-soft); display: flex; align-items: flex-start; gap: 11px; padding: 11px 13px; border-radius: 12px; background: var(--s); border: 1px solid color-mix(in srgb, var(--c) 25%, transparent); }
+.paybox__ic { width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center; flex: none; background: color-mix(in srgb, var(--c) 16%, transparent); color: var(--c); }
+.paybox__t { font-size: 14px; color: var(--ink); font-weight: 600; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.paybox__t b { color: var(--c); font-weight: 800; }
+.paybox small { display: block; font-size: 12.5px; color: var(--ink-2); margin-top: 2px; line-height: 1.45; }
+.paybox--ok { --c: var(--ok); --s: var(--ok-soft); }
+.paybox--warn { --c: var(--warn); --s: var(--warn-soft); }
+.paybox--danger { --c: var(--danger); --s: var(--danger-soft); }
+.stbox__hint { margin: 0; padding: 10px 12px; border-radius: 10px; background: var(--panel-2); border: 1px dashed var(--line); font-size: 13px; line-height: 1.5; color: var(--ink-2); }
+.stbox__hint b { color: var(--ink); }
+.stbox__mail { align-items: flex-start; line-height: 1.45; }
+.stbox__mail input { margin-top: 1px; flex: none; }
+.stbox__note { margin: 0; }
+.stbox .btn--block { height: 44px; font-size: 14.5px; }

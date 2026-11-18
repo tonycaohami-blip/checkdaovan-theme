@@ -646,7 +646,6 @@
 				'<div class="sec"><h4>' + ic('drive', 15) + 'Trả kết quả qua Google Drive</h4>' +
 					'<textarea class="textarea" id="drv" rows="3" placeholder="Dán link Google Drive (file hoặc thư mục), mỗi dòng một link">' + esc(o.drive) + '</textarea>' +
 					'<div class="acts" style="margin-top:10px;align-items:center"><button class="btn btn--sm" id="drvs">' + ic('check', 15) + 'Lưu link</button><span class="muted" style="font-size:12.5px">Khách xem và tải khi đơn Đang xử lý / Hoàn thành.</span></div></div>' +
-				'<div class="sec"><h4>' + ic('note', 15) + 'Ghi chú nội bộ</h4><textarea class="textarea" id="nt" rows="3" placeholder="Chỉ quản trị viên thấy">' + esc(o.note) + '</textarea><div class="acts" style="margin-top:10px"><button class="btn btn--sm" id="nts">' + ic('check', 15) + 'Lưu ghi chú</button></div></div>' +
 				(o.log.length ? '<div class="sec"><h4>' + ic('list', 15) + 'Nhật ký xử lý</h4><ul class="log">' + o.log.map(function (l) { return '<li><small>' + esc(l.ago) + '</small>' + esc(l.msg) + '</li>'; }).join('') + '</ul></div>' : '') +
 			'</div>' +
 			'<div class="drawer__ft"><button class="btn btn--sm" data-copy="' + esc(o.code) + '" data-l="mã đơn">' + ic('copy', 15) + 'Sao chép mã</button><a class="btn btn--sm" href="' + esc(o.edit) + '" target="_blank" rel="noopener">' + ic('wp', 15) + 'Mở trong WordPress</a></div>';
@@ -658,7 +657,6 @@
 		bindStatus(o, dr);
 		bindResults(o, dr);
 		$('#drvs', dr).onclick = function () { busy(this, api('vs_adm_action', { id: o.id, act: 'drive', drive: $('#drv', dr).value })).then(done); };
-		$('#nts', dr).onclick = function () { busy(this, api('vs_adm_action', { id: o.id, act: 'note', note: $('#nt', dr).value })).then(done); };
 	}
 	/* ---------- Trạng thái đơn (đổi sang bất kỳ trạng thái nào, như WP Admin) ---------- */
 	var ST_ICON = { cho_thanh_toan: 'clock', dang_xu_ly: 'refresh', hoan_thanh: 'check', huy: 'x' };
@@ -668,33 +666,42 @@
 		hoan_thanh: 'Khách xem và tải kết quả trong tài khoản, trang tra cứu.',
 		huy: 'Hoa hồng cộng tác viên (nếu có) cũng bị hủy. Mã giảm giá được trả lại lượt.'
 	};
+	function payHTML(o) {
+		var p = o.pay || {}, cls = 'muted', ico = 'card', t = '', s = '';
+		if (p.state === 'paid') { cls = 'ok'; ico = 'check'; t = 'Đã thanh toán <b>' + esc(p.amount) + '</b>'; s = [p.at, p.via, p.tx ? 'Mã GD ' + p.tx : ''].filter(Boolean).map(esc).join(' | '); }
+		else if (p.state === 'waiting') { cls = p.overdue ? 'danger' : 'warn'; ico = 'clock'; t = 'Chờ thanh toán <b>' + esc(p.amount) + '</b>'; s = p.overdue ? 'Đã quá hạn chuyển khoản (' + esc(p.deadline) + ') - đơn sẽ tự hủy.' : 'Hạn chuyển khoản ' + esc(p.deadline) + ', quá hạn đơn tự hủy.'; }
+		else if (p.state === 'none') { ico = 'x'; t = 'Chưa thanh toán'; s = p.auto ? 'Đơn tự hủy do quá hạn chuyển khoản.' : 'Đơn đã hủy.'; }
+		else { t = 'Chưa có thông tin thanh toán'; s = 'Đơn được chuyển trạng thái thủ công.'; }
+		return '<div class="paybox paybox--' + cls + '"><span class="paybox__ic">' + ic(ico, 17) + '</span><div><div class="paybox__t">' + t + (p.claimed && p.state === 'waiting' ? ' <span class="tag tag--warn">Khách báo đã chuyển</span>' : '') + '</div><small>' + s + '</small></div></div>';
+	}
 	function statusHTML(o) {
-		return '<div class="sec"><h4>' + ic('bolt', 15) + 'Trạng thái đơn</h4>' +
+		return '<div class="sec stbox"><h4>' + ic('bolt', 15) + 'Trạng thái</h4>' +
+			payHTML(o) +
 			'<div class="stpick" role="radiogroup" aria-label="Trạng thái đơn">' + Object.keys(C.statuses).map(function (k) {
 				return '<button type="button" role="radio" aria-checked="' + (o.status === k) + '" class="stpick__b stpick__b--' + k + (o.status === k ? ' on is-cur' : '') + '" data-st="' + k + '">' + ic(ST_ICON[k] || 'check', 16) + '<span>' + esc(C.statuses[k]) + '</span>' + (o.status === k ? '<em>Hiện tại</em>' : '') + '</button>';
 			}).join('') + '</div>' +
-			'<div class="stpick__go hide" id="stgo"><p class="muted" id="sthint"></p>' +
-				'<label class="check hide" id="stmailw"><input type="checkbox" id="stmail" checked> Gửi email kết quả cho khách</label>' +
-				'<div class="acts"><button type="button" class="btn btn--primary btn--sm" id="stsave">' + ic('check', 15) + 'Cập nhật trạng thái</button><button type="button" class="btn btn--sm btn--ghost" id="stcancel">Hủy</button></div>' +
-			'</div></div>';
+			'<p class="stbox__hint hide" id="sthint"></p>' +
+			'<label class="check stbox__mail"><input type="checkbox" id="stmail" checked> Gửi email cho khách khi chuyển sang “Hoàn thành”</label>' +
+			'<label class="field stbox__note"><span>Ghi chú nội bộ</span><textarea class="textarea" id="nt" rows="3" placeholder="Chỉ quản trị viên thấy">' + esc(o.note) + '</textarea></label>' +
+			'<button type="button" class="btn btn--primary btn--block" id="stsave">' + ic('check', 16) + 'Cập nhật đơn</button>' +
+		'</div>';
 	}
 	function bindStatus(o, dr) {
-		var pick = null, go = $('#stgo', dr);
+		var pick = o.status, hint = $('#sthint', dr), btn = $('#stsave', dr);
 		function sel(k) {
-			pick = k === o.status ? null : k;
-			$$('[data-st]', dr).forEach(function (b) { var on = b.dataset.st === (pick || o.status); b.classList.toggle('on', on); b.setAttribute('aria-checked', on); });
-			go.classList.toggle('hide', !pick);
-			if (!pick) return;
-			$('#sthint', dr).innerHTML = 'Chuyển <b>' + esc(C.statuses[o.status]) + '</b> → <b>' + esc(C.statuses[pick]) + '</b>. ' + esc(ST_HINT[pick] || '');
-			$('#stmailw', dr).classList.toggle('hide', pick !== 'hoan_thanh');
-			$('#stsave', dr).className = 'btn btn--sm ' + (pick === 'huy' ? 'btn--danger' : pick === 'hoan_thanh' ? 'btn--ok' : 'btn--primary');
+			pick = k;
+			$$('[data-st]', dr).forEach(function (b) { var on = b.dataset.st === k; b.classList.toggle('on', on); b.setAttribute('aria-checked', on); });
+			var chg = k !== o.status;
+			hint.classList.toggle('hide', !chg);
+			if (chg) hint.innerHTML = 'Chuyển <b>' + esc(C.statuses[o.status]) + '</b> → <b>' + esc(C.statuses[k]) + '</b>. ' + esc(ST_HINT[k] || '');
+			btn.className = 'btn btn--block ' + (chg && k === 'huy' ? 'btn--danger' : chg && k === 'hoan_thanh' ? 'btn--ok' : 'btn--primary');
 		}
 		$$('[data-st]', dr).forEach(function (b) { b.onclick = function () { sel(b.dataset.st); }; });
-		$('#stcancel', dr).onclick = function () { sel(o.status); };
-		$('#stsave', dr).onclick = function () {
-			if (!pick) return;
-			var b = this, run = function () { busy(b, api('vs_app_status', { id: o.id, status: pick, mail: pick === 'hoan_thanh' && $('#stmail', dr).checked ? 1 : '' })).then(function (d) { resEdit = 0; done(d); }); };
-			if (pick === 'huy') modal({ title: 'Hủy đơn ' + o.code + '?', text: ST_HINT.huy, ok: 'Hủy đơn', danger: true }).then(function (ok) { if (ok) run(); });
+		btn.onclick = function () {
+			var note = $('#nt', dr).value;
+			if (pick === o.status && note === (o.note || '')) { toast('Chưa có thay đổi nào để cập nhật.', 'err'); return; }
+			var run = function () { busy(btn, api('vs_app_status', { id: o.id, status: pick, note: note, mail: pick === 'hoan_thanh' && $('#stmail', dr).checked ? 1 : '' })).then(function (d) { resEdit = 0; done(d); }); };
+			if (pick === 'huy' && o.status !== 'huy') modal({ title: 'Hủy đơn ' + o.code + '?', text: ST_HINT.huy, ok: 'Hủy đơn', danger: true }).then(function (ok) { if (ok) run(); });
 			else run();
 		};
 	}

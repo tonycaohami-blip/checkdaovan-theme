@@ -618,6 +618,21 @@ function vs_app_order_atts( $id ) {
 }
 add_filter( 'vs_adm_order_data', function ( $d, $id ) {
 	$d['atts']      = vs_app_order_atts( $id );
+	// Tình trạng thanh toán (hiển thị trong ô "Trạng thái" của app).
+	$st       = vs_meta( $id, 'status', 'cho_thanh_toan' );
+	$paid     = (int) get_post_meta( $id, '_vs_paid_at', true );
+	$exp      = function_exists( 'vs_pay_expires' ) ? vs_pay_expires( $id ) : 0;
+	$d['pay'] = array(
+		'state'    => $paid ? 'paid' : ( 'cho_thanh_toan' === $st ? 'waiting' : ( 'huy' === $st ? 'none' : 'unknown' ) ),
+		'amount'   => vs_money( vs_meta( $id, 'price' ) ),
+		'at'       => $paid ? wp_date( 'H:i d/m/Y', $paid ) : '',
+		'via'      => (string) get_post_meta( $id, '_vs_paid_via', true ),
+		'tx'       => (string) get_post_meta( $id, '_vs_paid_tx', true ),
+		'deadline' => 'cho_thanh_toan' === $st && $exp ? wp_date( 'H:i d/m', $exp ) : '',
+		'overdue'  => 'cho_thanh_toan' === $st && $exp && $exp < time(),
+		'claimed'  => (bool) get_post_meta( $id, '_vs_claimed_paid', true ),
+		'auto'     => (bool) get_post_meta( $id, '_vs_auto_cancel', true ),
+	);
 	$d['autofiles'] = array();
 	foreach ( function_exists( 'vs_auto_files' ) ? vs_auto_files( $id ) : array() as $i => $f ) {
 		$st               = vs_file_stats( $id, 'auto:' . basename( $f['path'] ), $f['name'], vs_report_dir() . '/' . basename( $f['path'] ), 'PDF' );
@@ -678,8 +693,20 @@ add_action( 'wp_ajax_vs_app_status', function () {
 	if ( ! isset( $all[ $new ] ) ) {
 		wp_send_json_error( array( 'message' => 'Trạng thái không hợp lệ.' ) );
 	}
+	// Ghi chú nội bộ lưu cùng lúc (như nút "Cập nhật đơn" trong WP Admin).
+	$note_chg = false;
+	if ( isset( $_POST['note'] ) ) {
+		$note = sanitize_textarea_field( wp_unslash( $_POST['note'] ) );
+		if ( (string) vs_meta( $id, 'admin_note' ) !== $note ) {
+			update_post_meta( $id, '_vs_admin_note', $note );
+			$note_chg = true;
+		}
+	}
 	if ( $new === $old ) {
-		wp_send_json_error( array( 'message' => 'Đơn đang ở trạng thái ' . $all[ $new ] . '.' ) );
+		if ( $note_chg ) {
+			wp_send_json_success( array( 'message' => 'Đã lưu ghi chú nội bộ.', 'order' => vs_adm_order_data( $id ) ) );
+		}
+		wp_send_json_error( array( 'message' => 'Không có thay đổi để cập nhật.' ) );
 	}
 	$mail = ! empty( $_POST['mail'] );
 	if ( 'dang_xu_ly' === $new && 'cho_thanh_toan' === $old ) {
@@ -695,7 +722,7 @@ add_action( 'wp_ajax_vs_app_status', function () {
 			vs_auto_mail_done( $id );
 		}
 	}
-	$msg = 'Đã chuyển đơn sang ' . $all[ $new ] . ( 'hoan_thanh' === $new && $mail ? ' và gửi email kết quả cho khách.' : '.' );
+	$msg = 'Đã chuyển đơn sang ' . $all[ $new ] . ( 'hoan_thanh' === $new && $mail ? ' và gửi email kết quả cho khách' : '' ) . ( $note_chg ? ', đã lưu ghi chú.' : '.' );
 	$u   = wp_get_current_user();
 	vs_auto_log( 'Quản trị (' . $u->display_name . '): ' . $all[ $old ] . ' → ' . $all[ $new ] . ' (trên app).', $id );
 	wp_send_json_success( array( 'message' => $msg, 'order' => vs_adm_order_data( $id ) ) );
