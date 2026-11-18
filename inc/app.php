@@ -632,6 +632,7 @@ add_filter( 'vs_adm_order_data', function ( $d, $id ) {
 		'overdue'  => 'cho_thanh_toan' === $st && $exp && $exp < time(),
 		'claimed'  => (bool) get_post_meta( $id, '_vs_claimed_paid', true ),
 		'auto'     => (bool) get_post_meta( $id, '_vs_auto_cancel', true ),
+		'confirm'  => vs_can_confirm_paid( $id ),
 	);
 	$d['autofiles'] = array();
 	foreach ( function_exists( 'vs_auto_files' ) ? vs_auto_files( $id ) : array() as $i => $f ) {
@@ -726,4 +727,14 @@ add_action( 'wp_ajax_vs_app_status', function () {
 	$u   = wp_get_current_user();
 	vs_auto_log( 'Quản trị (' . $u->display_name . '): ' . $all[ $old ] . ' → ' . $all[ $new ] . ' (trên app).', $id );
 	wp_send_json_success( array( 'message' => $msg, 'order' => vs_adm_order_data( $id ) ) );
+} );
+
+/* Xác nhận đã nhận tiền (nút trong ô Trạng thái của app). */
+add_action( 'wp_ajax_vs_app_paid', function () {
+	$id = vs_app_order_guard();
+	$r  = vs_confirm_paid( $id, sanitize_text_field( wp_unslash( isset( $_POST['tx'] ) ? $_POST['tx'] : '' ) ) );
+	if ( is_wp_error( $r ) ) {
+		wp_send_json_error( array( 'message' => $r->get_error_message() ) );
+	}
+	wp_send_json_success( array( 'message' => 'Đã xác nhận thanh toán. Đơn chuyển sang Đang xử lý.', 'order' => vs_adm_order_data( $id ) ) );
 } );

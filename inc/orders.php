@@ -294,6 +294,12 @@ add_action( 'admin_head', function () {
 		.vs-rb-edit{border:0;background:none;color:#2271b1;cursor:pointer;font-size:12px;padding:0 2px;text-decoration:underline}
 		.vs-rb-files a{display:block;font-weight:600;white-space:nowrap}
 		.vs-rb-upload{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:12px 0}
+		.vs-paid-box{margin:0 0 14px;padding:12px;border-radius:8px;background:#fffbeb;border:1px solid #fcd34d}
+		.vs-paid-box p{margin:0 0 8px;color:#78350f;line-height:1.5}
+		.vs-paid-box b{color:#b45309;font-size:15px}
+		.vs-paid-box input{width:100%;margin:0 0 8px}
+		.vs-paid-box .button.vs-paid-btn{width:100%;height:40px;font-size:14px;font-weight:600;background:#059669;border-color:#047857;color:#fff;text-align:center}
+		.vs-paid-box .button.vs-paid-btn:hover{background:#047857;color:#fff}
 		.vs-rb-lockbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px;padding:10px 12px;border-radius:6px;background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46}
 		.vs-rb.is-locked input[type=number]{background:#f6f7f7;border-color:#e0e0e0;color:#1d2327;font-weight:600}
 		.vs-rb.is-locked ~ .vs-rb-upload,.vs-rb.is-locked ~ .vs-files-lock .vs-rm{display:none}
@@ -488,6 +494,12 @@ function vs_box_result( $post ) {
 function vs_box_status( $post ) {
 	wp_nonce_field( 'vs_save_order', 'vs_order_nonce' );
 	$cur = vs_meta( $post->ID, 'status', 'cho_thanh_toan' );
+	if ( vs_can_confirm_paid( $post->ID ) ) {
+		$late = 'huy' === $cur;
+		echo '<div class="vs-paid-box"><p>' . ( $late ? 'Đơn đã tự hủy do quá hạn. Nếu đã nhận' : 'Chờ thanh toán' ) . ' <b>' . esc_html( vs_money( vs_meta( $post->ID, 'price' ) ) ) . '</b>' . ( $late ? ', xác nhận để khôi phục và xử lý đơn.' : '' ) . '</p>';
+		echo '<input type="text" name="vs_paid_tx" placeholder="Mã giao dịch / ghi chú (không bắt buộc)">';
+		echo '<button type="submit" name="vs_confirm_paid" value="1" class="button vs-paid-btn" onclick="return confirm(\'Xác nhận đã nhận tiền cho đơn này?\')">✓ Xác nhận đã thanh toán</button></div>';
+	}
 	echo '<p><select name="vs_status" style="width:100%">';
 	foreach ( vs_statuses() as $k => $l ) {
 		printf( '<option value="%s"%s>%s</option>', esc_attr( $k ), selected( $cur, $k, false ), esc_html( $l ) );
@@ -505,6 +517,10 @@ add_action( 'save_post_vs_order', function ( $id ) {
 	}
 	if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || ! current_user_can( 'edit_post', $id ) ) {
 		return;
+	}
+	if ( ! empty( $_POST['vs_confirm_paid'] ) && vs_can_confirm_paid( $id ) ) {
+		vs_confirm_paid( $id, sanitize_text_field( wp_unslash( isset( $_POST['vs_paid_tx'] ) ? $_POST['vs_paid_tx'] : '' ) ) );
+		$_POST['vs_status'] = vs_meta( $id, 'status' ); // Không để ô chọn trạng thái (còn giá trị cũ) ghi đè.
 	}
 	$old    = vs_meta( $id, 'status', 'cho_thanh_toan' );
 	$status = isset( $_POST['vs_status'] ) ? sanitize_key( $_POST['vs_status'] ) : $old;
@@ -671,3 +687,22 @@ add_action( 'vs_cleanup_files', function () {
 add_action( 'switch_theme', function () {
 	wp_clear_scheduled_hook( 'vs_cleanup_files' );
 } );
+
+/* ---------- Xác nhận đã nhận tiền (dùng chung WP Admin + App quản trị) ---------- */
+
+/** Đơn chờ thanh toán, hoặc đã tự hủy do quá hạn (khách chuyển khoản trễ) thì được xác nhận đã thanh toán. */
+function vs_can_confirm_paid( $id ) {
+	$st = vs_meta( $id, 'status', 'cho_thanh_toan' );
+	return 'cho_thanh_toan' === $st || ( 'huy' === $st && get_post_meta( $id, '_vs_auto_cancel', true ) );
+}
+
+/** Ghi nhận đã thanh toán: đơn sang Đang xử lý, chạy phần tự động, báo khách (giống khi SePay tự xác nhận). */
+function vs_confirm_paid( $id, $tx = '' ) {
+	if ( ! vs_can_confirm_paid( $id ) ) {
+		return new WP_Error( 'paid', 'Đơn không ở trạng thái chờ thanh toán.' );
+	}
+	$u = wp_get_current_user();
+	vs_mark_paid( $id, 'Quản trị xác nhận', $tx, (int) vs_meta( $id, 'price' ) );
+	vs_auto_log( 'Quản trị (' . $u->display_name . '): xác nhận đã nhận tiền' . ( $tx ? ' - ' . $tx : '' ) . '.', $id );
+	return true;
+}

@@ -672,7 +672,8 @@
 		else if (p.state === 'waiting') { cls = p.overdue ? 'danger' : 'warn'; ico = 'clock'; t = 'Chờ thanh toán <b>' + esc(p.amount) + '</b>'; s = p.overdue ? 'Đã quá hạn chuyển khoản (' + esc(p.deadline) + ') - đơn sẽ tự hủy.' : 'Hạn chuyển khoản ' + esc(p.deadline) + ', quá hạn đơn tự hủy.'; }
 		else if (p.state === 'none') { ico = 'x'; t = 'Chưa thanh toán'; s = p.auto ? 'Đơn tự hủy do quá hạn chuyển khoản.' : 'Đơn đã hủy.'; }
 		else { t = 'Chưa có thông tin thanh toán'; s = 'Đơn được chuyển trạng thái thủ công.'; }
-		return '<div class="paybox paybox--' + cls + '"><span class="paybox__ic">' + ic(ico, 17) + '</span><div><div class="paybox__t">' + t + (p.claimed && p.state === 'waiting' ? ' <span class="tag tag--warn">Khách báo đã chuyển</span>' : '') + '</div><small>' + s + '</small></div></div>';
+		return '<div class="paybox paybox--' + cls + '"><span class="paybox__ic">' + ic(ico, 17) + '</span><div class="paybox__b"><div class="paybox__t">' + t + (p.claimed && p.state === 'waiting' ? ' <span class="tag tag--warn">Khách báo đã chuyển</span>' : '') + '</div><small>' + s + '</small></div>' +
+			(p.confirm ? '<button type="button" class="btn btn--ok paybox__btn" id="paidbtn">' + ic('money', 17) + (p.state === 'none' ? 'Đã nhận tiền - khôi phục đơn' : 'Xác nhận đã thanh toán') + '</button>' : '') + '</div>';
 	}
 	function statusHTML(o) {
 		return '<div class="sec stbox"><h4>' + ic('bolt', 15) + 'Trạng thái</h4>' +
@@ -697,6 +698,22 @@
 			btn.className = 'btn btn--block ' + (chg && k === 'huy' ? 'btn--danger' : chg && k === 'hoan_thanh' ? 'btn--ok' : 'btn--primary');
 		}
 		$$('[data-st]', dr).forEach(function (b) { b.onclick = function () { sel(b.dataset.st); }; });
+		var pb = $('#paidbtn', dr);
+		if (pb) pb.onclick = function () {
+			var late = o.pay.state === 'none';
+			modal({
+				title: late ? 'Khôi phục đơn đã tự hủy?' : 'Xác nhận đã nhận tiền?',
+				html: '<div class="paycf"><div class="paycf__amt"><span>Đơn ' + esc(o.code) + '</span><b>' + esc(o.pay.amount) + '</b></div>' +
+					'<label class="field"><span>Mã giao dịch / ghi chú (không bắt buộc)</span><input class="input" id="paytx" placeholder="VD: FT2611xxxx hoặc Chuyển khoản qua Zalo" autocomplete="off"></label>' +
+					'<p class="muted">Đơn chuyển sang <b>Đang xử lý</b>, hệ thống bắt đầu xử lý (kể cả phần tự động) và khách nhận thông báo.' + (late ? ' Đơn đã tự hủy sẽ được khôi phục.' : '') + '</p></div>',
+				ok: 'Xác nhận đã thanh toán',
+				collect: function (m) { return { tx: $('#paytx', m).value.trim() }; }
+			}).then(function (r) {
+				if (!r) return;
+				busy(pb, api('vs_app_paid', { id: o.id, tx: r.tx })).then(function (d) { resEdit = 0; done(d); });
+			});
+			setTimeout(function () { var i = $('#paytx'); if (i) i.focus(); }, 60);
+		};
 		btn.onclick = function () {
 			var note = $('#nt', dr).value;
 			if (pick === o.status && note === (o.note || '')) { toast('Chưa có thay đổi nào để cập nhật.', 'err'); return; }
